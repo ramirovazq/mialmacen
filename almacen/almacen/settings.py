@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'marca',
     'persona',
+    'VehicleInventory',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
