@@ -1,0 +1,62 @@
+{% extends "base_bootstrap.html" %}
+
+{% block title_section %}            
+<h1 class="h2">Vehicle Detail</h1>
+{% endblock %}
+
+{% block extra_title_section %}
+{% endblock %}
+
+
+{% block buttons_section %}
+{% endblock %}
+
+
+{% block section %}
+	
+<div class="container">
+
+  <div class="row">
+    <div class="col-sm">
+      <p class="lead">
+      Make: {{vehicle.vehicle_make}}
+      </p>  
+    </div>
+    <div class="col-sm">
+      <p class="lead">
+      Model: {{vehicle.vehicle_model}}
+      </p>  
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm">
+      <p class="lead">
+      Description: {{vehicle.description}}
+      </p>  
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm">
+      <p class="lead">
+      Color: {{vehicle.color}}
+      </p>  
+    </div>
+    <div class="col-sm">
+      <p class="lead">
+      Doors: {{vehicle.doors}}
+      </p>  
+    </div>
+    <div class="col-sm">
+      <p class="lead">
+      Lot #: {{vehicle.lot_number}}
+      </p>  
+    </div>
+
+  </div>
+
+
+</div>
+
+{% endblock %}
