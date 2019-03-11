@@ -24,3 +24,7 @@ class Profile(models.Model):
         null=True,
         related_name="tipo_profile"
     )
+
+    def __str__(self):
+        return "{} [{}]".format(self.user, self.tipo)
+

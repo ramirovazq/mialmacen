@@ -12,7 +12,7 @@ class Command(BaseCommand):
             readCSV = csv.reader(csvfile_in, delimiter=';')
             for indice, row in enumerate(readCSV):
                 if indice != 0: # quit name of column
-                    nombre = row[0].strip().capitalize()
+                    nombre = row[0].strip().upper()
                     codigo = row[1].strip()
                     obj, bandera = Medida.objects.get_or_create(nombre=nombre, codigo=codigo)
                     if bandera:
