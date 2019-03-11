@@ -20,6 +20,7 @@ from django.urls import path
 from rest_framework import routers
 from VehicleInventory import views as views_vehicleinventory
 from VehicleInventory import urls as vehicleinventory_urls
+from llantas import urls as llantas_urls
 
 router = routers.DefaultRouter()
 router.register(r'vehicles', views_vehicleinventory.VehicleViewSet)
@@ -29,5 +30,6 @@ urlpatterns = [
 	path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),
     url(r'^accounts/', include('django.contrib.auth.urls')),
+    url(r'^llantas/', include(llantas_urls)),
     url(r'^vehicles/', include(vehicleinventory_urls)),
 ]
