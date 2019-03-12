@@ -139,6 +139,18 @@ class Movimiento(models.Model):
         decimal_places=2,
         default=0)
 
+    creador = models.ForeignKey(
+        Profile,
+        blank=True,
+        null=True,        
+        related_name='creadror_del_movimiento',
+        on_delete=models.PROTECT,
+        db_index=True)
+
+
+    def sku(self):
+    	return "{}{}{}".format(self.marca.codigo,self.medida.codigo, self.posicion.codigo)
+
     def __str__(self):
         return "{}".format(self.id)
 

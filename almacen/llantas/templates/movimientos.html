@@ -5,6 +5,20 @@
 {% endblock %}
 
 {% block extra_title_section %}
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    {% if movimientos.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1">&laquo;</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ movimientos.previous_page_number }}">&lt</a></li>
+    {% endif %}
+        <li class="page-item"><a class="page-link disabled" href="#">{{ movimientos.number }}/{{ movimientos.paginator.num_pages }}</a></li>
+    {% if movimientos.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ movimientos.next_page_number }}">&gt</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ movimientos.paginator.num_pages }}">&raquo;</a></li>
+    {% endif %}
+  </ul>
+</nav>
+
 {% endblock %}
 
 
@@ -13,30 +27,46 @@
 
 
 {% block section %}
-	{% if vehicles %}
+	{% if movimientos %}
           <div class="table-responsive">
             <table class="table table-striped table-sm">
               <thead>
                 <tr>
-                  <th></th>
-                  <th>Make</th>
-                  <th>Model</th>
-                  <th>Color</th>
-                  <th>Doors</th>
-                  <th># Number</th>
-        				  <th>Description</th>
+                  <th>Sku</th>
+                  <th>Tipo Movimiento</th>
+                  <th>Fecha movimiento</th>
+                  <th>Fecha creacion</th>
+                  <th>No folio</th>
+                  <th>Origen</th>
+                  <th>Destino</th>
+                  <th>Marca</th>
+        				  <th>Medida</th>
+                  <th>Posicion</th>
+                  <th>Cantidad</th>
+                  <th>Status</th>
+                  <th>DOT</th>
+                  <th>$</th>
+                  <th>Creador</th>
                 </tr>
               </thead>
               <tbody>
-              	{% for vehicle in vehicles %} 
+              	{% for movimiento in movimientos %} 
                 <tr>
-                  <td><a href="{% url 'vehicle' vehicle.id %}" class="btn btn-primary">Detail </a> </td>
-                  <td>{{vehicle.vehicle_make}}</td>
-                  <td>{{vehicle.vehicle_model}}</td>
-                  <td>{{vehicle.color}}</td>
-                  <td>{{vehicle.doors}}</td>
-                  <td>{{vehicle.lot_number}}</td>
-                  <td>{{vehicle.description}}</td>
+                  <td><a href="{% url 'movimiento' movimiento.id %}" class="btn btn-primary">{{movimiento.sku}}</a> </td>
+                  <td>{{movimiento.tipo_movimiento}}</td>
+                  <td>{{movimiento.fecha_movimiento}}</td>
+                  <td>{{movimiento.date_created}}</td>
+                  <td>{{movimiento.no_folio}}</td>
+                  <td>{{movimiento.origen.user.username}}</td>
+                  <td>{{movimiento.destino.user.username}}</td>
+                  <td>{{movimiento.marca.nombre}}</td>
+                  <td>{{movimiento.medida.nombre}}</td>
+                  <td>{{movimiento.posicion.nombre}}</td>
+                  <td>{{movimiento.cantidad}}</td>
+                  <td>{{movimiento.status}}</td>
+                  <td>{{movimiento.dot}}</td>
+                  <td>{{movimiento.precio_unitario}}</td>
+                  <td>{{movimiento.creador.user.username}}</td>
                 </tr>
                 {% endfor %}
               </tbody>
