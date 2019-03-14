@@ -19,6 +19,21 @@ class Command(BaseCommand):
                 u = User.objects.create_user(username, '{}@fletesexpress.com.mx'.format(username), 'esteesunpasswordtest785412')
             return u
 
+        ## valores fijos
+        fecha_vale = datetime.datetime.strptime('04/02/2019', "%d/%m/%Y").date()
+        persona_asociada = return_user('rvazquez')
+        pa, pa_flag = Profile.objects.get_or_create(user=persona_asociada)
+        no_folio = "XXXX"
+        tm, tm_flag = TipoMovimiento.objects.get_or_create(nombre="ENTRADA")
+
+        vale_inicial, vale_inicial_flag = Vale.objects.get_or_create(
+            no_folio=no_folio, 
+            tipo_movimiento=tm,
+            fecha_vale=fecha_vale,
+            persona_asociada=pa,
+            defaults={"observaciones_grales":"Carga inicial de el inventario."})
+
+
         with open(settings.BASE_DIR + '/almacen/load_init/movimientos.csv') as csvfile_in:
             readCSV = csv.reader(csvfile_in, delimiter=';')
             for indice, row in enumerate(readCSV):
@@ -44,7 +59,6 @@ class Command(BaseCommand):
 
                     usuario_origen = return_user(origen)
                     usuario_destino = return_user(destino)
-                    tm, tm_flag = TipoMovimiento.objects.get_or_create(nombre=tipo_movimiento)
                     po , po_flag = Profile.objects.get_or_create(user=usuario_origen)
                     pd, pd_flag = Profile.objects.get_or_create(user=usuario_destino)
                     m, m_flag = Marca.objects.get_or_create(nombre=marca)
@@ -53,9 +67,8 @@ class Command(BaseCommand):
                     sta, sta_flag = Status.objects.get_or_create(nombre=status)
 
                     movimiento = Movimiento(
-                        tipo_movimiento = tm,
-                        fecha_movimiento =fecha_movimiento, 
-                        no_folio=no_folio,
+                        vale=vale_inicial,
+                        fecha_movimiento = vale_inicial.fecha_vale, 
                         origen=po,
                         destino=pd,
                         marca=m,
@@ -64,7 +77,8 @@ class Command(BaseCommand):
                         cantidad=cantidad,
                         status=sta,
                         dot=dot,
-                        precio_unitario=precio_unitario
+                        precio_unitario=precio_unitario,
+                        creador=vale_inicial.persona_asociada, 
                     )
                     movimiento.save()
                     if movimiento.id:

@@ -16,8 +16,11 @@ class StatusAdmin(admin.ModelAdmin):
 class TipoMovimientoAdmin(admin.ModelAdmin):
 	list_display = ['id', 'nombre']
 
-##class MovimientoAdmin(admin.ModelAdmin):
-##	list_display = ['id', 'tipo_movimiento', 'fecha_movimiento', 'no_folio', 'origen', 'destino', 'marca', 'medida', 'posicion', 'status', 'dot','precio_unitario']
+class ValeAdmin(admin.ModelAdmin):
+	list_display = ['id', 'no_folio', 'tipo_movimiento', 'fecha_vale', 'fecha_created', 'fecha_edited', 'persona_asociada']
+
+class MovimientoAdmin(admin.ModelAdmin):
+	list_display = ['id', 'vale', 'fecha_movimiento', 'origen', 'destino', 'marca', 'medida', 'posicion', 'cantidad', 'status', 'dot','precio_unitario', 'creador']
 
 
 admin.site.register(Marca, MarcaAdmin)
@@ -25,5 +28,6 @@ admin.site.register(Medida, MedidaAdmin)
 admin.site.register(Posicion, PosicionAdmin)
 admin.site.register(Status, StatusAdmin)
 admin.site.register(TipoMovimiento, TipoMovimientoAdmin)
-#admin.site.register(Movimiento, MovimientoAdmin)
-admin.site.register(Movimiento)
+admin.site.register(Movimiento, MovimientoAdmin)
+#admin.site.register(Movimiento)
+admin.site.register(Vale, ValeAdmin)

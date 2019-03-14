@@ -95,6 +95,13 @@ class Vale(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
         null=True
     )
 
+    tipo_movimiento = models.ForeignKey( #entrada o salida
+        TipoMovimiento,
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        db_index=True)
+
     fecha_vale = models.DateField()
     fecha_created = models.DateTimeField(auto_now_add=True) # Automatically set the field to now when the object is first created
     fecha_edited = models.DateTimeField(auto_now=True) # Automatically set the field when the object is edited
@@ -122,10 +129,6 @@ class Movimiento(models.Model):
         on_delete=models.PROTECT,
         blank=True,
         null=True,
-        db_index=True)
-    tipo_movimiento = models.ForeignKey( #entrada o salida
-        TipoMovimiento,
-        on_delete=models.PROTECT,
         db_index=True)
     fecha_movimiento = models.DateField()
     date_created = models.DateTimeField(auto_now_add=True) # Automatically set the field to now when the object is first created
