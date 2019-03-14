@@ -180,10 +180,10 @@
               	{% for movimiento in movimientos %} 
                 <tr>
                   <td><a href="{% url 'movimiento' movimiento.id %}" class="btn btn-primary">{{movimiento.sku}}</a> </td>
-                  <td>{{movimiento.tipo_movimiento}}</td>
+                  <td>{{movimiento.vale.tipo_movimiento.nombre}}</td>
                   <td>{{movimiento.fecha_movimiento}}</td>
                   <td>{{movimiento.date_created}}</td>
-                  <td>{{movimiento.no_folio}}</td>
+                  <td>{{movimiento.vale.no_folio}}</td>
                   <td>{{movimiento.origen.user.username}}</td>
                   <td>{{movimiento.destino.user.username}}</td>
                   <td>{{movimiento.marca.nombre}}</td>

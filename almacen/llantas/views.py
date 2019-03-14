@@ -39,7 +39,7 @@ def post_filter(request, movimientos):
 
     ### new ... INICIO
     if tipo_movimiento:
-      movimientos = movimientos.filter(tipo_movimiento=tipo_movimiento)
+      movimientos = movimientos.filter(vale__tipo_movimiento=tipo_movimiento)
 
     if fecha_movimiento_inicio:
         movimientos = movimientos.filter(fecha_movimiento__gte=datetime.strptime(fecha_movimiento_inicio+'00:00:00', '%d-%m-%Y%H:%M:%S'))
@@ -53,7 +53,7 @@ def post_filter(request, movimientos):
         print("dos ....")
         movimientos = movimientos.filter(date_created__lte=datetime.strptime(fecha_creacion_fin+'23:59:59', '%d-%m-%Y%H:%M:%S'))
     if no_folio:
-        movimientos = movimientos.filter(no_folio__icontains=no_folio)
+        movimientos = movimientos.filter(vale__no_folio__icontains=no_folio)
 
     if origen:
         movimientos = movimientos.filter(origen__id=origen)
