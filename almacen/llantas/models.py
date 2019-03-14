@@ -30,7 +30,7 @@ class Medida(models.Model):
     )
 
     class Meta:
-    	verbose_name_plural = "medidas"
+        verbose_name_plural = "medidas"
 
     def __str__(self):
         return "{} [{}]".format(self.nombre, self.codigo)
@@ -49,7 +49,7 @@ class Posicion(models.Model):
     )
 
     class Meta:
-    	verbose_name_plural = "posiciones"
+        verbose_name_plural = "posiciones"
 
     def __str__(self):
         return "{} [{}]".format(self.nombre, self.codigo)
@@ -63,7 +63,7 @@ class Status(models.Model):
     )
 
     class Meta:
-    	verbose_name_plural = "status"
+        verbose_name_plural = "status"
 
 
     def __str__(self):
@@ -78,13 +78,51 @@ class TipoMovimiento(models.Model): # catálogo de tipos de movimiento, ENTRADA,
     )
 
     class Meta:
-    	verbose_name_plural = "tipo de movimientos"
+        verbose_name_plural = "tipo de movimientos"
 
     def __str__(self):
         return "{}".format(self.nombre)
 
+class Vale(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
+    no_folio = models.CharField( # Una referencia externa del movimiento
+            blank=True,
+            null = True,
+            max_length=100
+    )
+
+    observaciones_grales = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    fecha_vale = models.DateField()
+    fecha_created = models.DateTimeField(auto_now_add=True) # Automatically set the field to now when the object is first created
+    fecha_edited = models.DateTimeField(auto_now=True) # Automatically set the field when the object is edited
+
+    persona_asociada = models.ForeignKey(
+        Profile,
+        blank=True,
+        null=True,        
+        related_name='persona_asociada',
+        on_delete=models.PROTECT,
+        db_index=True)
+
+    class Meta:
+        verbose_name_plural = "Vales"
+
+    def __str__(self):
+        return "{}".format(self.no_folio)
+
+
 
 class Movimiento(models.Model):
+    vale = models.ForeignKey(
+        Vale,
+        related_name='vale_asociado',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        db_index=True)
     tipo_movimiento = models.ForeignKey( #entrada o salida
         TipoMovimiento,
         on_delete=models.PROTECT,
@@ -92,11 +130,6 @@ class Movimiento(models.Model):
     fecha_movimiento = models.DateField()
     date_created = models.DateTimeField(auto_now_add=True) # Automatically set the field to now when the object is first created
     date_edited = models.DateTimeField(auto_now=True) # Automatically set the field when the object is edited
-    no_folio = models.CharField( # Una referencia externa del movimiento
-            blank=True,
-            null = True,
-            max_length=100
-    )
     origen = models.ForeignKey(
         Profile,
         related_name='origen_del_movimiento',
@@ -149,7 +182,7 @@ class Movimiento(models.Model):
 
 
     def sku(self):
-    	return "{}{}{}".format(self.marca.codigo,self.medida.codigo, self.posicion.codigo)
+        return "{}{}{}".format(self.marca.codigo,self.medida.codigo, self.posicion.codigo)
 
     def __str__(self):
         return "{}".format(self.id)
