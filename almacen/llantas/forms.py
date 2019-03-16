@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import ModelForm, ModelChoiceField
-from .models import Movimiento, TipoMovimiento, Marca, Medida, Posicion, Status
+from .models import Movimiento, TipoMovimiento, Marca, Medida, Posicion, Status, Vale
+from persona.models import Profile
 
 class FilterForm(forms.Form):
 
@@ -138,6 +139,27 @@ class OrigenDestinoChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
         return "%s" % (obj.nombre)
 
+class ProfileChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "{} {} [{}]".format(obj.user.first_name, obj.user.last_name, obj.user.username)
+
+class SearchSalidaForm(ModelForm):
+
+    dot = forms.CharField(
+            required=True,
+            label='Dot', 
+            max_length="100",
+            widget=forms.TextInput(
+                attrs={
+                'class':'form-control',
+                'placeholder':'Ejemplo: 1234'
+                }
+    ))
+
+    class Meta: 
+        model = Movimiento
+        fields = ['dot']
+
 
 class FilterMovimientoForm(ModelForm):
     
@@ -256,3 +278,61 @@ class FilterMovimientoForm(ModelForm):
                    'date_created_inicio', 'date_created_fin',\
                    'no_folio', 'origen', 'destino', 'marca', 'medida', \
                    'posicion', 'status', 'dot', 'creador', 'exporta_xls', 'exporta']
+
+
+class ValeForm(ModelForm):
+    no_folio = forms.CharField(
+            required=True,
+            label='No Folio', 
+            max_length="100",
+            widget=forms.TextInput(
+                attrs={
+                'class':'form-control',
+                'placeholder':'Ejemplo: 05'
+                }
+    ))
+
+    persona_asociada = ProfileChoiceField(
+                required=True,
+                queryset=Profile.objects.filter(tipo__nombre="STAFF").order_by('user__first_name'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+    fecha_vale = forms.DateField(
+                required=True,
+                label='Fecha vale', 
+                input_formats=["%d-%m-%Y"],
+                widget=forms.TextInput(
+                attrs={ 
+                'class':'form-control',
+                'placeholder':'dd-mm-yyyy'
+                }
+    ))
+
+    observaciones_grales = forms.CharField(
+                required=False,
+                label='Observaciones grales', 
+                widget=forms.Textarea(
+                attrs={ 
+                'class':'form-control',
+                'placeholder':'Ejemplo: se llevan las llantas a renovacion'
+                }
+    ))
+
+    tipo_movimiento = TipoMovimientoChoiceField(
+                required=True,
+                queryset=TipoMovimiento.objects.all().order_by('nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b', 'disabled': ''})
+    )
+
+    creador_vale = ProfileChoiceField(
+                required=True,
+                queryset=Profile.objects.filter(tipo__nombre="STAFF"),
+                widget=forms.Select(attrs={'class':'form-control m-b', 'disabled': ''})
+    )
+
+
+    class Meta: 
+        model = Vale
+        fields = ['no_folio', 'observaciones_grales',\
+                   'tipo_movimiento', 'fecha_vale', 'persona_asociada', 'creador_vale']

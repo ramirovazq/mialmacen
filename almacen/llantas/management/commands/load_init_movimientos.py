@@ -69,6 +69,7 @@ class Command(BaseCommand):
                     movimiento = Movimiento(
                         vale=vale_inicial,
                         fecha_movimiento = vale_inicial.fecha_vale, 
+                        tipo_movimiento=vale_inicial.tipo_movimiento,
                         origen=po,
                         destino=pd,
                         marca=m,

@@ -1,14 +1,18 @@
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.urls import reverse
 from django.conf import settings
 from django.http import HttpResponse
+from django.utils.timezone import now as d_utils_now
 
 from rest_framework import viewsets
 from datetime import datetime
 
+from .utils import *
 from .models import *
-from .forms import FilterForm, FilterMovimientoForm
+from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm
 from .render_to_XLS_util import render_to_xls, render_to_csv
 
 def post_filter(request, movimientos):
@@ -111,11 +115,7 @@ def movimientos(request):
     if request.method == 'POST':
         form = FilterMovimientoForm(request.POST)
         if form.is_valid():
-            print("aqui es valido    ..........")
             m = post_filter(request, m)            
-        else:
-            print("aqui hay un error ..........")
-            print(form.error)
     else:
         form = FilterMovimientoForm()
     
@@ -158,3 +158,91 @@ def movimiento(request, movimiento_id):
     """
  #   queryset = Vehicle.objects.all().order_by('-creation_date')
   #  serializer_class = VehicleSerializer
+
+
+@login_required
+def salida(request, tipo_movimiento="SALIDA"):
+    context = {}
+
+    hoy = d_utils_now()
+    fecha_hoy = hoy.strftime("%d-%m-%Y")    
+    tm = TipoMovimiento.objects.get(nombre=tipo_movimiento)    
+    profile_asociado = return_profile(request.user.username)
+    initial_data = {'tipo_movimiento': tm.id, 'fecha_vale': fecha_hoy, 'creador_vale': profile_asociado.id}
+
+    if request.method == 'POST':
+        vale_instance = Vale(tipo_movimiento=tm, creador_vale=profile_asociado)
+        form = ValeForm(request.POST)#, instance=vale_instance)
+        if form.is_valid():
+            vale = form.save()
+            return HttpResponseRedirect(reverse('salida_add', args=[vale.id]))
+    else:
+        form = ValeForm(initial=initial_data)
+    
+    context["form"] = form
+    return render(request, 'salida.html', context)
+
+
+@login_required
+def salida_add(request, vale_id):
+    context = {}
+    obj = get_object_or_404(Vale, pk=vale_id)
+    context['vale'] = obj
+
+    search = Movimiento.objects.none()
+    if request.method == 'POST':
+        form = SearchSalidaForm(request.POST)
+
+        if form.is_valid():
+            search_filtrado = []
+            dot = form.cleaned_data['dot']
+            dicc_search, search, sin_entrada = Movimiento.actual_inventory("dot")
+
+            for element in search:
+                if dot in element[0]:
+                    search_filtrado.append((element[0], element[1]))
+
+            search = split_list(search_filtrado)
+            search = sorted(search, key=lambda x: x[0][0]) 
+            #Movimiento.actual_inventory('marca', form)
+    else:
+        form = SearchSalidaForm()
+
+
+    columns_llanta_name = ["dot", "marca", "medida", "posicion"]
+    context["columnas"] = columns_llanta_name
+    context["form"] = form
+    context['movimientos'] = search 
+    return render(request, 'salida_add.html', context)
+
+@login_required
+def actual(request):
+    context = {}
+
+    orden = request.GET.get("orden", None)#default marca
+    dicc_movimientos, lista_movimientos, sin_entrada = Movimiento.actual_inventory(orden)
+
+    lista_movimientos = split_list(lista_movimientos)
+    lista_movimientos = sorted(lista_movimientos, key=lambda x: x[0][0]) 
+    #print("---------------")
+    #print(lista_movimientos)
+
+
+    if orden == 'marca':
+        columns_llanta_name = ["Marca", "medida", "posicion", "dot"]
+    elif orden == 'medida':
+        columns_llanta_name = ["medida", "posicion", "dot", "marca"]
+    elif orden == 'posicion':
+        columns_llanta_name = ["posicion", "dot", "marca", "medida"]
+    elif orden == 'dot':
+        columns_llanta_name = ["dot", "marca", "medida", "posicion"]
+    else:
+        columns_llanta_name = ["Marca", "medida", "posicion", "dot"]
+        lista_movimientos = sorted(lista_movimientos, key=lambda x: x[1]) 
+        lista_movimientos.reverse()
+
+    columns_llanta_name.append("Cantidad")
+    context["columnas"] = columns_llanta_name
+
+    context["movimientos"] = lista_movimientos
+    return render(request, 'actual.html', context)    
