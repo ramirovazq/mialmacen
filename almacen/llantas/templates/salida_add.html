@@ -5,6 +5,10 @@
 {% endblock %}
 
 {% block extra_title_section %}
+  <ul class="pagination">
+    <li class="page-item"><a class="page-link" href="{% url 'salida_impresion' vale.id %}">Impresión</a></li>
+  </ul>
+
 {% endblock %}
 
 
@@ -18,6 +22,43 @@
         <div class="col">Quien entrega: {{vale.persona_asociada.user.first_name}}</div>
       </div>
       <br/><br/>
+
+
+          <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  
+                  <th> Cantidad </th>
+                  <th> Marca </th>
+                  <th> Medida </th>
+                  <th> DOT </th>
+
+                  <th> Origen </th>
+                  <th> No. Económico </th>
+                  <th> Observaciones </th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for movimiento in vale.movimientos %}
+                <tr>
+                  <td>{{movimiento.cantidad}} </td>
+                  <td>{{movimiento.marca}} </td>
+                  <td>{{movimiento.medida}} </td>
+                  <td>{{movimiento.dot}} </td>
+
+                  <td>{{movimiento.origen}} </td>
+                  <td>{{movimiento.destino}} </td>
+                  <td>{{movimiento.observacion}} </td>
+                  
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+
+
 {% endblock %}
 
 
@@ -54,6 +95,17 @@
                   <td>{{x}} </td>
                   {% endfor %}
                   <td>{{movimiento.1}}</td>
+                  <td>
+                    <form action="{% url 'salida_add_movimiento' vale.id %}" method="post" id="salida_add_movimiento_form" class="form-inline">
+                      {{form.errors}}
+                      {% csrf_token %}
+                      {{form_salida.as_p}}
+                      <input type="text" value="{% for x in movimiento.0 %}{{x}}{% if forloop.last %}{% else %}__{% endif %}{% endfor %}" name="huella_llanta" id="huella_llanta">
+                      <input type="submit" value="Agregar" class="btn btn-primary mb-2">
+                    </form>
+
+
+                  </td>
                 </tr>
                 {% endfor %}
               </tbody>

@@ -279,6 +279,57 @@ class FilterMovimientoForm(ModelForm):
                    'no_folio', 'origen', 'destino', 'marca', 'medida', \
                    'posicion', 'status', 'dot', 'creador', 'exporta_xls', 'exporta']
 
+class OrigenChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "%s" % (obj)
+
+class DestinoChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "%s" % (obj)
+
+
+class MovimientoSalidaForm(ModelForm):
+    cantidad  = forms.IntegerField(
+                required=True,
+                min_value=1,
+                widget=forms.TextInput(
+                attrs={ 
+                'class':'form-control mb-2 mr-sm-2',
+                'placeholder':'Ejemplo: 2'
+                }
+    ))
+    
+    observacion = forms.CharField(
+                required=False,
+                label='Observacion', 
+                widget=forms.TextInput(
+                attrs={ 
+                'class':'form-control mb-2 mr-sm-2',
+                'placeholder':'Ejemplo: se llevan las llantas a renovacion'
+                }
+    ))
+
+    origen = OrigenChoiceField(
+                required=True,
+                queryset=Profile.objects.filter(tipo__nombre="BODEGA"),
+                widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
+    )
+
+    destino = DestinoChoiceField(
+                required=True,
+                queryset=Profile.objects.all(),
+                widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
+    )
+
+    class Meta: 
+        model = Movimiento
+        fields = ['cantidad',\
+                  'observacion', 'origen',\
+                  'destino', 'status']
+
+
+
+
 
 class ValeForm(ModelForm):
     no_folio = forms.CharField(

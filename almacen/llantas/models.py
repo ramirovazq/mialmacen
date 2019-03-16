@@ -71,7 +71,7 @@ class Status(models.Model):
 
 
 class TipoMovimiento(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
-    nombre = models.CharField( # Nueva, Renovada, Rodar
+    nombre = models.CharField(
             blank=True,
             null = True,
             max_length=100
@@ -106,7 +106,7 @@ class Vale(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
     fecha_created = models.DateTimeField(auto_now_add=True) # Automatically set the field to now when the object is first created
     fecha_edited = models.DateTimeField(auto_now=True) # Automatically set the field when the object is edited
 
-    persona_asociada = models.ForeignKey(
+    persona_asociada = models.ForeignKey( ## quien entrega
         Profile,
         blank=True,
         null=True,        
@@ -122,6 +122,8 @@ class Vale(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
         on_delete=models.PROTECT,
         db_index=True)
 
+    def movimientos(self):
+        return Movimiento.objects.filter(vale=self)
 
     class Meta:
         verbose_name_plural = "Vales"
@@ -198,6 +200,11 @@ class Movimiento(models.Model):
         on_delete=models.PROTECT,
         db_index=True)
 
+    observacion = models.TextField(
+        blank=True,
+        null=True
+    )
+
 
     def sku(self):
         return "{}{}{}".format(self.marca.codigo,self.medida.codigo, self.posicion.codigo)
@@ -232,15 +239,17 @@ class Movimiento(models.Model):
         dicc = {}
         for m in query_movimiento:
             if orden == 'marca':
-                llanta_name = "{}__{}__{}__{}".format(m.marca.nombre, m.medida.nombre, m.posicion.nombre, m.dot)
+                llanta_name = "{}__{}__{}__{}__{}".format(m.marca.nombre, m.medida.nombre, m.posicion.nombre, m.dot, m.status.nombre)
             elif orden == 'medida':
-                llanta_name = "{}__{}__{}__{}".format(m.medida.nombre, m.posicion.nombre, m.dot, m.marca.nombre)
+                llanta_name = "{}__{}__{}__{}__{}".format(m.medida.nombre, m.posicion.nombre, m.dot, m.status.nombre, m.marca.nombre)
             elif orden == 'posicion':
-                llanta_name = "{}__{}__{}__{}".format(m.posicion.nombre, m.dot, m.marca.nombre, m.medida.nombre)
+                llanta_name = "{}__{}__{}__{}__{}".format(m.posicion.nombre, m.dot, m.status.nombre, m.marca.nombre, m.medida.nombre)
             elif orden == 'dot':
-                llanta_name = "{}__{}__{}__{}".format(m.dot, m.marca.nombre, m.medida.nombre, m.posicion.nombre)
+                llanta_name = "{}__{}__{}__{}__{}".format(m.dot, m.status.nombre, m.marca.nombre, m.medida.nombre, m.posicion.nombre)
+            elif orden == 'status':
+                llanta_name = "{}__{}__{}__{}__{}".format(m.status.nombre, m.marca.nombre, m.medida.nombre, m.posicion.nombre, m.dot)
             else:
-                llanta_name = "{}__{}__{}__{}".format(m.marca.nombre, m.medida.nombre, m.posicion.nombre, m.dot)
+                llanta_name = "{}__{}__{}__{}__{}".format(m.marca.nombre, m.medida.nombre, m.posicion.nombre, m.dot, m.status.nombre)
 
 
             if llanta_name not in dicc.keys():

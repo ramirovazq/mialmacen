@@ -1,6 +1,7 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.core.paginator import Paginator
 from django.urls import reverse
 from django.conf import settings
@@ -12,7 +13,7 @@ from datetime import datetime
 
 from .utils import *
 from .models import *
-from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm
+from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm
 from .render_to_XLS_util import render_to_xls, render_to_csv
 
 def post_filter(request, movimientos):
@@ -209,9 +210,11 @@ def salida_add(request, vale_id):
         form = SearchSalidaForm()
 
 
-    columns_llanta_name = ["dot", "marca", "medida", "posicion"]
+    columns_llanta_name = ["dot", "marca", "medida", "posicion", "cantidad actual", ""]
     context["columnas"] = columns_llanta_name
     context["form"] = form
+
+    context['form_salida'] = MovimientoSalidaForm()
     context['movimientos'] = search 
     return render(request, 'salida_add.html', context)
 
@@ -229,15 +232,17 @@ def actual(request):
 
 
     if orden == 'marca':
-        columns_llanta_name = ["Marca", "medida", "posicion", "dot"]
+        columns_llanta_name = ["Marca", "medida", "posicion", "dot", "status"]
     elif orden == 'medida':
-        columns_llanta_name = ["medida", "posicion", "dot", "marca"]
+        columns_llanta_name = ["medida", "posicion", "dot", "status", "marca"]
     elif orden == 'posicion':
-        columns_llanta_name = ["posicion", "dot", "marca", "medida"]
+        columns_llanta_name = ["posicion", "dot", "status", "marca", "medida"]
     elif orden == 'dot':
-        columns_llanta_name = ["dot", "marca", "medida", "posicion"]
+        columns_llanta_name = ["dot", "status", "marca", "medida", "posicion"]
+    elif orden == 'status':
+        columns_llanta_name = ["status", "marca", "medida", "posicion","dot"]
     else:
-        columns_llanta_name = ["Marca", "medida", "posicion", "dot"]
+        columns_llanta_name = ["Marca", "medida", "posicion", "dot", "status"]
         lista_movimientos = sorted(lista_movimientos, key=lambda x: x[1]) 
         lista_movimientos.reverse()
 
@@ -246,3 +251,69 @@ def actual(request):
 
     context["movimientos"] = lista_movimientos
     return render(request, 'actual.html', context)    
+
+
+@login_required
+def salidas(request):
+    context = {}
+    v = Vale.objects.filter(tipo_movimiento__nombre='SALIDA').order_by('-fecha_vale')
+    
+    context["vales_count"] = v.count()
+
+
+    paginator = Paginator(v, settings.ITEMS_PER_PAGE) # Show 5 profiles per page
+    page = request.GET.get('page')
+    v = paginator.get_page(page)
+
+    context["vales"] = v
+    return render(request, 'vales_salida.html', context)    
+
+
+
+
+@login_required
+def salida_add_movimiento(request, vale_id):
+    
+    obj = get_object_or_404(Vale, pk=vale_id)
+    tm = TipoMovimiento.objects.get(nombre='SALIDA')        
+    if request.method == 'POST':
+        print("-----------------")
+        print(request.POST)
+        form = MovimientoSalidaForm(request.POST)
+        if form.is_valid():
+            huella_llanta = request.POST['huella_llanta']
+            lista_huella = huella_llanta.split('__')
+            dot = lista_huella[0]
+            marca = lista_huella[1]
+            medida = lista_huella[2]
+            posicion = lista_huella[3]
+
+            marca  = Marca.objects.get(nombre=marca)
+            medida  = Medida.objects.get(nombre=medida)
+            posicion  = Posicion.objects.get(nombre=posicion)
+            m = Movimiento(
+                vale=obj, 
+                tipo_movimiento=obj.tipo_movimiento,
+                fecha_movimiento=obj.fecha_vale,
+                origen=form.cleaned_data['origen'],
+                destino=form.cleaned_data['destino'],
+                status=form.cleaned_data['status'],
+                dot=dot,
+                marca=marca,
+                medida=medida,
+                posicion=posicion,
+                cantidad=form.cleaned_data['cantidad'],
+                observacion=form.cleaned_data['observacion']
+            )
+            m.save()
+            print("algo")
+            messages.add_message(request, messages.SUCCESS, 'Formulario exitoso')
+    return HttpResponseRedirect(reverse('salida_add', args=[obj.id]))
+
+
+@login_required
+def salida_impresion(request, vale_id):
+    context = {}
+    obj = get_object_or_404(Vale, pk=vale_id)
+    context['vale'] = obj
+    return render(request, 'formato.html', context)
