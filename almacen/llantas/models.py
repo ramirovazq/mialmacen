@@ -114,6 +114,15 @@ class Vale(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
         on_delete=models.PROTECT,
         db_index=True)
 
+    creador_vale = models.ForeignKey(
+        Profile,
+        blank=True,
+        null=True,        
+        related_name='creador_vale',
+        on_delete=models.PROTECT,
+        db_index=True)
+
+
     class Meta:
         verbose_name_plural = "Vales"
 
@@ -129,6 +138,12 @@ class Movimiento(models.Model):
         on_delete=models.PROTECT,
         blank=True,
         null=True,
+        db_index=True)
+    tipo_movimiento = models.ForeignKey( #entrada o salida
+        TipoMovimiento,
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
         db_index=True)
     fecha_movimiento = models.DateField()
     date_created = models.DateTimeField(auto_now_add=True) # Automatically set the field to now when the object is first created
@@ -190,6 +205,82 @@ class Movimiento(models.Model):
     def __str__(self):
         return "{}".format(self.id)
 
+    @staticmethod
+    def entradas(dot=""):
+        tme = TipoMovimiento.objects.get(nombre="ENTRADA")
+        if dot:
+            return Movimiento.objects.filter(tipo_movimiento=tme, dot=dot)
+        else:
+            return Movimiento.objects.filter(tipo_movimiento=tme)
+
+    @staticmethod
+    def salidas(dot=""):
+        tms = TipoMovimiento.objects.get(nombre="SALIDA")
+        if dot:
+            return Movimiento.objects.filter(tipo_movimiento=tme, dot=dot)
+        else:
+            return Movimiento.objects.filter(tipo_movimiento=tms)
+
+    @classmethod
+    def give_unique(self, query_movimiento, orden='marca'): 
+        '''
+        devuelve un diccionario y un set  
+        el diccionario tiene la llave de la huella de la llanta (huella es marca__medida__posicion__dot)
+        y como valor, la cantidad de llantas
+        el set del diccionario
+        '''
+        dicc = {}
+        for m in query_movimiento:
+            if orden == 'marca':
+                llanta_name = "{}__{}__{}__{}".format(m.marca.nombre, m.medida.nombre, m.posicion.nombre, m.dot)
+            elif orden == 'medida':
+                llanta_name = "{}__{}__{}__{}".format(m.medida.nombre, m.posicion.nombre, m.dot, m.marca.nombre)
+            elif orden == 'posicion':
+                llanta_name = "{}__{}__{}__{}".format(m.posicion.nombre, m.dot, m.marca.nombre, m.medida.nombre)
+            elif orden == 'dot':
+                llanta_name = "{}__{}__{}__{}".format(m.dot, m.marca.nombre, m.medida.nombre, m.posicion.nombre)
+            else:
+                llanta_name = "{}__{}__{}__{}".format(m.marca.nombre, m.medida.nombre, m.posicion.nombre, m.dot)
 
 
+            if llanta_name not in dicc.keys():
+                dicc[llanta_name] = m.cantidad
+            else:
+                dicc[llanta_name] = dicc[llanta_name] + m.cantidad        
+        #lista = sorted(dicc.items(), key=lambda x: x[1]) 
+        #lista.reverse()
+        unique = set(dicc)
+        return dicc, unique
 
+    @classmethod
+    def actual_inventory(self, orden='marca', dot=""):
+        if dot:
+            dicc_entradas, unique_entradas = self.give_unique(self.entradas(dot), orden)
+            dicc_salidas, unique_salidas   = self.give_unique(self.salidas(dot), orden)
+        else:
+            dicc_entradas, unique_entradas = self.give_unique(self.entradas(), orden)
+            dicc_salidas, unique_salidas   = self.give_unique(self.salidas(), orden)
+        actual = {}
+
+        # set operation
+        salidas_sin_entradas = unique_salidas.difference(unique_entradas)        
+
+        for huella in dicc_entradas.keys():
+            actual[huella] = 0
+            try:
+                num_actual_entrada = dicc_entradas[huella]                
+            except KeyError:
+                num_actual_entrada = 0
+                #print("doesnt find huella in dictionary ENTRADA")                
+            try:
+                num_actual_salida = dicc_salidas[huella]
+            except KeyError:
+                num_actual_salida = 0
+                #print("doesnt find huella in dictionary SALIDA")
+
+            actual[huella] = num_actual_entrada - num_actual_salida
+
+        lista = actual.items()
+        #lista = sorted(actual.items(), key=lambda x: x[1]) 
+        #lista.reverse()
+        return actual, lista, salidas_sin_entradas

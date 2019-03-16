@@ -160,7 +160,8 @@
               <thead>
                 <tr>
                   <th>Sku</th>
-                  <th>Tipo Movimiento</th>
+                  <th>Id</th>
+                  <th>Movimiento</th>
                   <th>Fecha movimiento</th>
                   <th>Fecha creacion</th>
                   <th>No folio</th>
@@ -180,7 +181,8 @@
               	{% for movimiento in movimientos %} 
                 <tr>
                   <td><a href="{% url 'movimiento' movimiento.id %}" class="btn btn-primary">{{movimiento.sku}}</a> </td>
-                  <td>{{movimiento.vale.tipo_movimiento.nombre}}</td>
+                  <td>{{movimiento.id}}</td>
+                  <td>{{movimiento.tipo_movimiento.nombre}}</td>
                   <td>{{movimiento.fecha_movimiento}}</td>
                   <td>{{movimiento.date_created}}</td>
                   <td>{{movimiento.vale.no_folio}}</td>
