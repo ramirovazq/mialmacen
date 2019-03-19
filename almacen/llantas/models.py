@@ -251,7 +251,7 @@ class Movimiento(models.Model):
 
 
     def sku(self):
-        return "{}{}{}".format(self.marca.codigo,self.medida.codigo, self.posicion.codigo)
+        return "{}{}{}".format(self.llanta.marca.codigo,self.llanta.medida.codigo, self.llanta.posicion.codigo)
 
     def __str__(self):
         return "{}".format(self.id)

@@ -43,8 +43,8 @@ def render_to_xls(queryset, filename):
         sheet.write(row_num, col_num, columns[col_num], font_style)
 
     rows = queryset.values_list('id', 'tipo_movimiento__nombre', 'fecha_movimiento','date_created', 'date_edited', \
-                'no_folio', 'origen__user__username', 'destino__user__username', 'marca__nombre', 'medida__nombre', 'posicion__nombre', 'cantidad',\
-                'status__nombre', 'dot', 'precio_unitario', 'creador__user__username'
+                'vale__no_folio', 'origen__user__username', 'destino__user__username', 'llanta__marca__nombre', 'llanta__medida__nombre', 'llanta__posicion__nombre', 'cantidad',\
+                'llanta__status__nombre', 'llanta__dot', 'precio_unitario', 'creador__user__username'
         )
 
     for row in rows:
@@ -103,15 +103,15 @@ def render_to_csv(queryset, filename):
             renglon.append('sin fecha movimiento') 
           renglon.append(movimiento.date_created.astimezone(timezone(settings.TIME_ZONE)).strftime("%d-%m-%Y %H:%M"))
           renglon.append(movimiento.date_edited.astimezone(timezone(settings.TIME_ZONE)).strftime("%d-%m-%Y %H:%M"))
-          renglon.append(movimiento.no_folio)
+          renglon.append(movimiento.vale.no_folio)
           renglon.append(movimiento.origen.user.username)
           renglon.append(movimiento.destino.user.username)
-          renglon.append(movimiento.marca.nombre)
-          renglon.append(movimiento.medida.nombre)
-          renglon.append(movimiento.posicion.nombre)
+          renglon.append(movimiento.llanta.marca.nombre)
+          renglon.append(movimiento.llanta.medida.nombre)
+          renglon.append(movimiento.llanta.posicion.nombre)
           renglon.append(movimiento.cantidad)
-          renglon.append(movimiento.status)
-          renglon.append(movimiento.dot)
+          renglon.append(movimiento.llanta.status)
+          renglon.append(movimiento.llanta.dot)
           renglon.append(movimiento.precio_unitario)
           renglon.append(movimiento.creador.user.username)
           writer.writerow(renglon)
