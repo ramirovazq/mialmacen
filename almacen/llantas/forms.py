@@ -325,7 +325,7 @@ class MovimientoSalidaForm(ModelForm):
         model = Movimiento
         fields = ['cantidad',\
                   'observacion', 'origen',\
-                  'destino', 'status']
+                  'destino']
 
 
 
