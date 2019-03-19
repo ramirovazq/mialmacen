@@ -132,6 +132,64 @@ class Vale(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
         return "{}".format(self.no_folio)
 
 
+class Llanta(models.Model):
+    marca = models.ForeignKey(
+        Marca,
+        on_delete=models.PROTECT,
+        db_index=True)
+    medida = models.ForeignKey(
+        Medida,
+        on_delete=models.PROTECT,
+        db_index=True)
+    posicion = models.ForeignKey(
+        Posicion,
+        on_delete=models.PROTECT,
+        db_index=True)
+    status = models.ForeignKey(
+        Status,
+        on_delete=models.PROTECT,
+        db_index=True)
+    dot = models.CharField( # Una referencia externa del movimiento
+            blank=True,
+            null = True,
+            max_length=100)
+
+    def movimientos_entrada(self):
+        return Movimiento.objects.filter(\
+            tipo_movimiento__nombre="ENTRADA",
+            llanta=self)
+
+    def movimientos_salida(self):
+        return Movimiento.objects.filter(\
+            tipo_movimiento__nombre="SALIDA",
+            llanta=self)
+
+
+    def cantidad_actual_total(self):
+        lista_cantidades_entrada = [ m.cantidad for m in Movimiento.objects.filter(\
+            tipo_movimiento__nombre="ENTRADA",
+            llanta=self)]
+        lista_cantidades_salida = [ m.cantidad for m in Movimiento.objects.filter(\
+            tipo_movimiento__nombre="SALIDA",
+            llanta=self)]
+
+        entradas = sum(lista_cantidades_entrada)
+        salidas = sum(lista_cantidades_salida)
+
+        return entradas - salidas
+
+    def ubicaciones(self):
+        return Profile.objects.filter(id__in = self.movimientos_entrada().values_list('destino')) ## todos los lugares en los que estan el tipo de llanta
+
+    def total_ubicaciones(self):
+        localizaciones = {}
+        lugares = self.ubicaciones()
+        for destino in lugares:
+            localizaciones[destino.user.username] = 0
+            e = sum([m.cantidad for m in self.movimientos_entrada().filter(destino=destino)])
+            s = sum([m.cantidad for m in self.movimientos_salida().filter(origen=destino)])
+            localizaciones[destino.user.username] = e - s
+        return localizaciones
 
 class Movimiento(models.Model):
     vale = models.ForeignKey(
@@ -165,28 +223,14 @@ class Movimiento(models.Model):
         on_delete=models.PROTECT,
         db_index=True)
 
-    marca = models.ForeignKey(
-        Marca,
-        on_delete=models.PROTECT,
-        db_index=True)
-    medida = models.ForeignKey(
-        Medida,
-        on_delete=models.PROTECT,
-        db_index=True)
-    posicion = models.ForeignKey(
-        Posicion,
+    llanta = models.ForeignKey(
+        Llanta,
+        blank=True,
+        null=True,
         on_delete=models.PROTECT,
         db_index=True)
     cantidad = models.PositiveIntegerField(
             default=0)
-    status = models.ForeignKey(
-        Status,
-        on_delete=models.PROTECT,
-        db_index=True)
-    dot = models.CharField( # Una referencia externa del movimiento
-            blank=True,
-            null = True,
-            max_length=100)
     precio_unitario = models.DecimalField(
         max_digits=8,
         decimal_places=2,
