@@ -308,23 +308,24 @@ class MovimientoSalidaForm(ModelForm):
                 'placeholder':'Ejemplo: se llevan las llantas a renovacion'
                 }
     ))
-
+    '''
     origen = OrigenChoiceField(
                 required=True,
                 queryset=Profile.objects.filter(tipo__nombre="BODEGA"),
                 widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
     )
+    '''
 
     destino = DestinoChoiceField(
                 required=True,
-                queryset=Profile.objects.all(),
+                queryset=Profile.objects.filter(tipo__nombre="ECONOMICO"),#NOECONOMICO
                 widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
     )
 
     class Meta: 
         model = Movimiento
         fields = ['cantidad',\
-                  'observacion', 'origen',\
+                  'observacion',\
                   'destino']
 
 
