@@ -1,0 +1,148 @@
+{% extends "base_bootstrap.html" %}
+
+{% block title_section %}            
+<h1 class="h2">Vale Entrega de llantas, Folio: #{{vale.no_folio}}</h1>
+{% endblock %}
+
+{% block extra_title_section %}
+  <ul class="pagination">
+    <li class="page-item"><a class="page-link" href="#" target="_blank">Impresión</a></li>
+  </ul>
+
+{% endblock %}
+
+
+{% block buttons_section %}
+     <div class="row">
+        <div class="col">No. folio: {{vale.no_folio}}</div>
+        <div class="col">Tipo movimiento: {{vale.tipo_movimiento.nombre}}</div>
+        <div class="col"><a class="page-link" href="#">editar</a></div>
+
+      </div>
+     <div class="row">
+        <div class="col">Fecha: {{vale.fecha_vale}}</div>
+        <div class="col">Quien entrega: {{vale.persona_asociada.user.first_name}}</div>
+      </div>
+      <br/><br/>
+
+
+          <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  
+                  <th> Cantidad </th>
+                  <th> Marca </th>
+                  <th> Medida </th>
+                  <th> Posición </th>                  
+                  <th> Status </th>
+                  <th> DOT </th>
+
+                  <th> Origen </th>
+                  <th> No. Económico </th>
+                  <th> Observaciones </th>
+                  <th>  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for movimiento in vale.movimientos %}
+                <tr>
+                  <td>{{movimiento.cantidad}} </td>
+                  <td>{{movimiento.llanta.marca.nombre}} </td>
+                  <td>{{movimiento.llanta.medida.nombre}} </td>
+                  <td>{{movimiento.llanta.posicion.nombre}} </td>
+                  <td>{{movimiento.llanta.status.nombre}} </td>
+                  <td>{{movimiento.llanta.dot}} </td>
+
+                  <td>{{movimiento.origen}} </td>
+                  <td>{{movimiento.destino}} </td>
+                  <td>{{movimiento.observacion}} </td>
+                  <td><a class="page-link" href="{% url 'salida_erase_movimiento' vale.id  movimiento.id %}">borrar</a></td>
+                  
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+
+
+{% endblock %}
+
+
+{% block section %}
+
+<form action="{% url 'salida_add' vale.id %}" method="post" id="salida_add_form">
+    {% csrf_token %}
+    {{ form.errors }}
+      <div class="form-group">
+        {{form.dot.errors}}
+        <label for="{{form.dot.id_for_label}}">Dot</label>
+        {{form.dot}}
+      </div>
+    <input type="submit" value="Buscar" class="btn btn-primary">
+    <input type="button" value="Limpiar" class="btn btn-secondary" id="boton_limpiar">
+</form>
+
+
+  {% if llantas %}
+  
+          <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>Dot </th>                  
+                  <th>Marca </th>
+                  <th>Medida </th>
+                  <th>Posición </th>
+                  <th>Status </th>
+                  <th>Actual </th>                  
+                  <th>Origen</th>                  
+                  <th> </th>                  
+                </tr>
+              </thead>
+              <tbody>
+                  {% for llanta in llantas %} 
+                    {% for ubicacion in llanta.total_ubicaciones.items %} 
+                      <tr>
+                        <td>{{llanta.dot}} </td>
+                        <td>{{llanta.marca.nombre}} </td>
+                        <td>{{llanta.medida.nombre}} </td>
+                        <td>{{llanta.posicion.nombre}} </td>
+                        <td>{{llanta.status.nombre}} </td>
+                        <td>{{ubicacion.1}} </td>
+                        <td>{{ubicacion.0}} </td>
+                        <td>
+                          <form action="{% url 'salida_add_movimiento' vale.id %}" method="post" id="salida_add_movimiento_form" class="form-inline">
+                            {{form.errors}}
+                            {% csrf_token %}
+                            {{form_salida.as_p}}
+
+                            <input type="hidden" value="{{ubicacion.0}}" name="nombre_origen" id="nombre_origen">
+                            <input type="hidden" value="{{llanta.id}}" name="id_llanta" id="id_llanta">
+                            <input type="submit" value="Agregar" class="btn btn-primary mb-2">
+                          </form>
+                        </td>
+
+                      </tr>
+                    {% endfor %}
+                  {% endfor %}
+              </tbody>
+            </table>
+          </div>
+  {% else %}
+
+  {% endif %}
+
+{% endblock %}
+
+{% block javascript_bottom %}
+          <script>
+          $( function() {            
+            $( "#boton_limpiar" ).click(function(){
+                $('#salida_add_form').trigger("reset");
+                window.location = "{% url 'salida_add' vale.id %}";
+            });
+          });
+          </script>
+{% endblock %}

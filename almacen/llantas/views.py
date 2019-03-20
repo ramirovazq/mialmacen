@@ -160,6 +160,28 @@ def movimiento(request, movimiento_id):
  #   queryset = Vehicle.objects.all().order_by('-creation_date')
   #  serializer_class = VehicleSerializer
 
+@login_required
+def entrada(request, tipo_movimiento="ENTRADA"):
+    context = {}
+
+    hoy = d_utils_now()
+    fecha_hoy = hoy.strftime("%d-%m-%Y")    
+    tm = TipoMovimiento.objects.get(nombre=tipo_movimiento)    
+    profile_asociado = return_profile(request.user.username)
+    initial_data = {'tipo_movimiento': tm.id, 'fecha_vale': fecha_hoy, 'creador_vale': profile_asociado.id}
+
+    if request.method == 'POST':
+        vale_instance = Vale(tipo_movimiento=tm, creador_vale=profile_asociado)
+        form = ValeForm(request.POST)#, instance=vale_instance)
+        if form.is_valid():
+            vale = form.save()
+            return HttpResponseRedirect(reverse('entrada_add', args=[vale.id]))
+    else:
+        form = ValeForm(initial=initial_data)
+    
+    context["form"] = form
+    return render(request, 'entrada.html', context)
+
 
 @login_required
 def salida(request, tipo_movimiento="SALIDA"):
@@ -226,6 +248,30 @@ def salida_add(request, vale_id):
     context['llantas'] = search 
     return render(request, 'salida_add.html', context)
 
+
+@login_required
+def entrada_add(request, vale_id):
+    context = {}
+    obj = get_object_or_404(Vale, pk=vale_id)
+    context['vale'] = obj
+
+    search = Llanta.objects.none()
+    if request.method == 'POST':
+        form = SearchSalidaForm(request.POST)
+
+        if form.is_valid():
+            search_filtrado = []
+            dot = form.cleaned_data['dot']
+            search = Llanta.objects.filter(dot__icontains=dot)
+    else:
+        form = SearchSalidaForm()
+
+    context["form"] = form
+    context['form_salida'] = MovimientoSalidaForm()
+    context['llantas'] = search 
+    return render(request, 'entrada_add.html', context)
+
+
 @login_required
 def actual(request):
     context = {}
@@ -274,7 +320,7 @@ def salidas(request):
     v = paginator.get_page(page)
 
     context["vales"] = v
-    return render(request, 'vales_salida.html', context)    
+    return render(request, 'vales.html', context)    
 
 
 
@@ -337,3 +383,20 @@ def salida_impresion(request, vale_id):
     obj = get_object_or_404(Vale, pk=vale_id)
     context['vale'] = obj
     return render(request, 'formato.html', context)
+
+
+@login_required
+def entradas(request):
+    context = {}
+    v = Vale.objects.filter(tipo_movimiento__nombre='ENTRADA').order_by('-fecha_vale')
+    
+    context["vales_count"] = v.count()
+
+
+    paginator = Paginator(v, settings.ITEMS_PER_PAGE) # Show 5 profiles per page
+    page = request.GET.get('page')
+    v = paginator.get_page(page)
+
+    context["vales"] = v
+    context["action"] = "entrada"
+    return render(request, 'vales.html', context)    
