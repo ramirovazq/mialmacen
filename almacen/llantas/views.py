@@ -222,34 +222,34 @@ def salida_add(request, vale_id):
 def actual(request):
     context = {}
 
+    llantas = Llanta.objects.all()
+    numero_llantas = sum([x.cantidad_actual_total() for x in llantas])
+    context['numero_llantas'] = numero_llantas
+
     orden = request.GET.get("orden", None)#default marca
-    dicc_movimientos, lista_movimientos, sin_entrada = Movimiento.actual_inventory(orden)
-
-    lista_movimientos = split_list(lista_movimientos)
-    lista_movimientos = sorted(lista_movimientos, key=lambda x: x[0][0]) 
-    #print("---------------")
-    #print(lista_movimientos)
-
 
     if orden == 'marca':
-        columns_llanta_name = ["Marca", "medida", "posicion", "dot", "status"]
+        llantas = llantas.order_by('marca__nombre')
     elif orden == 'medida':
-        columns_llanta_name = ["medida", "posicion", "dot", "status", "marca"]
+        llantas = llantas.order_by('medida__nombre')
     elif orden == 'posicion':
-        columns_llanta_name = ["posicion", "dot", "status", "marca", "medida"]
+        llantas = llantas.order_by('posicion__nombre')
     elif orden == 'dot':
-        columns_llanta_name = ["dot", "status", "marca", "medida", "posicion"]
+        llantas = llantas.order_by('dot')
     elif orden == 'status':
-        columns_llanta_name = ["status", "marca", "medida", "posicion","dot"]
+        llantas = llantas.order_by('status__nombre')
+    elif orden == 'cantidad':
+        l = []
+        for llanta in llantas:
+            l.append((llanta, llanta.cantidad_actual_total()))
+        l = sorted(l, key=lambda x: x[1])
+        l.reverse()
+        llantas = l    
     else:
-        columns_llanta_name = ["Marca", "medida", "posicion", "dot", "status"]
-        lista_movimientos = sorted(lista_movimientos, key=lambda x: x[1]) 
-        lista_movimientos.reverse()
+        llantas = llantas.order_by('marca__nombre')
 
-    columns_llanta_name.append("Cantidad")
-    context["columnas"] = columns_llanta_name
-
-    context["movimientos"] = lista_movimientos
+    context['orden'] = orden        
+    context['llantas'] = llantas
     return render(request, 'actual.html', context)    
 
 
