@@ -5,14 +5,14 @@ from django.utils import timezone
 import csv, os
 
 class Command(BaseCommand):
-    help = 'Load tipo de movimientos from CSV.'
+    help = 'Load tipo de movimientos from CSV. ENTRADA SALIDA'
     def handle(self, *args, **options):
         
         with open(settings.BASE_DIR + '/almacen/load_init/tipodemovimientos.csv') as csvfile_in:
             readCSV = csv.reader(csvfile_in, delimiter=';')
             for indice, row in enumerate(readCSV):
                 if indice != 0: # quit name of column
-                    nombre = row[0].strip().capitalize()
+                    nombre = row[0].strip().upper()
                     #codigo = row[1].strip()
                     obj, bandera = TipoMovimiento.objects.get_or_create(nombre=nombre)
                     if bandera:
