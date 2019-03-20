@@ -320,6 +320,16 @@ def salida_add_movimiento(request, vale_id):
     messages.add_message(request, messages.ERROR, 'Error en formulario')        
     return HttpResponseRedirect(reverse('salida_add', args=[obj.id]))
 
+@login_required
+def salida_erase_movimiento(request, vale_id, movimiento_id):
+    
+    obj_vale = get_object_or_404(Vale, pk=vale_id)
+    obj_movimiento = get_object_or_404(Movimiento, pk=movimiento_id)
+    obj_movimiento.delete()
+
+    messages.add_message(request, messages.SUCCESS, 'Se borra movimiento')
+    return HttpResponseRedirect(reverse('salida_add', args=[obj_vale.id]))
+
 
 @login_required
 def salida_impresion(request, vale_id):

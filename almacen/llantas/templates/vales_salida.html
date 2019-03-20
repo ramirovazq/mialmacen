@@ -39,6 +39,7 @@
                   <th>Quien entrega</th>
                   <th>Creador</th>
                   <th>Observacion</th>
+                  <th># movimientos</th>
                 </tr>
               </thead>
               <tbody>
@@ -50,6 +51,7 @@
                   <td>{{vale.persona_asociada.user.username}}</td>
                   <td>{{vale.creador_vale.user.username}}</td>
                   <td>{{vale.observaciones_grales}}</td>
+                  <td>{{vale.movimientos.count}}</td>
                 </tr>
                 {% endfor %}
               </tbody>

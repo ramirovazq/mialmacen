@@ -34,11 +34,14 @@
                   <th> Cantidad </th>
                   <th> Marca </th>
                   <th> Medida </th>
+                  <th> Posición </th>                  
+                  <th> Status </th>
                   <th> DOT </th>
 
                   <th> Origen </th>
                   <th> No. Económico </th>
                   <th> Observaciones </th>
+                  <th>  </th>
                 </tr>
               </thead>
               <tbody>
@@ -47,11 +50,14 @@
                   <td>{{movimiento.cantidad}} </td>
                   <td>{{movimiento.llanta.marca.nombre}} </td>
                   <td>{{movimiento.llanta.medida.nombre}} </td>
+                  <td>{{movimiento.llanta.posicion.nombre}} </td>
+                  <td>{{movimiento.llanta.status.nombre}} </td>
                   <td>{{movimiento.llanta.dot}} </td>
 
                   <td>{{movimiento.origen}} </td>
                   <td>{{movimiento.destino}} </td>
                   <td>{{movimiento.observacion}} </td>
+                  <td><a class="page-link" href="{% url 'salida_erase_movimiento' vale.id  movimiento.id %}">borrar</a></td>
                   
                 </tr>
                 {% endfor %}
