@@ -190,32 +190,20 @@ def salida_add(request, vale_id):
     obj = get_object_or_404(Vale, pk=vale_id)
     context['vale'] = obj
 
-    search = Movimiento.objects.none()
+    search = Llanta.objects.none()
     if request.method == 'POST':
         form = SearchSalidaForm(request.POST)
 
         if form.is_valid():
             search_filtrado = []
             dot = form.cleaned_data['dot']
-            dicc_search, search, sin_entrada = Movimiento.actual_inventory("dot")
-
-            for element in search:
-                if dot in element[0]:
-                    search_filtrado.append((element[0], element[1]))
-
-            search = split_list(search_filtrado)
-            search = sorted(search, key=lambda x: x[0][0]) 
-            #Movimiento.actual_inventory('marca', form)
+            search = Llanta.objects.filter(dot__icontains=dot)
     else:
         form = SearchSalidaForm()
 
-
-    columns_llanta_name = ["dot", "marca", "medida", "posicion", "cantidad actual", ""]
-    context["columnas"] = columns_llanta_name
     context["form"] = form
-
     context['form_salida'] = MovimientoSalidaForm()
-    context['movimientos'] = search 
+    context['llantas'] = search 
     return render(request, 'salida_add.html', context)
 
 @login_required
@@ -275,39 +263,41 @@ def salidas(request):
 def salida_add_movimiento(request, vale_id):
     
     obj = get_object_or_404(Vale, pk=vale_id)
-    tm = TipoMovimiento.objects.get(nombre='SALIDA')        
+
     if request.method == 'POST':
-        print("-----------------")
-        print(request.POST)
         form = MovimientoSalidaForm(request.POST)
         if form.is_valid():
-            huella_llanta = request.POST['huella_llanta']
-            lista_huella = huella_llanta.split('__')
-            dot = lista_huella[0]
-            marca = lista_huella[1]
-            medida = lista_huella[2]
-            posicion = lista_huella[3]
+            cantidad = form.cleaned_data['cantidad'] 
+            id_llanta = request.POST['id_llanta']
+            llanta  = get_object_or_404(Llanta, pk=id_llanta)
+            nombre_origen = request.POST['nombre_origen']
+            #llanta  = Llanta.objects.get(id=id_llanta)
+            origen  = return_profile(nombre_origen, "BODEGA")
+            creador  = return_profile(request.user.username, "STAFF")
 
-            marca  = Marca.objects.get(nombre=marca)
-            medida  = Medida.objects.get(nombre=medida)
-            posicion  = Posicion.objects.get(nombre=posicion)
-            m = Movimiento(
-                vale=obj, 
-                tipo_movimiento=obj.tipo_movimiento,
-                fecha_movimiento=obj.fecha_vale,
-                origen=form.cleaned_data['origen'],
-                destino=form.cleaned_data['destino'],
-                status=form.cleaned_data['status'],
-                dot=dot,
-                marca=marca,
-                medida=medida,
-                posicion=posicion,
-                cantidad=form.cleaned_data['cantidad'],
-                observacion=form.cleaned_data['observacion']
-            )
-            m.save()
-            print("algo")
-            messages.add_message(request, messages.SUCCESS, 'Formulario exitoso')
+            dicc_ubicaciones = llanta.total_ubicaciones()
+            cantidad_en_ubicacion = dicc_ubicaciones[origen.user.username]
+            if cantidad <= cantidad_en_ubicacion: ## extra validacion, solo puede sacarse una cantidad menor o igual a lo existente
+                m = Movimiento(
+                    vale=obj, 
+                    tipo_movimiento=obj.tipo_movimiento,
+                    fecha_movimiento=obj.fecha_vale,                
+                    origen=origen,
+                    destino=form.cleaned_data['destino'],
+                    llanta=llanta,
+                    cantidad=form.cleaned_data['cantidad'],
+                    observacion=form.cleaned_data['observacion'],
+                    creador=creador
+                )
+                m.save()
+                messages.add_message(request, messages.SUCCESS, 'Se adiciona movimiento {}'.format(m.id))
+                return HttpResponseRedirect(reverse('salida_add', args=[obj.id]))    
+            else:
+                messages.add_message(request, messages.ERROR, 'No se puede sacar una cantidad mayor a la que existente en la ubicacion')        
+                return HttpResponseRedirect(reverse('salida_add', args=[obj.id]))
+
+
+    messages.add_message(request, messages.ERROR, 'Error en formulario')        
     return HttpResponseRedirect(reverse('salida_add', args=[obj.id]))
 
 
