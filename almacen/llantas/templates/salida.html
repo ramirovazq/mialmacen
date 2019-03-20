@@ -9,8 +9,11 @@
 
 
 {% block buttons_section %}
-
+{% if action == 'edit' %}
+<form action="{% url 'salida_edit' vale.id %}" method="post" id="salida_form">
+{% else %}
 <form action="{% url 'salida' %}" method="post" id="salida_form">
+{% endif %}
     {% csrf_token %}
 
     {{ form.errors }}
@@ -52,7 +55,12 @@
       </div>
 
 
+    
+    {% if action == 'edit' %}
+    <input type="submit" value="Guardar Cambios" class="btn btn-primary">
+    {% else %}
     <input type="submit" value="Crear Vale" class="btn btn-primary">
+    {% endif %}
     <input type="button" value="Limpiar" class="btn btn-secondary" id="boton_limpiar">
 
 </form>
@@ -76,7 +84,14 @@
 
             $( "#boton_limpiar" ).click(function(){
                 $('#salida_form').trigger("reset");
+
+              {% if action == 'edit' %}
+                window.location = "{% url 'salida_edit' vale.id %}";
+              {% else %}
                 window.location = "{% url 'salida' %}";
+              {% endif %}
+
+
             });
           });
           </script>

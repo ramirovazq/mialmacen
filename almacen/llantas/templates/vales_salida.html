@@ -38,6 +38,7 @@
                   <th>Fecha Vale</th>
                   <th>Quien entrega</th>
                   <th>Creador</th>
+                  <th>Observacion</th>
                 </tr>
               </thead>
               <tbody>
@@ -48,7 +49,7 @@
                   <td>{{vale.fecha_vale}}</td>
                   <td>{{vale.persona_asociada.user.username}}</td>
                   <td>{{vale.creador_vale.user.username}}</td>
-                  
+                  <td>{{vale.observaciones_grales}}</td>
                 </tr>
                 {% endfor %}
               </tbody>
