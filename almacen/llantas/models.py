@@ -83,6 +83,7 @@ class TipoMovimiento(models.Model): # catálogo de tipos de movimiento, ENTRADA,
     def __str__(self):
         return "{}".format(self.nombre)
 
+
 class Vale(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
     no_folio = models.CharField( # Una referencia externa del movimiento
             blank=True,
@@ -130,6 +131,19 @@ class Vale(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
 
     def __str__(self):
         return "{}".format(self.no_folio)
+
+class AdjuntoVale(models.Model):
+    upload = models.FileField(upload_to='uploads/%Y/%m/%d/')
+    vale = models.ForeignKey(
+        Vale,
+        related_name='vale_del_adjunto',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        db_index=True)
+
+    def __str__(self):
+        return "{} {}".format(self.id, self.vale)
 
 
 class Llanta(models.Model):

@@ -22,6 +22,10 @@ class ValeAdmin(admin.ModelAdmin):
 class MovimientoAdmin(admin.ModelAdmin):
 	list_display = ['id', 'vale', 'fecha_movimiento', 'origen', 'destino', 'cantidad', 'creador']
 
+class AdjuntoValeAdmin(admin.ModelAdmin):
+	list_display = ['id', 'vale']
+
+
 
 admin.site.register(Marca, MarcaAdmin)
 admin.site.register(Medida, MedidaAdmin)
@@ -31,3 +35,4 @@ admin.site.register(TipoMovimiento, TipoMovimientoAdmin)
 admin.site.register(Movimiento, MovimientoAdmin)
 #admin.site.register(Movimiento)
 admin.site.register(Vale, ValeAdmin)
+admin.site.register(AdjuntoVale, AdjuntoValeAdmin)
