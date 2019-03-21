@@ -7,8 +7,8 @@ import csv, os
 class Command(BaseCommand):
     help = 'Load marcas from CSV.'
     def handle(self, *args, **options):
-        
-        with open(settings.BASE_DIR + '/almacen/load_init/marcas.csv') as csvfile_in:
+        print(settings.BASE_DIR)
+        with open(settings.BASE_DIR + '/load_init/marcas.csv') as csvfile_in:
             readCSV = csv.reader(csvfile_in, delimiter=';')
             for indice, row in enumerate(readCSV):
                 if indice != 0: # quit name of column

@@ -8,7 +8,7 @@ class Command(BaseCommand):
     help = 'Load tipo de movimientos from CSV. ENTRADA SALIDA'
     def handle(self, *args, **options):
         
-        with open(settings.BASE_DIR + '/almacen/load_init/tipodemovimientos.csv') as csvfile_in:
+        with open(settings.BASE_DIR + '/load_init/tipodemovimientos.csv') as csvfile_in:
             readCSV = csv.reader(csvfile_in, delimiter=';')
             for indice, row in enumerate(readCSV):
                 if indice != 0: # quit name of column

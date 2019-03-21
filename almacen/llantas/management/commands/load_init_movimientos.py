@@ -15,7 +15,7 @@ class Command(BaseCommand):
         
         pa = return_profile('rvazquez')# valor fijo
 
-        with open(settings.BASE_DIR + '/almacen/load_init/movimientos.csv') as csvfile_in:
+        with open(settings.BASE_DIR + '/load_init/movimientos.csv') as csvfile_in:
             readCSV = csv.reader(csvfile_in, delimiter=';')
             for indice, row in enumerate(readCSV):
                 if indice != 0: # quit name of column
