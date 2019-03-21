@@ -13,6 +13,16 @@ class Marca(models.Model):
             unique=True
     )
 
+    MARCA_CODIGO_INIT = "11"
+
+    @staticmethod
+    def siguiente_codigo():
+        marcas = Marca.objects.all().order_by('-codigo')
+        if len(marcas) > 0:
+            ultima = marcas[0]
+            return "{}".format(int(ultima.codigo) + 1)
+        else:
+            return Marca.MARCA_CODIGO_INIT
 
     def __str__(self):
         return "{} [{}]".format(self.nombre, self.codigo)
@@ -29,8 +39,20 @@ class Medida(models.Model):
             unique=True
     )
 
+    MEDIDA_CODIGO_INIT = "21"
+
     class Meta:
         verbose_name_plural = "medidas"
+
+    @staticmethod
+    def siguiente_codigo():
+        medidas = Medida.objects.all().order_by('-codigo')
+        if len(medidas) > 0:
+            ultima = medidas[0]
+            return "{}".format(int(ultima.codigo) + 1)
+        else:
+            return Medida.MEDIDA_CODIGO_INIT
+
 
     def __str__(self):
         return "{} [{}]".format(self.nombre, self.codigo)
@@ -48,8 +70,20 @@ class Posicion(models.Model):
             unique=True
     )
 
+    POSICION_CODIGO_INIT = "31"
+
     class Meta:
         verbose_name_plural = "posiciones"
+
+    @staticmethod
+    def siguiente_codigo():
+        posiciones = Posicion.objects.all().order_by('-codigo')
+        if len(posiciones) > 0:
+            ultima = posiciones[0]
+            return "{}".format(int(ultima.codigo) + 1)
+        else:
+            return Posicion.POSICION_CODIGO_INIT
+
 
     def __str__(self):
         return "{} [{}]".format(self.nombre, self.codigo)
@@ -64,7 +98,6 @@ class Status(models.Model):
 
     class Meta:
         verbose_name_plural = "status"
-
 
     def __str__(self):
         return "{}".format(self.nombre)
@@ -128,6 +161,19 @@ class Vale(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
 
     class Meta:
         verbose_name_plural = "Vales"
+
+    VALE_FOLIO_INIT = "1"
+
+    @staticmethod
+    def siguiente_folio():
+        vales = Vale.objects.all().order_by('-no_folio')
+        if len(vales) > 0:
+            ultima = vale[0]
+            return "{}".format(int(ultima.no_folio) + 1)
+        else:
+            return Vale.VALE_FOLIO_INIT
+
+
 
     def __str__(self):
         return "{}".format(self.no_folio)
