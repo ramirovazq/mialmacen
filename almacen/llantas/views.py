@@ -15,7 +15,7 @@ from .utils import *
 from .models import *
 from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm
 from .render_to_XLS_util import render_to_xls, render_to_csv
-
+    
 
 @login_required
 def movimientos(request):

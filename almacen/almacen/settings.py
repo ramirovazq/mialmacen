@@ -123,3 +123,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 ITEMS_PER_PAGE    = 50
+
+
+GROUP_NAME_ADMINS    = 'administrador'
