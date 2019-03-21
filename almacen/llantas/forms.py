@@ -388,3 +388,65 @@ class ValeForm(ModelForm):
         model = Vale
         fields = ['no_folio', 'observaciones_grales',\
                    'tipo_movimiento', 'fecha_vale', 'persona_asociada', 'creador_vale']
+
+class ProveedorChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "{}".format(obj.user.username)
+
+
+class EntradaForm(ModelForm):
+    no_folio = forms.CharField(
+            required=True,
+            label='No Folio', 
+            max_length="100",
+            widget=forms.TextInput(
+                attrs={
+                'class':'form-control',
+                'placeholder':'Ejemplo: 05'
+                }
+    ))
+
+    persona_asociada = ProveedorChoiceField(
+                required=True,
+                queryset=Profile.objects.filter(tipo__nombre="PROVEEDOR").order_by('user__username'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+    fecha_vale = forms.DateField(
+                required=True,
+                label='Fecha de factura', 
+                input_formats=["%d-%m-%Y"],
+                widget=forms.TextInput(
+                attrs={ 
+                'class':'form-control',
+                'placeholder':'dd-mm-yyyy'
+                }
+    ))
+
+    observaciones_grales = forms.CharField(
+                required=False,
+                label='Observaciones grales', 
+                widget=forms.Textarea(
+                attrs={ 
+                'class':'form-control',
+                'placeholder':'Ejemplo: se llevan las llantas a renovacion'
+                }
+    ))
+
+    tipo_movimiento = TipoMovimientoChoiceField(
+                required=True,
+                queryset=TipoMovimiento.objects.all().order_by('nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b', 'disabled': ''})
+    )
+
+    creador_vale = ProfileChoiceField(
+                required=True,
+                queryset=Profile.objects.filter(tipo__nombre="STAFF"),
+                widget=forms.Select(attrs={'class':'form-control m-b', 'disabled': ''})
+    )
+
+
+    class Meta: 
+        model = Vale
+        fields = ['no_folio', 'observaciones_grales',\
+                   'tipo_movimiento', 'fecha_vale', 'persona_asociada', 'creador_vale']

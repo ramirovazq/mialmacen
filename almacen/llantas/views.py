@@ -13,7 +13,7 @@ from datetime import datetime
 
 from .utils import *
 from .models import *
-from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm
+from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm
 from .render_to_XLS_util import render_to_xls, render_to_csv
     
 
@@ -80,13 +80,13 @@ def entrada(request, tipo_movimiento="ENTRADA"):
     initial_data = {'tipo_movimiento': tm.id, 'fecha_vale': fecha_hoy, 'creador_vale': profile_asociado.id}
 
     if request.method == 'POST':
-        vale_instance = Vale(tipo_movimiento=tm, creador_vale=profile_asociado)
-        form = ValeForm(request.POST)#, instance=vale_instance)
+        vale_instance = EntradaForm(tipo_movimiento=tm, creador_vale=profile_asociado)
+        form = EntradaForm(request.POST)#, instance=vale_instance)
         if form.is_valid():
             vale = form.save()
             return HttpResponseRedirect(reverse('entrada_add', args=[vale.id]))
     else:
-        form = ValeForm(initial=initial_data)
+        form = EntradaForm(initial=initial_data)
     
     context["form"] = form
     return render(request, 'entrada.html', context)

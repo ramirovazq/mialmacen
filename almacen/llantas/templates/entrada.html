@@ -1,7 +1,7 @@
 {% extends "base_bootstrap.html" %}
 
 {% block title_section %}            
-<h1 class="h2">Vale Entrega de llantas</h1>
+<h1 class="h2">Entrada de llantas</h1>
 {% endblock %}
 
 {% block extra_title_section %}
@@ -26,13 +26,13 @@
 
       <div class="form-group">
         {{form.persona_asociada.errors}}
-        <label for="{{form.persona_asociada.id_for_label}}">Quien entrega</label>
+        <label for="{{form.persona_asociada.id_for_label}}">Proveedor</label>
         {{form.persona_asociada}}
       </div>
 
       <div class="form-row">
            {{form.fecha_vale.errors}}
-           <label for="{{form.fecha_vale.id_for_label}}">Fecha Vale:</label>
+           <label for="{{form.fecha_vale.id_for_label}}">Fecha Factura:</label>
            {{form.fecha_vale}}
       </div>
 
