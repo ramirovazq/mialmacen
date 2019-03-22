@@ -613,4 +613,6 @@ class EntradaForm(ModelForm):
     class Meta: 
         model = Vale
         fields = ['no_folio', 'observaciones_grales',\
-                   'tipo_movimiento', 'fecha_vale', 'persona_asociada', 'creador_vale', 'con_iva']
+                   'tipo_movimiento', 'fecha_vale', \
+                   'persona_asociada', 'creador_vale',\
+                   'con_iva']

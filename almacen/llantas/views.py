@@ -77,17 +77,20 @@ def entrada(request, tipo_movimiento="ENTRADA"):
     fecha_hoy = hoy.strftime("%d-%m-%Y")    
     tm = TipoMovimiento.objects.get(nombre=tipo_movimiento)    
     profile_asociado = return_profile(request.user.username)
-    initial_data = {'tipo_movimiento': tm.id, 'fecha_vale': fecha_hoy, 'creador_vale': profile_asociado.id}
+    initial_data = {'tipo_movimiento': tm, 'fecha_vale': fecha_hoy, 'creador_vale': profile_asociado}
 
     if request.method == 'POST':
         vale_instance = Vale(tipo_movimiento=tm, creador_vale=profile_asociado)
-        form = EntradaForm(request.POST)#, instance=vale_instance)
+        form = EntradaForm(request.POST, instance=vale_instance)
         if form.is_valid():
             vale = form.save()
             return HttpResponseRedirect(reverse('entrada_add', args=[vale.id]))
+        else:
+            messages.add_message(request, messages.ERROR, 'Error en formulario')
     else:
         form = EntradaForm(initial=initial_data)
-    
+
+    context["action"] = 'add'    
     context["form"] = form
     return render(request, 'entrada.html', context)
 
@@ -103,8 +106,11 @@ def entrada_edit(request, vale_id):
             vale = form.save()
             messages.add_message(request, messages.SUCCESS, 'Se guardan los cambios')
             return HttpResponseRedirect(reverse('entrada_add', args=[vale.id]))
+        else:
+            messages.add_message(request, messages.ERROR, 'Error en formulario')
+
     else:
-        form = ValeForm(instance=obj)
+        form = EntradaForm(instance=obj)
     
     context["vale"] = obj
     context["form"] = form
