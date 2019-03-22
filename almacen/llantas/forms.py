@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import ModelForm, ModelChoiceField
-from .models import Movimiento, TipoMovimiento, Marca, Medida, Posicion, Status, Vale
+from django.db.models import Q
+from .models import Movimiento, TipoMovimiento, Marca, Medida, Posicion, Status, Vale, Llanta
 from persona.models import Profile
 
 class FilterForm(forms.Form):
@@ -159,6 +160,169 @@ class SearchSalidaForm(ModelForm):
     class Meta: 
         model = Movimiento
         fields = ['dot']
+
+class LlantaMarcaChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "{}".format(obj.marca.nombre)#, obj.medida.nombre, obj.posicion.nombre, obj.status.nombre)
+
+class SearchLlantabyMarcaForm(ModelForm):    
+    llanta = LlantaMarcaChoiceField(
+                required=False,
+                queryset=Llanta.objects.all().order_by('marca__nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )    
+
+    class Meta: 
+        model = Movimiento
+        fields = ['llanta']
+
+class MarcaChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "{}".format(obj.nombre)#, obj.medida.nombre, obj.posicion.nombre, obj.status.nombre)
+
+class DestinoBodegaChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "%s" % (obj)
+
+
+class NewLlantaForm(forms.Form):    
+
+    marca = MarcaChoiceField(
+                required=True,
+                queryset=Marca.objects.all().order_by('nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+    medida = MarcaChoiceField(
+                required=True,
+                queryset=Medida.objects.all().order_by('nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+    posicion = MarcaChoiceField(
+                required=True,
+                queryset=Posicion.objects.all().order_by('nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+    status = MarcaChoiceField(
+                required=True,
+                queryset=Status.objects.all().order_by('nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+    dot = forms.CharField(
+            required=True,
+            label='Dot', 
+            max_length="100",
+            widget=forms.TextInput(
+                attrs={
+                'class':'form-control',
+                'placeholder':'Ejemplo: 1234'
+                }
+    ))
+
+    destino = DestinoBodegaChoiceField(
+                required=True,
+                queryset=Profile.objects.filter(tipo__nombre="BODEGA"),#( Q(tipo__nombre="BODEGA") | Q(tipo__nombre="ECONOMICO")),#NOECONOMICO
+                widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
+    )
+
+    cantidad  = forms.IntegerField(
+                required=True,
+                min_value=1,
+                widget=forms.TextInput(
+                attrs={ 
+                'class':'form-control mb-2 mr-sm-2',
+                'placeholder':'Ejemplo: 2'
+                }
+    ))
+    
+    precio_unitario  = forms.FloatField(
+                required=True,
+                min_value=0,
+                widget=forms.TextInput(
+                attrs={ 
+                'class':'form-control mb-2 mr-sm-2',
+                'placeholder':'Ejemplo: 480.5'
+                }
+    ))
+    
+    observacion = forms.CharField(
+                required=False,
+                label='Observacion', 
+                widget=forms.TextInput(
+                attrs={ 
+                'class':'form-control mb-2 mr-sm-2',
+                'placeholder':'Ejemplo: se llevan las llantas a renovacion'
+                }
+    ))
+
+    def save(self, obj): # obj is Vale
+        marca = self.cleaned_data['marca']
+        medida = self.cleaned_data['medida']
+        posicion = self.cleaned_data['posicion']
+        status = self.cleaned_data['status']
+        dot = self.cleaned_data['dot']
+
+        llanta_already_exist = False
+        llantas = Llanta.objects.filter(marca=marca, medida=medida, posicion=posicion, status=status, dot=dot)
+        if len(llantas) > 0:
+            llanta_already_exist = True
+            llanta = llantas[0]
+        else:
+            llanta = Llanta.objects.create(marca=marca, medida=medida, posicion=posicion, status=status, dot=dot)
+
+        destino = self.cleaned_data['destino']
+        cantidad = self.cleaned_data['cantidad']
+        precio_unitario = self.cleaned_data['precio_unitario']
+        observacion = self.cleaned_data['observacion']        
+
+        movimiento = Movimiento(
+            vale=obj,
+            tipo_movimiento=obj.tipo_movimiento,
+            fecha_movimiento = obj.fecha_vale, 
+            origen=obj.persona_asociada,
+            destino=destino,
+            llanta=llanta,
+            cantidad=cantidad,
+            precio_unitario=precio_unitario,
+            creador=obj.creador_vale,
+            observacion= observacion,
+        )
+        movimiento.save()
+        return llanta_already_exist, movimiento
+
+
+
+    '''
+    def clean(self):
+        super().clean()
+        # validacion de almenos un grupo seleccionado
+        a = self.cleaned_data['administrador']
+        #b = self.cleaned_data['analista']
+        c = self.cleaned_data['aplicador']
+        if a or c:
+            pass
+        else:
+            raise ValidationError(
+                "Selecciona almenos un grupo para el nuevo usuario"
+            )
+
+        # valida que el email editado no exista para otro usuario de la
+        # plataforma
+        profile_id = self.cleaned_data['profile_id']
+        email = self.cleaned_data['email']
+        p = Profile.objects.get(id=profile_id)
+        q_users = User.objects.filter(email=email)
+        for user in q_users:
+            if user.id == p.user.id:  # es decir, es el usuario que se esta editando
+                pass
+            else:
+                raise ValidationError(
+                    "Ya existe un usuario con el correo enviado."
+                )
+    '''
 
 
 class FilterMovimientoForm(ModelForm):
@@ -449,4 +613,4 @@ class EntradaForm(ModelForm):
     class Meta: 
         model = Vale
         fields = ['no_folio', 'observaciones_grales',\
-                   'tipo_movimiento', 'fecha_vale', 'persona_asociada', 'creador_vale']
+                   'tipo_movimiento', 'fecha_vale', 'persona_asociada', 'creador_vale', 'con_iva']

@@ -37,6 +37,12 @@
       </div>
 
       <div class="form-group">
+        {{form.con_iva.errors}}
+        <label for="{{form.con_iva.id_for_label}}">Con IVA</label>
+        {{form.con_iva}}
+      </div>
+
+      <div class="form-group">
         {{form.observaciones_grales.errors}}
         <label for="{{form.observaciones_grales.id_for_label}}">Observaciones generales</label>
         {{form.observaciones_grales}}

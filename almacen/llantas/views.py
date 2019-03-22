@@ -13,7 +13,7 @@ from datetime import datetime
 
 from .utils import *
 from .models import *
-from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm
+from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm
 from .render_to_XLS_util import render_to_xls, render_to_csv
     
 
@@ -80,7 +80,7 @@ def entrada(request, tipo_movimiento="ENTRADA"):
     initial_data = {'tipo_movimiento': tm.id, 'fecha_vale': fecha_hoy, 'creador_vale': profile_asociado.id}
 
     if request.method == 'POST':
-        vale_instance = EntradaForm(tipo_movimiento=tm, creador_vale=profile_asociado)
+        vale_instance = Vale(tipo_movimiento=tm, creador_vale=profile_asociado)
         form = EntradaForm(request.POST)#, instance=vale_instance)
         if form.is_valid():
             vale = form.save()
@@ -164,20 +164,21 @@ def entrada_add(request, vale_id):
     obj = get_object_or_404(Vale, pk=vale_id)
     context['vale'] = obj
 
-    search = Llanta.objects.none()
     if request.method == 'POST':
-        form = SearchSalidaForm(request.POST)
+        form = NewLlantaForm(request.POST)
 
         if form.is_valid():
-            search_filtrado = []
-            dot = form.cleaned_data['dot']
-            search = Llanta.objects.filter(dot__icontains=dot)
+            existia, movimiento = form.save(obj)
+            if existia:
+                messages.add_message(request, messages.INFO, 'Ya existia una llanta con esas caracteristicas.')
+            else:
+                messages.add_message(request, messages.SUCCESS, 'Se crea una llanta con las nuevas caracteristicas.')
+            messages.add_message(request, messages.SUCCESS, 'Se adiciona el movimiento de entrada {}'.format(movimiento.id))
+            return HttpResponseRedirect(reverse('entrada_add', args=[obj.id]))    
     else:
-        form = SearchSalidaForm()
+        form = NewLlantaForm()
 
     context["form"] = form
-    context['form_salida'] = MovimientoSalidaForm()
-    context['llantas'] = search 
     return render(request, 'entrada_add.html', context)
 
 
@@ -284,6 +285,17 @@ def salida_erase_movimiento(request, vale_id, movimiento_id):
 
     messages.add_message(request, messages.SUCCESS, 'Se borra movimiento')
     return HttpResponseRedirect(reverse('salida_add', args=[obj_vale.id]))
+
+
+@login_required
+def entrada_erase_movimiento(request, vale_id, movimiento_id):
+    
+    obj_vale = get_object_or_404(Vale, pk=vale_id)
+    obj_movimiento = get_object_or_404(Movimiento, pk=movimiento_id)
+    obj_movimiento.delete()
+
+    messages.add_message(request, messages.SUCCESS, 'Se borra movimiento')
+    return HttpResponseRedirect(reverse('entrada_add', args=[obj_vale.id]))
 
 
 @login_required

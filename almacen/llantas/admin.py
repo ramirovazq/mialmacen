@@ -17,7 +17,7 @@ class TipoMovimientoAdmin(admin.ModelAdmin):
 	list_display = ['id', 'nombre']
 
 class ValeAdmin(admin.ModelAdmin):
-	list_display = ['id', 'no_folio', 'tipo_movimiento', 'fecha_vale', 'fecha_created', 'fecha_edited', 'persona_asociada']
+	list_display = ['id', 'no_folio', 'tipo_movimiento', 'fecha_vale', 'con_iva', 'fecha_created', 'fecha_edited', 'persona_asociada']
 
 class MovimientoAdmin(admin.ModelAdmin):
 	list_display = ['id', 'vale', 'fecha_movimiento', 'origen', 'destino', 'cantidad', 'creador']
@@ -25,6 +25,8 @@ class MovimientoAdmin(admin.ModelAdmin):
 class AdjuntoValeAdmin(admin.ModelAdmin):
 	list_display = ['id', 'vale']
 
+class LlantaAdmin(admin.ModelAdmin):
+	list_display = ['id', 'marca', 'medida', 'posicion', 'status', 'dot']
 
 
 admin.site.register(Marca, MarcaAdmin)
@@ -36,3 +38,4 @@ admin.site.register(Movimiento, MovimientoAdmin)
 #admin.site.register(Movimiento)
 admin.site.register(Vale, ValeAdmin)
 admin.site.register(AdjuntoVale, AdjuntoValeAdmin)
+admin.site.register(Llanta, LlantaAdmin)

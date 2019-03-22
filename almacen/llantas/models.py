@@ -1,5 +1,6 @@
 from django.db import models
 from persona.models import Profile
+import decimal
 
 class Marca(models.Model): 
     nombre = models.CharField( # AmerSteel, Dunlop, Michellin, etc
@@ -140,7 +141,7 @@ class Vale(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
     fecha_created = models.DateTimeField(auto_now_add=True) # Automatically set the field to now when the object is first created
     fecha_edited = models.DateTimeField(auto_now=True) # Automatically set the field when the object is edited
 
-    persona_asociada = models.ForeignKey( ## quien entrega
+    persona_asociada = models.ForeignKey( ## quien entrega, o Proveedor para un Vale de entrada
         Profile,
         blank=True,
         null=True,        
@@ -156,8 +157,14 @@ class Vale(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
         on_delete=models.PROTECT,
         db_index=True)
 
+    con_iva = models.BooleanField(default=True)
+
     def movimientos(self):
         return Movimiento.objects.filter(vale=self)
+
+    def total(self):
+        return sum([m.precio_total() for m in Movimiento.objects.filter(vale=self)])
+
 
     class Meta:
         verbose_name_plural = "Vales"
@@ -309,6 +316,10 @@ class Movimiento(models.Model):
         null=True
     )
 
+    def precio_total(self):
+        if self.vale.con_iva:
+            return (self.cantidad * self.precio_unitario) + ((self.cantidad * self.precio_unitario) * decimal.Decimal(0.16))        
+        return self.cantidad * self.precio_unitario
 
     def sku(self):
         return "{}{}{}".format(self.llanta.marca.codigo,self.llanta.medida.codigo, self.llanta.posicion.codigo)
