@@ -91,6 +91,26 @@ def entrada(request, tipo_movimiento="ENTRADA"):
     context["form"] = form
     return render(request, 'entrada.html', context)
 
+@login_required
+def entrada_edit(request, vale_id):
+    context = {}
+    obj = get_object_or_404(Vale, pk=vale_id)
+
+    if request.method == 'POST':
+        #vale_instance = Vale(tipo_movimiento=tm, creador_vale=profile_asociado)
+        form = EntradaForm(request.POST, instance=obj)#, instance=vale_instance)
+        if form.is_valid():
+            vale = form.save()
+            messages.add_message(request, messages.SUCCESS, 'Se guardan los cambios')
+            return HttpResponseRedirect(reverse('entrada_add', args=[vale.id]))
+    else:
+        form = ValeForm(instance=obj)
+    
+    context["vale"] = obj
+    context["form"] = form
+    context["action"] = 'edit'
+    return render(request, 'entrada.html', context)
+
 
 @login_required
 def salida(request, tipo_movimiento="SALIDA"):

@@ -2,7 +2,7 @@
 {% load humanize %}
 
 {% block title_section %}            
-<h1 class="h2">Entreda de llantas, Folio: #{{vale.no_folio}}</h1>
+<h1 class="h2">Entrada de llantas, Folio: #{{vale.no_folio}}</h1>
 {% endblock %}
 
 {% block extra_title_section %}
@@ -17,7 +17,8 @@
      <div class="row">
         <div class="col">No. folio: {{vale.no_folio}}</div>
         <div class="col">Tipo movimiento: {{vale.tipo_movimiento.nombre}}</div>
-        <!-- <div class="col"><a class="page-link" href="#">editar</a></div> -->
+        <div class="col"><a class="page-link" href="#">editar</a></div>
+        <!-- <div class="col"><a class="page-link" href="{% url 'entrada_edit' vale.id %}">editar</a></div> -->
 
       </div>
      <div class="row">

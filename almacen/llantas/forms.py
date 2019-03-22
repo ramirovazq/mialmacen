@@ -570,7 +570,7 @@ class EntradaForm(ModelForm):
                 }
     ))
 
-    persona_asociada = ProveedorChoiceField(
+    persona_asociada = ProveedorChoiceField( ## es el proveedor para la entrada
                 required=True,
                 queryset=Profile.objects.filter(tipo__nombre="PROVEEDOR").order_by('user__username'),
                 widget=forms.Select(attrs={'class':'form-control m-b'})

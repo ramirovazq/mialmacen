@@ -10,9 +10,9 @@
 
 {% block buttons_section %}
 {% if action == 'edit' %}
-<form action="{% url 'salida_edit' vale.id %}" method="post" id="salida_form">
+<form action="{% url 'entrada_edit' vale.id %}" method="post" id="entrada_form">
 {% else %}
-<form action="{% url 'entrada' %}" method="post" id="salida_form">
+<form action="{% url 'entrada' %}" method="post" id="entrada_form">
 {% endif %}
     {% csrf_token %}
 
@@ -92,9 +92,9 @@
                 $('#salida_form').trigger("reset");
 
               {% if action == 'edit' %}
-                window.location = "{% url 'salida_edit' vale.id %}";
+                window.location = "{% url 'entrada_edit' vale.id %}";
               {% else %}
-                window.location = "{% url 'salida' %}";
+                window.location = "{% url 'entrada' %}";
               {% endif %}
 
 

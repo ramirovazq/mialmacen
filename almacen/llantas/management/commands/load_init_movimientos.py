@@ -42,6 +42,8 @@ class Command(BaseCommand):
 
 
                     ## valores del Vale
+                    profile_origen = return_profile(origen, "ABSTRACT")
+                    profile_destino = return_profile(destino, "BODEGA")
                     
                     #no_folio = "XXXX"                    
                     fecha_vale = datetime.datetime.strptime(f_movimiento, "%d/%m/%Y").date()                    
@@ -51,7 +53,7 @@ class Command(BaseCommand):
                         no_folio=no_folio, 
                         tipo_movimiento=tme,
                         fecha_vale=fecha_vale,
-                        persona_asociada=pa,
+                        persona_asociada=profile_origen, ## el proveedor o quien_entrega el vale
                         creador_vale=pa,
                         defaults={"observaciones_grales":"Carga inicial de el inventario."})
 
@@ -61,8 +63,6 @@ class Command(BaseCommand):
                         self.stdout.write(self.style.ERROR('Ya estaba generado el vale #{}'.format(no_folio)))
 
 
-                    profile_origen = return_profile(origen, "ABSTRACT")
-                    profile_destino = return_profile(destino, "BODEGA")
 
                     # Lllanta
                     m, m_flag = Marca.objects.get_or_create(nombre=marca)
