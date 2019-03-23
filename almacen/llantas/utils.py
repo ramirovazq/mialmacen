@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from persona.models import Profile, Tipo
 from random import randint
+from datetime import datetime
 import string
 import random
 
