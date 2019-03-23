@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm, ModelChoiceField
 from django.db.models import Q
-from .models import Movimiento, TipoMovimiento, Marca, Medida, Posicion, Status, Vale, Llanta, ImportacionMovimientos
+from .models import Movimiento, TipoMovimiento, Marca, Medida, Posicion, Status, Vale, Llanta, ImportacionMovimientos, AdjuntoVale
 from persona.models import Profile
 
 class FilterForm(forms.Form):
@@ -622,3 +622,10 @@ class ImportacioMovimientosForm(ModelForm):
     class Meta: 
         model = ImportacionMovimientos
         fields = ['upload']
+
+
+class AdjuntoValeForm(ModelForm):
+
+    class Meta: 
+        model = AdjuntoVale
+        fields = ['upload', 'vale']

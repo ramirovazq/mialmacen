@@ -13,7 +13,7 @@ from datetime import datetime
 
 from .utils import *
 from .models import *
-from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm
+from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm, AdjuntoValeForm
 from .render_to_XLS_util import render_to_xls, render_to_csv
     
 
@@ -204,7 +204,9 @@ def entrada_add(request, vale_id):
     else:
         form = NewLlantaForm()
 
+    context["adjuntosarchivos"] = AdjuntoVale.objects.filter(vale=obj).order_by('-fecha_created')
     context["form"] = form
+    context["MEDIA_URL"] = settings.MEDIA_URL
     return render(request, 'entrada_add.html', context)
 
 
@@ -371,3 +373,30 @@ def importacion(request, tipo_movimiento="ENTRADA"):
     context["action"] = 'import'    
     context["form"] = form
     return render(request, 'importacion.html', context)
+
+
+
+@login_required
+def entrada_adjuntar(request, vale_id):
+    context = {}
+
+    obj_vale = get_object_or_404(Vale, pk=vale_id)
+    av = AdjuntoVale(vale=obj_vale)
+
+    if request.method == 'POST':
+
+        form = AdjuntoValeForm(request.POST, request.FILES)
+        if form.is_valid():
+            vale = form.save()
+            messages.add_message(request, messages.SUCCESS, 'Se subió con éxito el archivo')
+            return HttpResponseRedirect(reverse('entrada_add', args=[obj_vale.id])) #, args=[vale.id]
+        else:
+            messages.add_message(request, messages.ERROR, 'Error en formulario')
+    else:
+
+        form = AdjuntoValeForm(instance=av)
+
+    context["adjuntosarchivos"] = AdjuntoVale.objects.filter(vale=obj_vale).order_by('-fecha_created')
+    context["form"] = form
+    context["vale"] = obj_vale
+    return render(request, 'adjuntar.html', context)

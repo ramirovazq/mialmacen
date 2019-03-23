@@ -194,6 +194,9 @@ class AdjuntoVale(models.Model):
         blank=True,
         null=True,
         db_index=True)
+    fecha_created = models.DateTimeField(auto_now_add=True) # Automatically set the field to now when the object is first created
+    fecha_edited = models.DateTimeField(auto_now=True) # Automatically set the field when the object is edited
+
 
     def __str__(self):
         return "{} {}".format(self.id, self.vale)
