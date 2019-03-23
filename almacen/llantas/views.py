@@ -13,7 +13,7 @@ from datetime import datetime
 
 from .utils import *
 from .models import *
-from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm
+from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm
 from .render_to_XLS_util import render_to_xls, render_to_csv
     
 
@@ -347,3 +347,27 @@ def entradas(request):
     context["vales"] = v
     context["action"] = "entrada"
     return render(request, 'vales.html', context)    
+
+
+@login_required
+def importacion(request, tipo_movimiento="ENTRADA"):
+    context = {}
+
+
+    if request.method == 'POST':
+
+        form = ImportacioMovimientosForm(request.POST, request.FILES)
+        if form.is_valid():
+            vale = form.save()
+            messages.add_message(request, messages.SUCCESS, 'Se subió con éxito el archivo')
+            return HttpResponseRedirect(reverse('importacion'))
+        else:
+            print(form.errors)
+            messages.add_message(request, messages.ERROR, 'Error en formulario')
+    else:
+        form = ImportacioMovimientosForm()
+
+    context["importacionarchivos"] = ImportacionMovimientos.objects.all().order_by('-fecha_created')
+    context["action"] = 'import'    
+    context["form"] = form
+    return render(request, 'importacion.html', context)

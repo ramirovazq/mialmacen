@@ -1,11 +1,18 @@
 from django.contrib.auth.models import User
 from persona.models import Profile, Tipo
+from random import randint
+import string
+import random
+
+def random_string_generator(size=6, chars=string.ascii_lowercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 def return_or_create_user(username):
     try:
         u = User.objects.get(username=username)
     except User.DoesNotExist:
-        u = User.objects.create_user(username, '{}@fletesexpress.com.mx'.format(username), 'esteesunpasswordtest785412')
+        pass_new = "{}{}".format(random_string_generator(), randint(0, 100))
+        u = User.objects.create_user(username, '{}@fletesexpress.com.mx'.format(username), pass_new)
     return u
 
 def create_profile(user, tipo="STAFF"):

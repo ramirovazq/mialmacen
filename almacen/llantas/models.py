@@ -408,3 +408,23 @@ class Movimiento(models.Model):
         #lista = sorted(actual.items(), key=lambda x: x[1]) 
         #lista.reverse()
         return actual, lista, salidas_sin_entradas
+
+
+class ImportacionMovimientos(models.Model):
+    upload = models.FileField(upload_to='importacion/')
+    fecha_created = models.DateTimeField(auto_now_add=True) # Automatically set the field to now when the object is first created
+    fecha_edited = models.DateTimeField(auto_now=True) # Automatically set the field when the object is edited
+    procesado = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "{}".format(self.id)
+
+    def ultimo(self):
+        ultimo = ImportacionMovimientos.objects.none()
+        todos = ImportacionMovimientos.objects.all().order_by('-fecha_created') 
+        if len(todos) > 0:
+            ultimo = todos[0]
+        return ultimo
+
+    class Meta:
+        verbose_name_plural = "importacion de movimientos"

@@ -28,6 +28,9 @@ class AdjuntoValeAdmin(admin.ModelAdmin):
 class LlantaAdmin(admin.ModelAdmin):
 	list_display = ['id', 'marca', 'medida', 'posicion', 'status', 'dot']
 
+class ImportacionMovimientosAdmin(admin.ModelAdmin):
+	list_display = ['id', 'fecha_created', 'procesado']
+
 
 admin.site.register(Marca, MarcaAdmin)
 admin.site.register(Medida, MedidaAdmin)
@@ -39,3 +42,4 @@ admin.site.register(Movimiento, MovimientoAdmin)
 admin.site.register(Vale, ValeAdmin)
 admin.site.register(AdjuntoVale, AdjuntoValeAdmin)
 admin.site.register(Llanta, LlantaAdmin)
+admin.site.register(ImportacionMovimientos, ImportacionMovimientosAdmin)

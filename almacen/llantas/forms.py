@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm, ModelChoiceField
 from django.db.models import Q
-from .models import Movimiento, TipoMovimiento, Marca, Medida, Posicion, Status, Vale, Llanta
+from .models import Movimiento, TipoMovimiento, Marca, Medida, Posicion, Status, Vale, Llanta, ImportacionMovimientos
 from persona.models import Profile
 
 class FilterForm(forms.Form):
@@ -572,7 +572,7 @@ class EntradaForm(ModelForm):
 
     persona_asociada = ProveedorChoiceField( ## es el proveedor para la entrada
                 required=True,
-                queryset=Profile.objects.filter(tipo__nombre="PROVEEDOR").order_by('user__username'),
+                queryset=Profile.objects.filter(Q(tipo__nombre="PROVEEDOR") | Q(tipo__nombre="ABSTRACT")).order_by('user__username'),#( Q(tipo__nombre="BODEGA") | Q(tipo__nombre="ECONOMICO")),#NOECONOMICO
                 widget=forms.Select(attrs={'class':'form-control m-b'})
     )
 
@@ -616,3 +616,9 @@ class EntradaForm(ModelForm):
                    'tipo_movimiento', 'fecha_vale', \
                    'persona_asociada', 'creador_vale',\
                    'con_iva']
+
+class ImportacioMovimientosForm(ModelForm):
+
+    class Meta: 
+        model = ImportacionMovimientos
+        fields = ['upload']
