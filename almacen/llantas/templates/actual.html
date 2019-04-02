@@ -35,7 +35,7 @@
                   <th>Status </th>
                   <th>Cantidad </th>
                   <th>Ubicación </th>
-                  
+                  <th>Permisionarios </th>
                 </tr>
               </thead>
               <tbody>
@@ -49,6 +49,7 @@
                     <td>{{llanta.0.status.nombre}} </td>
                     <td>{{llanta.1}} </td>
                     <td>{% for ubicacion, cantidad in llanta.0.total_ubicaciones.items %} [ bodega: {{ubicacion}} ; cantidad {{cantidad}}]{% endfor %}</td>
+                    <td>{{ llanta.0.total_ubicaciones_detail  }}</td>
                   </tr>
                   {% endfor %}
 
@@ -62,6 +63,7 @@
                     <td>{{llanta.status.nombre}} </td>
                     <td>{{llanta.cantidad_actual_total}} </td>
                     <td>{% for ubicacion, cantidad in llanta.total_ubicaciones.items %} [ bodega: {{ubicacion}} ; cantidad {{cantidad}}]{% endfor %}</td>
+                    <td>{{ llanta.total_ubicaciones_detail  }}</td>
                   </tr>
                   {% endfor %}
                 {% endif %}

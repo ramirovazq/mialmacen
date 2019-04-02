@@ -20,13 +20,14 @@ class ValeAdmin(admin.ModelAdmin):
 	list_display = ['id', 'no_folio', 'tipo_movimiento', 'fecha_vale', 'con_iva', 'fecha_created', 'fecha_edited', 'persona_asociada']
 
 class MovimientoAdmin(admin.ModelAdmin):
-	list_display = ['id', 'vale', 'fecha_movimiento', 'origen', 'destino', 'cantidad', 'creador']
+	list_display = ['id', 'vale', 'fecha_movimiento', 'origen', 'destino', 'cantidad', 'creador', 'permisionario']
+	list_filter = ['permisionario']
 
 class AdjuntoValeAdmin(admin.ModelAdmin):
 	list_display = ['id', 'vale']
 
 class LlantaAdmin(admin.ModelAdmin):
-	list_display = ['id', 'marca', 'medida', 'posicion', 'status', 'dot']
+	list_display = ['id', 'marca', 'medida', 'posicion', 'status', 'dot', 'porciento_vida']
 
 class ImportacionMovimientosAdmin(admin.ModelAdmin):
 	list_display = ['id', 'fecha_created', 'procesado']
