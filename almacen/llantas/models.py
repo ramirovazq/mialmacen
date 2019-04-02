@@ -223,6 +223,11 @@ class Llanta(models.Model):
             blank=True,
             null = True,
             max_length=100)
+    porciento_vida = models.PositiveSmallIntegerField( # Un porcentaje de vida de la llanta por ejemplot 30%
+            blank=True,
+            null = True,
+            default=100)
+
 
     def movimientos_entrada(self):
         return Movimiento.objects.filter(\
@@ -251,15 +256,43 @@ class Llanta(models.Model):
     def ubicaciones(self):
         return Profile.objects.filter(id__in = self.movimientos_entrada().values_list('destino')) ## todos los lugares en los que estan el tipo de llanta
 
+    def permisionarios(self):
+        return Profile.objects.filter(id__in = self.movimientos_entrada().values_list('permisionario')) ## todos los lugares en los que estan el tipo de llanta
+
+
     def total_ubicaciones(self):
         localizaciones = {}
         lugares = self.ubicaciones()
-        for destino in lugares:
-            localizaciones[destino.user.username] = 0
-            e = sum([m.cantidad for m in self.movimientos_entrada().filter(destino=destino)])
-            s = sum([m.cantidad for m in self.movimientos_salida().filter(origen=destino)])
-            localizaciones[destino.user.username] = e - s
+        for lugar in lugares:
+            localizaciones[lugar.user.username] = 0
+            e = sum([m.cantidad for m in self.movimientos_entrada().filter(destino=lugar)])
+            s = sum([m.cantidad for m in self.movimientos_salida().filter(origen=lugar)])
+            localizaciones[lugar.user.username] = e - s
         return localizaciones
+
+
+    def total_ubicaciones_detail(self):
+        localizaciones = {}
+        lugares = self.ubicaciones()
+        permisionarios = self.permisionarios()
+        
+        for bodega in lugares:
+            diccionario = {}
+            for permisionario in permisionarios:
+                e = sum([m.cantidad for m in self.movimientos_entrada().filter(destino=bodega, permisionario=permisionario)])
+                s = sum([m.cantidad for m in self.movimientos_salida().filter(origen=bodega, permisionario=permisionario)])
+                if (e - s) > 0 :
+                    diccionario[permisionario.user.username] = e - s
+
+            e = sum([m.cantidad for m in self.movimientos_entrada().filter(destino=bodega, permisionario__isnull=True)])
+            s = sum([m.cantidad for m in self.movimientos_salida().filter(origen=bodega, permisionario__isnull=True)])
+            diccionario['sin_permisionario'] = e - s
+
+
+            #diccionario['sin_permisionario'] = total - total_permisionarios
+            localizaciones[bodega.user.username] = diccionario
+        return localizaciones
+
 
 class Movimiento(models.Model):
     vale = models.ForeignKey(
@@ -302,7 +335,7 @@ class Movimiento(models.Model):
     cantidad = models.PositiveIntegerField(
             default=0)
     precio_unitario = models.DecimalField(
-        max_digits=8,
+        max_digits=8,   
         decimal_places=2,
         default=0)
 
@@ -318,6 +351,14 @@ class Movimiento(models.Model):
         blank=True,
         null=True
     )
+
+    permisionario = models.ForeignKey(
+        Profile,
+        blank=True,
+        null=True,        
+        related_name='permisionario_llanta',
+        on_delete=models.PROTECT)
+
 
     def precio_total(self):
         if self.vale.con_iva:
