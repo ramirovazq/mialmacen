@@ -13,9 +13,9 @@ class LlantaMovimientoTestCase(TestCase):
         self.user01 = return_profile("rosa")
         self.user02 = return_profile("goyo")
 
-        self.permis01 = return_profile("susy")
-        self.permis02 = return_profile("lupita")
-        self.permis03 = return_profile("rb")
+        self.permis01 = return_profile("susy", "PERMISIONARIO")
+        self.permis02 = return_profile("lupita", "PERMISIONARIO")
+        self.permis03 = return_profile("rb", "PERMISIONARIO")
 
         self.conteo = return_profile("CONTETO", "ABSTRACT")
         self.bodega01 = return_profile("CAJA01", "BODEGA")
@@ -315,3 +315,221 @@ class LlantaMovimientoTestCase(TestCase):
         self.assertEqual(self.llanta_rodar_02.cantidad_actual_total(), 1)
         self.assertEqual(self.llanta_rodar_03.cantidad_actual_total(), 5)
         self.assertEqual(self.llanta_rodar_04.cantidad_actual_total(), 5)
+
+    def test_permisionarios(self):
+
+        mov_entrada = Movimiento.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,
+            origen=self.conteo,
+            destino=self.bodega01,
+            llanta=self.clase_llanta01,
+            cantidad=3
+        )
+
+        mov_entrada_dos = Movimiento.objects.create(
+            vale=self.vale03,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,
+            origen=self.conteo,
+            destino=self.bodega02,
+            llanta=self.clase_llanta01,
+            cantidad=5,
+            permisionario=self.permis01
+        )
+
+        mov_entrada_tres = Movimiento.objects.create(
+            vale=self.vale03,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,
+            origen=self.conteo,
+            destino=self.bodega02,
+            llanta=self.clase_llanta01,
+            cantidad=2,
+            permisionario=self.permis02
+        )
+
+        mov_entrada_cuatro = Movimiento.objects.create(
+            vale=self.vale03,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,
+            origen=self.conteo,
+            destino=self.bodega02,
+            llanta=self.clase_llanta01,
+            cantidad=3
+        )
+
+
+        ## SALIDAS
+        ### SALIDA BODEGA 1
+        mov_salida = Movimiento.objects.create(
+            vale=self.vale02,
+            tipo_movimiento=self.tm_salida,
+            fecha_movimiento=self.fourfeb,
+            origen=self.bodega01,
+            destino=self.tractor01,
+            llanta=self.clase_llanta01,
+            cantidad=1
+        )
+
+        ### SALIDA BODEGA 2
+        mov_salida = Movimiento.objects.create(
+            vale=self.vale02,
+            tipo_movimiento=self.tm_salida,
+            fecha_movimiento=self.fourfeb,
+            origen=self.bodega02,
+            destino=self.tractor01,
+            llanta=self.clase_llanta01,
+            cantidad=2,
+            permisionario=self.permis02
+        )
+
+        self.assertEqual(self.clase_llanta01.cantidad_actual_total(), 10)
+        self.assertEqual(self.clase_llanta01.total_ubicaciones_detail(), 
+            {
+            "CAJA01": {'sin_permisionario': 2}, 
+            "CAJA02": {'sin_permisionario':3, 
+                       self.permis01.user.username:5}
+            })
+
+
+
+
+    def test_llanta_rodar_y_permisionarios(self):
+
+        # se crea una llanta rodar 01
+        self.llanta_rodar_01, bandera_rodar_01 = Llanta.objects.get_or_create(
+            marca=self.marca01,
+            medida=self.medida01,
+            posicion=self.posicion01,
+            status=self.status_rodar,
+            dot=self.dot01,
+            porciento_vida=self.porcentaje_rodar_01 #30
+            
+        )
+
+        # se crea una llanta rodar 02
+        self.llanta_rodar_02, bandera_rodar_02 = Llanta.objects.get_or_create(
+            marca=self.marca02,
+            medida=self.medida02,
+            posicion=self.posicion02,
+            status=self.status_rodar,
+            dot= self.dot02,
+            porciento_vida=self.porcentaje_rodar_02
+ 
+        )
+
+        # se crea una llanta rodar 03 similar a 01
+        self.llanta_rodar_03, bandera_rodar_03 = Llanta.objects.get_or_create(
+            marca=self.marca01,
+            medida=self.medida01,
+            posicion=self.posicion01,
+            status=self.status_rodar,
+            dot=self.dot01,
+            porciento_vida=60 # en esto difiere de self.porcentaje_rodar_01
+ 
+        )
+
+        # se crea una llanta rodar 04 Equal to 01
+        self.llanta_rodar_04, bandera_rodar_01 = Llanta.objects.get_or_create(
+            marca=self.marca01,
+            medida=self.medida01,
+            posicion=self.posicion01,
+            status=self.status_rodar,
+            dot=self.dot01,
+            porciento_vida=self.porcentaje_rodar_01 #30
+            
+        )
+
+        self.assertEqual(len(Llanta.objects.all()), 4)
+
+        Movimiento.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,
+            origen=self.conteo,
+            destino=self.bodega01,
+            llanta=self.llanta_rodar_01,
+            cantidad=2,
+            permisionario=self.permis01
+        )
+
+        Movimiento.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,
+            origen=self.conteo,
+            destino=self.bodega01,
+            llanta=self.llanta_rodar_01,
+            cantidad=3,
+            permisionario=self.permis02
+        )
+
+        Movimiento.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,
+            origen=self.conteo,
+            destino=self.bodega01,
+            llanta=self.llanta_rodar_02,
+            cantidad=1,
+            permisionario=self.permis01
+
+        )
+
+        Movimiento.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,
+            origen=self.conteo,
+            destino=self.bodega01,
+            llanta=self.llanta_rodar_03,
+            cantidad=5,
+            permisionario=self.permis01
+        )
+
+        Movimiento.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,
+            origen=self.conteo,
+            destino=self.bodega01,
+            llanta=self.llanta_rodar_04,
+            cantidad=3,
+            permisionario=self.permis01
+        )
+
+        
+        self.assertEqual(self.llanta_rodar_01.cantidad_actual_total(), 8)
+        self.assertEqual(self.llanta_rodar_02.cantidad_actual_total(), 1)
+        self.assertEqual(self.llanta_rodar_03.cantidad_actual_total(), 5)
+        self.assertEqual(self.llanta_rodar_04.cantidad_actual_total(), 8)
+
+
+        ### SALIDA BODEGA 1
+        mov_salida = Movimiento.objects.create(
+            vale=self.vale02,
+            tipo_movimiento=self.tm_salida,
+            fecha_movimiento=self.fourfeb,
+            origen=self.bodega01,
+            destino=self.tractor01,
+            llanta=self.llanta_rodar_01,
+            cantidad=2,
+            permisionario=self.permis02
+        )
+
+        self.assertEqual(self.llanta_rodar_01.total_ubicaciones_detail(), 
+            {
+            "CAJA01": {'sin_permisionario': 0, self.permis01.user.username:5, self.permis02.user.username:1}
+            })
+
+        self.assertEqual(self.llanta_rodar_02.total_ubicaciones_detail(), 
+            {
+            "CAJA01": {'sin_permisionario': 0, self.permis01.user.username:1}
+            })
+
+        self.assertEqual(self.llanta_rodar_03.total_ubicaciones_detail(), 
+            {
+            "CAJA01": {'sin_permisionario': 0, self.permis01.user.username:5}
+            })
