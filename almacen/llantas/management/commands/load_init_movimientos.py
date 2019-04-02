@@ -15,7 +15,7 @@ class Command(BaseCommand):
         
         pa = return_profile('rvazquez')# valor fijo
 
-        with open(settings.BASE_DIR + '/load_init/movimientos.csv') as csvfile_in:
+        with open(settings.BASE_DIR + '/load_init/j16_j30.csv') as csvfile_in:
             readCSV = csv.reader(csvfile_in, delimiter=';')
             for indice, row in enumerate(readCSV):
                 if indice != 0: # quit name of column
@@ -30,20 +30,38 @@ class Command(BaseCommand):
                     
                     ## GENERAL LA LLANTA
                     marca            = row[6].strip().capitalize() # Solo primera letra mayuscula
-                    medida           = row[7].strip().upper() ## mayusculas
-                    posicion         = row[8].strip().upper() ## mayusculas
-                    status           = row[10].strip().capitalize() # Solo primera letra mayuscula
-                    dot              = row[11].strip() ## es numerico
+                    vida             = row[7].strip()# es un entero
 
-                    cantidad         = row[9].strip()
-                    precio_unitario  = row[12]
+                    medida           = row[8].strip().upper() ## mayusculas
+                    posicion         = row[9].strip().upper() ## mayusculas  Direccion o traccion
+                    cantidad         = row[10].strip()
+
+                    status           = row[11].strip().capitalize() # Solo primera letra mayuscula
+                    dot              = row[12].strip() ## es numerico
+
+                    
+                    precio_unitario  = row[13]
                     if not precio_unitario:
                         precio_unitario = 0.0
 
+                    permisionario    = row[14]
+                    if permisionario: 
+                        permisionario = row[14].strip().upper() # permisionario
+                        permisionario_obj = return_profile(permisionario, "PERMISIONARIO")
 
                     ## valores del Vale
-                    profile_origen = return_profile(origen, "ABSTRACT")
-                    profile_destino = return_profile(destino, "BODEGA")
+                    if origen == "CONTEO_29MARZO":
+                        profile_origen = return_profile(origen, "ABSTRACT")
+                    elif origen == "CHIMAL":
+                        profile_origen = return_profile(origen, "PROVEEDOR")
+                    else:
+                        profile_origen = return_profile(origen, "BODEGA")
+
+
+                    if destino == "J16" or destino == "J30" :
+                        profile_destino = return_profile(destino, "BODEGA")
+                    else:
+                        profile_destino = return_profile(destino, "ECONOMICO")
                     
                     #no_folio = "XXXX"                    
                     fecha_vale = datetime.datetime.strptime(f_movimiento, "%d/%m/%Y").date()                    
@@ -71,15 +89,38 @@ class Command(BaseCommand):
                     sta, sta_flag = Status.objects.get_or_create(nombre=status)
                     # dot
 
-                    llanta, llanta_flag = Llanta.objects.get_or_create(
-                        marca=m,
-                        medida=me,
-                        posicion=pos,
-                        status=sta,
-                        dot=dot
-                    )
-
-                    movimiento = Movimiento(
+                    if vida:
+                        llanta, llanta_flag = Llanta.objects.get_or_create(
+                            marca=m,
+                            medida=me,
+                            posicion=pos,
+                            status=sta,
+                            dot=dot,
+                            porciento_vida=vida
+                        )
+                    else:
+                        llanta, llanta_flag = Llanta.objects.get_or_create(
+                            marca=m,
+                            medida=me,
+                            posicion=pos,
+                            status=sta,
+                            dot=dot
+                        )
+                    if permisionario:
+                        movimiento = Movimiento(
+                            vale=vale_inicial,
+                            tipo_movimiento=vale_inicial.tipo_movimiento,
+                            fecha_movimiento = vale_inicial.fecha_vale, 
+                            origen=profile_origen,
+                            destino=profile_destino,
+                            llanta=llanta,
+                            cantidad=cantidad,
+                            precio_unitario=precio_unitario,
+                            creador=vale_inicial.persona_asociada, 
+                            permisionario=permisionario_obj
+                        )
+                    else:
+                        movimiento = Movimiento(
                         vale=vale_inicial,
                         tipo_movimiento=vale_inicial.tipo_movimiento,
                         fecha_movimiento = vale_inicial.fecha_vale, 
