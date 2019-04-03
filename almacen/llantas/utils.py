@@ -1,9 +1,33 @@
 from django.contrib.auth.models import User
 from persona.models import Profile, Tipo
+from llantas.models import Llanta
 from random import randint
 from datetime import datetime
 import string
 import random
+
+def devuelve_llanta(marca, medida, posicion, status, dot):
+    llanta_already_exist = False
+    llantas = Llanta.objects.filter(marca=marca, medida=medida, posicion=posicion, status=status, dot=dot)
+    if len(llantas) > 0:
+        llanta_already_exist = True
+        llanta = llantas[0]
+    else:
+        llanta = Llanta.objects.create(marca=marca, medida=medida, posicion=posicion, status=status, dot=dot)
+    return llanta, llanta_already_exist
+
+
+def agrupacion_dots(lista_dots):
+    '''
+    {'3218': 2, '3628': 1, '3618': 2} la llave es el dot, y el valor el numero de veces que esta
+    '''
+    dicc = {}
+    for x in lista_dots:
+        if x not in dicc.keys():
+            dicc[x] = 1
+        else:
+            dicc[x] = dicc[x] + 1
+    return dicc
 
 def random_string_generator(size=6, chars=string.ascii_lowercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))

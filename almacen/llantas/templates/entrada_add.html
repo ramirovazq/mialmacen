@@ -74,6 +74,7 @@
                   <th> Total sin IVA </th>
                   {% endif %}                  
                   <th> Observacion </th>
+                  <th> Permisionario </th>
                   <th>  </th>
                 </tr>
               </thead>
@@ -90,6 +91,7 @@
                   <td>${{movimiento.precio_unitario|floatformat:2|intcomma}} </td>
                   <td>${{movimiento.precio_total|floatformat:2|intcomma}} </td>                  
                   <td>{{movimiento.observacion}} </td>
+                  <td>{{movimiento.permisionario.user.username}} </td>
                   <td><a class="page-link" href="{% url 'entrada_erase_movimiento' vale.id  movimiento.id %}">borrar</a></td>
                 </tr>
                 {% endfor %}
