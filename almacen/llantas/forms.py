@@ -553,12 +553,14 @@ class ValeForm(ModelForm):
                 required=True,
                 label='Fecha vale', 
                 input_formats=["%d-%m-%Y"],
-                widget=forms.TextInput(
-                attrs={ 
-                'class':'form-control',
-                'placeholder':'dd-mm-yyyy'
-                }
+                widget=forms.DateInput(
+                    format="%d-%m-%Y",
+                    attrs={ 
+                    'class':'form-control',
+                    'placeholder':'dd-mm-yyyy'
+                    }
     ))
+
 
     observaciones_grales = forms.CharField(
                 required=False,
@@ -615,12 +617,13 @@ class EntradaForm(ModelForm):
                 required=True,
                 label='Fecha de factura', 
                 input_formats=["%d-%m-%Y"],
-                widget=forms.TextInput(
-                attrs={ 
-                'class':'form-control',
-                'placeholder':'dd-mm-yyyy'
-                }
-    ))
+                widget=forms.DateInput(
+                    format="%d-%m-%Y",
+                    attrs={ 
+                    'class':'form-control',
+                    'placeholder':'dd-mm-yyyy'
+                    }
+                ))
 
     observaciones_grales = forms.CharField(
                 required=False,

@@ -114,3 +114,8 @@ STATIC_URL = '/static/'
 ITEMS_PER_PAGE    = 50
 
 GROUP_NAME_ADMINS    = 'administrador'
+
+
+DATE_INPUT_FORMATS = [
+    "%d-%m-%Y"# '2006-10-25', '10/25/2006', '10/25/06'
+]

@@ -16,10 +16,8 @@
 {% block buttons_section %}
      <div class="row">
         <div class="col">No. folio: {{vale.no_folio}}</div>
-        <div class="col">Tipo movimiento: {{vale.tipo_movimiento.nombre}}</div>
-        
+        <div class="col">Tipo movimiento: {{vale.tipo_movimiento.nombre}}</div>        
          <div class="col"><a class="page-link" href="{% url 'entrada_edit' vale.id %}">editar</a></div> 
-
       </div>
      <div class="row">
         <div class="col">Fecha: {{vale.fecha_vale}}</div>
@@ -48,10 +46,18 @@
            
          </div> 
       </div>
+
+
      <div class="row">
         <div class="col">Crea: {{vale.creador_vale.user.username}}</div>
         <div class="col">{% if vale.con_iva %}Con IVA{% else %}Sin IVA{% endif %} ${{vale.total|floatformat:2|intcomma}}</div>
       </div>
+
+    {% if vale.observaciones_grales %}
+     <div class="row">
+        <div class="col">Observaciones: {{vale.observaciones_grales}}</div>
+      </div>
+    {% endif %}
 
       <br/><br/>
 
