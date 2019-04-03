@@ -199,7 +199,7 @@ def entrada_add(request, vale_id):
                 messages.add_message(request, messages.INFO, 'Ya existia una llanta con esas caracteristicas.')
             else:
                 messages.add_message(request, messages.SUCCESS, 'Se crea una llanta con las nuevas caracteristicas.')
-            messages.add_message(request, messages.SUCCESS, 'Se adiciona el movimiento de entrada {}'.format(movimiento.id))
+            messages.add_message(request, messages.SUCCESS, 'Se adiciona el movimiento de entrada {}'.format(movimiento))
             return HttpResponseRedirect(reverse('entrada_add', args=[obj.id]))    
     else:
         form = NewLlantaForm()

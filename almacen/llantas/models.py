@@ -228,6 +228,9 @@ class Llanta(models.Model):
             null = True,
             default=100)
 
+    def __str__(self):
+        return "{} {} {} {} {} {} {}".format(self.id, self.marca.nombre, self.medida.nombre, self.posicion.nombre, self.status.nombre, self.dot, self.porciento_vida)
+
 
     def movimientos_entrada(self):
         return Movimiento.objects.filter(\

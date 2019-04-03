@@ -3,6 +3,7 @@ from django.forms import ModelForm, ModelChoiceField
 from django.db.models import Q
 from .models import Movimiento, TipoMovimiento, Marca, Medida, Posicion, Status, Vale, Llanta, ImportacionMovimientos, AdjuntoVale
 from persona.models import Profile
+from .utils import agrupacion_dots, devuelve_llanta
 
 class FilterForm(forms.Form):
 
@@ -184,29 +185,37 @@ class DestinoBodegaChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
         return "%s" % (obj)
 
+class PermisionarioChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "%s" % (obj)
+
 
 class NewLlantaForm(forms.Form):    
 
     marca = MarcaChoiceField(
                 required=True,
+                help_text="* Campo Requerido.",
                 queryset=Marca.objects.all().order_by('nombre'),
                 widget=forms.Select(attrs={'class':'form-control m-b'})
     )
 
     medida = MarcaChoiceField(
                 required=True,
+                help_text="* Campo Requerido.",
                 queryset=Medida.objects.all().order_by('nombre'),
                 widget=forms.Select(attrs={'class':'form-control m-b'})
     )
 
     posicion = MarcaChoiceField(
                 required=True,
+                help_text="* Campo Requerido.",
                 queryset=Posicion.objects.all().order_by('nombre'),
                 widget=forms.Select(attrs={'class':'form-control m-b'})
     )
 
     status = MarcaChoiceField(
                 required=True,
+                help_text="* Campo Requerido.",
                 queryset=Status.objects.all().order_by('nombre'),
                 widget=forms.Select(attrs={'class':'form-control m-b'})
     )
@@ -215,21 +224,31 @@ class NewLlantaForm(forms.Form):
             required=True,
             label='Dot', 
             max_length="100",
+            help_text="* Campo Requerido. Nota: cuando se agregan Dots separados por ',' la cantidad enviada en el formulario ya no es tomada en cuenta (se calcula por la cantidad de dots)",
             widget=forms.TextInput(
                 attrs={
                 'class':'form-control',
-                'placeholder':'Ejemplo: 1234'
+                'placeholder':'Un solo dot, ejemplo: 1234 ; mas de un DOT, separado por "," ejemplo: 4512,7845,8963'
                 }
     ))
 
     destino = DestinoBodegaChoiceField(
                 required=True,
+                help_text="* Campo Requerido.",
                 queryset=Profile.objects.filter(tipo__nombre="BODEGA"),#( Q(tipo__nombre="BODEGA") | Q(tipo__nombre="ECONOMICO")),#NOECONOMICO
                 widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
     )
 
+    permisionario = PermisionarioChoiceField(
+                required=False,
+                queryset=Profile.objects.filter(tipo__nombre="PERMISIONARIO"),#( Q(tipo__nombre="BODEGA") | Q(tipo__nombre="ECONOMICO")),#NOECONOMICO
+                widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
+    )
+
+
     cantidad  = forms.IntegerField(
                 required=True,
+                help_text="* Campo Requerido.",
                 min_value=1,
                 widget=forms.TextInput(
                 attrs={ 
@@ -240,6 +259,7 @@ class NewLlantaForm(forms.Form):
     
     precio_unitario  = forms.FloatField(
                 required=True,
+                help_text="* Campo Requerido.",
                 min_value=0,
                 widget=forms.TextInput(
                 attrs={ 
@@ -265,33 +285,48 @@ class NewLlantaForm(forms.Form):
         status = self.cleaned_data['status']
         dot = self.cleaned_data['dot']
 
-        llanta_already_exist = False
-        llantas = Llanta.objects.filter(marca=marca, medida=medida, posicion=posicion, status=status, dot=dot)
-        if len(llantas) > 0:
-            llanta_already_exist = True
-            llanta = llantas[0]
-        else:
-            llanta = Llanta.objects.create(marca=marca, medida=medida, posicion=posicion, status=status, dot=dot)
+        dot_list = [x.strip() for x in dot.split(",")] 
+        cantidad_enviada = False
+        if len(dot_list) <= 1:
+            cantidad_enviada = True
+        dot_diccionario = agrupacion_dots(dot_list) # de la forma {'3218': 2, '3628': 1, '3618': 2}
 
         destino = self.cleaned_data['destino']
-        cantidad = self.cleaned_data['cantidad']
+        cantidad_form = self.cleaned_data['cantidad']
         precio_unitario = self.cleaned_data['precio_unitario']
         observacion = self.cleaned_data['observacion']        
+        permisionario = self.cleaned_data['permisionario']
 
-        movimiento = Movimiento(
-            vale=obj,
-            tipo_movimiento=obj.tipo_movimiento,
-            fecha_movimiento = obj.fecha_vale, 
-            origen=obj.persona_asociada,
-            destino=destino,
-            llanta=llanta,
-            cantidad=cantidad,
-            precio_unitario=precio_unitario,
-            creador=obj.creador_vale,
-            observacion= observacion,
-        )
-        movimiento.save()
-        return llanta_already_exist, movimiento
+        dicc_movimiento = {
+            "vale": obj,
+            "tipo_movimiento":obj.tipo_movimiento,
+            "fecha_movimiento": obj.fecha_vale, 
+            "origen":obj.persona_asociada,
+            "destino":destino,
+            "precio_unitario":precio_unitario,
+            "creador":obj.creador_vale,
+            "observacion":observacion,
+        }
+        if permisionario:
+            dicc_movimiento["permisionario"] = permisionario
+
+        l_movimiento = []
+        l_already_exist = []
+
+        for dot, cantidad in dot_diccionario.items():
+            llanta, ya_existia = devuelve_llanta(marca, medida, posicion, status, dot)
+            l_already_exist.append(ya_existia)
+            dicc_movimiento['llanta'] = llanta
+
+            if cantidad_enviada: # se usa la cantidad enviada en el formulario cuando solo se envia un DOT
+                dicc_movimiento['cantidad'] = cantidad_form
+                movimiento = Movimiento(**dicc_movimiento)    
+            else:
+                dicc_movimiento['cantidad'] = cantidad
+                movimiento = Movimiento(**dicc_movimiento)
+            movimiento.save()
+            l_movimiento.append(movimiento)
+        return l_already_exist, l_movimiento
 
 
 
