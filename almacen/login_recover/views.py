@@ -40,7 +40,8 @@ class Login(generics.GenericAPIView):
                 username = s.validated_data['username']
                 user = User.objects.get(username=username)
                 try:
-                    token = Token.objects.get(user=user)
+                    # user already verified exist
+                    token, bandera_token = Token.objects.get_or_create(user=user)
                     response_data = {
                         'token': token.key,
                         'email': user.email,

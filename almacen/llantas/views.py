@@ -11,11 +11,27 @@ from django.utils.timezone import now as d_utils_now
 from rest_framework import viewsets
 from datetime import datetime
 
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+
 from .utils import *
 from .models import *
 from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm, AdjuntoValeForm
 from .render_to_XLS_util import render_to_xls, render_to_csv
-    
+from .serializers import ValeSerializer    
+
+## curl -X GET http://127.0.0.1:8000/api/v0/vale/ -H 'Authorization: Token ABCDEF343434342234234KMLMKMLKM'
+class ValeViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    queryset = Vale.objects.all().order_by('-fecha_created')
+    serializer_class = ValeSerializer
+
+
 
 @login_required
 def movimientos(request):
@@ -60,14 +76,6 @@ def movimiento(request, movimiento_id):
     movimiento = get_object_or_404(Movimiento, id=movimiento_id)
     context["movimiento"] = movimiento
     return render(request, 'movimiento.html', context)    
-
-
-#class VehicleViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
- #   queryset = Vehicle.objects.all().order_by('-creation_date')
-  #  serializer_class = VehicleSerializer
 
 @login_required
 def entrada(request, tipo_movimiento="ENTRADA"):
