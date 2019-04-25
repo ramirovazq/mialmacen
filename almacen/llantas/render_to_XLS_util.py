@@ -146,37 +146,38 @@ def render_to_xls_inventario(queryset, filename):
     for col_num in range(len(columns)):
         sheet.write(row_num, col_num, columns[col_num], font_style)
 
-    '''
-<td>{{llanta.marca.nombre}} </td>
-                    <td>{{llanta.medida.nombre}} </td>
-                    <td>{{llanta.posicion.nombre}} </td>
-                    <td>{{llanta.dot}} </td>
-                    <td>{{llanta.status.nombre}} </td>
-                    <td>{{llanta.cantidad_actual_total}} </td>
-                    <td>{% for ubicacion, cantidad in llanta.total_ubicaciones.items %} [ bodega: {{ubicacion}} ; cantidad {{cantidad}}]{% endfor %}</td>
-                    <td>{{ llanta.total_ubicaciones_detail  }}</td>
-    '''
-
-    rows = queryset.values_list('id', 
-        'marca__nombre',
-        'medida__nombre',
-        'posicion__nombre',
-        'dot',
-        'status__nombre',
+    try:
+        rows = queryset.values_list('id', 
+          'marca__nombre',
+          'medida__nombre',
+          'posicion__nombre',
+          'dot',
+          'status__nombre',
         )
 
-    new_rows = []
-    for row in rows:
-        llanta = Llanta.objects.get(id=row[0])
-        for ubicacion in llanta.total_ubicaciones():
-            uyc = ("ubicacion: "+ ubicacion, "  cantidad: {}".format(llanta.total_ubicaciones()[ubicacion]))
+        ## se agregan columnas que no pertenecen al modelo
+        new_rows = []
+        for row in rows:
+            llanta = Llanta.objects.get(id=row[0])
+            for ubicacion in llanta.total_ubicaciones():
+                uyc = ("ubicacion: "+ ubicacion, "  cantidad: {}".format(llanta.total_ubicaciones()[ubicacion]))
 
-        for ubicacion in llanta.total_ubicaciones_detail():
-            cadena = "ubicacion: "+ ubicacion
-            cadena = cadena + "  {}".format(llanta.total_ubicaciones_detail()[ubicacion])
+            for ubicacion in llanta.total_ubicaciones_detail():
+                cadena = "ubicacion: "+ ubicacion
+                cadena = cadena + "  {}".format(llanta.total_ubicaciones_detail()[ubicacion])
 
-        new_rows.append(row + (llanta.cantidad_actual_total(), uyc, cadena))
+            new_rows.append(row + (llanta.cantidad_actual_total(), uyc, cadena))
 
+    except AttributeError: ## no envia un queryset cantidad, por eso es un codigo diferente
+        new_rows = []
+        for llanta in queryset:
+            new_rows.append((llanta[0].id, llanta[0].marca.nombre,\
+                         llanta[0].medida.nombre, llanta[0].posicion.nombre, \
+                         llanta[0].dot, llanta[0].status.nombre,\
+                         llanta[0].cantidad_actual_total(),
+                         "{}".format(llanta[0].total_ubicaciones()),
+                         "{}".format(llanta[0].total_ubicaciones_detail())
+                         ))     
     for row in new_rows:
         row_num += 1
         for col_num in range(len(row)):
@@ -188,6 +189,8 @@ def render_to_xls_inventario(queryset, filename):
                 sheet.write(row_num, col_num, fecha_row)    
             else:                
                 sheet.write(row_num, col_num, row[col_num])
+
+
         
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
