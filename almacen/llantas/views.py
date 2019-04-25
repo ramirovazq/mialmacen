@@ -229,6 +229,12 @@ def actual(request):
     orden = request.GET.get("orden", None)#default marca
     export = request.GET.get("export", None)#default marca
 
+    full_path = request.get_full_path()
+    if "?" in full_path:
+        url_export = full_path + '&export=True'
+    else:
+        url_export = '?export=True'
+
     if orden == 'marca':
         llantas = llantas.order_by('marca__nombre')
     elif orden == 'medida':
@@ -259,6 +265,8 @@ def actual(request):
 
     context['orden'] = orden        
     context['llantas'] = llantas
+    context['url_export'] = url_export
+
     return render(request, 'actual.html', context)    
 
 
