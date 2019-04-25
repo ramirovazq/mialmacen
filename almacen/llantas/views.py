@@ -408,3 +408,15 @@ def entrada_adjuntar(request, vale_id):
     context["form"] = form
     context["vale"] = obj_vale
     return render(request, 'adjuntar.html', context)
+
+
+@login_required
+def llanta_detalle(request, llanta_id):
+    context = {}
+    llanta = get_object_or_404(Llanta, id=llanta_id)
+
+    movimientos = Movimiento.objects.filter(llanta=llanta)
+
+    context["llanta"] = llanta
+    context["movimientos"] = movimientos
+    return render(request, 'llanta.html', context)    

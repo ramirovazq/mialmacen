@@ -28,6 +28,7 @@
               <thead>
                 <tr>
                   
+                 
                   <th>Marca </th>
                   <th>Medida </th>
                   <th>Posición </th>
@@ -36,12 +37,13 @@
                   <th>Cantidad </th>
                   <th>Ubicación </th>
                   <th>Permisionarios </th>
+                  <th>movimientos </th>
                 </tr>
               </thead>
               <tbody>
                 {% if orden == 'cantidad'%}
                   {% for llanta in llantas %} 
-                  <tr>
+                  <tr>                    
                     <td>{{llanta.0.marca.nombre}} </td>
                     <td>{{llanta.0.medida.nombre}} </td>
                     <td>{{llanta.0.posicion.nombre}} </td>
@@ -49,7 +51,8 @@
                     <td>{{llanta.0.status.nombre}} </td>
                     <td>{{llanta.1}} </td>
                     <td>{% for ubicacion, cantidad in llanta.0.total_ubicaciones.items %} [ bodega: {{ubicacion}} ; cantidad {{cantidad}}]{% endfor %}</td>
-                    <td>{{ llanta.0.total_ubicaciones_detail  }}</td>
+                    <td>{{ llanta.0.total_ubicaciones_detail  }}</td>                    
+                    <td><a href="{% url 'llanta_detalle' llanta.0.id %}">detalle</a> </td>
                   </tr>
                   {% endfor %}
 
@@ -64,6 +67,7 @@
                     <td>{{llanta.cantidad_actual_total}} </td>
                     <td>{% for ubicacion, cantidad in llanta.total_ubicaciones.items %} [ bodega: {{ubicacion}} ; cantidad {{cantidad}}]{% endfor %}</td>
                     <td>{{ llanta.total_ubicaciones_detail  }}</td>
+                    <td><a href="{% url 'llanta_detalle' llanta.id %}">detalle</a> </td>
                   </tr>
                   {% endfor %}
                 {% endif %}

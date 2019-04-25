@@ -21,5 +21,6 @@ urlpatterns = [
     path('entrada/<int:vale_id>/movimiento/<int:movimiento_id>/erase/', entrada_erase_movimiento, name='entrada_erase_movimiento'),    
     path('detalle/<int:movimiento_id>/', movimiento ,  name='movimiento'),
     path('actual/', actual, name='actual'),
+    path('llanta/<int:llanta_id>/movimientos/', llanta_detalle, name='llanta_detalle'),
 ]
 

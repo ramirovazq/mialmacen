@@ -1,0 +1,94 @@
+{% extends "base_bootstrap.html" %}
+
+{% block title_section %}            
+<h1 class="h2">Llanta: {{llanta}}</h1>
+{% endblock %}
+
+{% block extra_title_section %}
+{% endblock %}
+
+
+{% block buttons_section %}
+{% endblock %}
+
+
+{% block section %}
+	
+<div class="container">
+
+  <div class="row">
+    <div class="col-sm">
+      <p class="lead">
+      Make: {{llanta.marca}}
+      </p>  
+    </div>
+    <div class="col-sm">
+      <p class="lead">
+      Medida: {{llanta.medida}}
+      </p>  
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm">
+      <p class="lead">
+      Posicion: {{llanta.posicion}}
+      </p>  
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm">
+      <p class="lead">
+      Status: {{llanta.status}}
+      </p>  
+    </div>
+    <div class="col-sm">
+      <p class="lead">
+      Dot: {{llanta.dot}}
+      </p>  
+    </div>
+    <div class="col-sm">
+      <p class="lead">
+      % vida: {{llanta.porciento_vida}}
+      </p>  
+    </div>
+  </div>
+
+
+
+  {% if movimientos %}
+          <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  
+                 
+                  <th>Vale No folio</th>
+                  <th>Tipo movimiento </th>
+                  <th>Fecha vale </th>
+                </tr>
+              </thead>
+              <tbody>
+
+                  {% for movimiento in movimientos %} 
+                  <tr>                    
+                    <td>{{movimiento.vale}} </td>
+                    <td>{{movimiento.vale.tipo_movimiento}} </td>
+                    <td>{{movimiento.vale.fecha_vale}} </td>
+                  </tr>
+                  {% endfor %}
+
+              </tbody>
+            </table>
+          </div>
+  {% else %}
+    Sin movimientos
+  {% endif %}
+
+
+
+
+</div>
+
+{% endblock %}
