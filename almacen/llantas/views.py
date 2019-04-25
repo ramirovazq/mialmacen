@@ -362,7 +362,7 @@ def salida_impresion(request, vale_id):
 @login_required
 def entradas(request):
     context = {}
-    v = Vale.objects.filter(tipo_movimiento__nombre='ENTRADA').order_by('-fecha_vale')
+    v = Vale.objects.filter(tipo_movimiento__nombre='ENTRADA').order_by('-fecha_vale', '-no_folio')
     
     context["vales_count"] = v.count()
 
