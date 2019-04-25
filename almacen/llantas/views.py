@@ -415,8 +415,8 @@ def llanta_detalle(request, llanta_id):
     context = {}
     llanta = get_object_or_404(Llanta, id=llanta_id)
 
-    movimientos = Movimiento.objects.filter(llanta=llanta)
+    
 
     context["llanta"] = llanta
-    context["movimientos"] = movimientos
+    
     return render(request, 'llanta.html', context)    
