@@ -52,8 +52,17 @@
                     <td>{{llanta.0.status.nombre}} </td>
                     <td>{{llanta.1}} </td>
                     <td>{% for ubicacion, cantidad in llanta.0.total_ubicaciones.items %} {{ubicacion}}{% endfor %}</td>
-                    <td>{{ llanta.0.total_ubicaciones_detail  }}</td>                    
-                    <td><a href="{% url 'llanta_detalle' llanta.0.id %}">detalle</a> </td>
+                    <td>{% for llave, valor in llanta.0.total_ubicaciones_detail.items  %} 
+
+                        {% for k, v in valor.items %} 
+                        <button type="button" class="btn btn-info btn-sm">
+                          {{k}} <span class="badge badge-light">{{v}}</span>
+                        </button>
+                        {% endfor %}
+
+                        {% endfor %}
+                    </td>                    
+                    <td><a href="{% url 'llanta_detalle' llanta.0.id %}" class="btn btn-primary btn-sm" role="button">detalle</a> </td>
                   </tr>
                   {% endfor %}
 
@@ -67,8 +76,17 @@
                     <td>{{llanta.status.nombre}} </td>
                     <td>{{llanta.cantidad_actual_total}} </td>
                     <td>{% for ubicacion, cantidad in llanta.total_ubicaciones.items %} {{ubicacion}}{% endfor %}</td>
-                    <td>{{ llanta.total_ubicaciones_detail  }}</td>
-                    <td><a href="{% url 'llanta_detalle' llanta.id %}">detalle</a> </td>
+                    
+                    <td> {% for llave, valor in llanta.total_ubicaciones_detail.items  %} 
+                        
+                        {% for k, v in valor.items %} 
+                        <button type="button" class="btn btn-info btn-sm">
+                          {{k}} <span class="badge badge-light">{{v}}</span>
+                        </button>
+                        {% endfor %}
+                         
+                        {% endfor %}</td>                    
+                    <td><a href="{% url 'llanta_detalle' llanta.id %}" class="btn btn-primary btn-sm" role="button">detalle</a> </td>
                   </tr>
                   {% endfor %}
                 {% endif %}
