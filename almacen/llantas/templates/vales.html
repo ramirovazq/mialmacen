@@ -44,6 +44,7 @@
                   <th>Creador</th>
                   <th>Observacion</th>
                   <th># movimientos</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -62,6 +63,9 @@
                   <td>{{vale.creador_vale.user.username}}</td>
                   <td>{{vale.observaciones_grales}}</td>
                   <td>{{vale.movimientos.count}}</td>
+                  <td>
+                    <a href="{% url 'vale_erase' vale.id %}" class="btn btn-primary">borrar</a> 
+                  </td>
                 </tr>
                 {% endfor %}
               </tbody>

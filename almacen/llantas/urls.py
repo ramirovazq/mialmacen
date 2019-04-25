@@ -9,8 +9,11 @@ urlpatterns = [
     #path('entradas/', entradas, name='entradas'),
     #path('salidas/', salidas, name='salidas'),
     path('vales/', vales, name='vales'),
+    path('vale/<int:vale_id>/erase/', vale_erase, name='vale_erase'),
+
     path('salida/', salida, name='salida'),
     path('entrada/', entrada, name='entrada'),
+
     path('salida/<int:vale_id>/edit/', salida_edit, name='salida_edit'),
     path('entrada/<int:vale_id>/edit/', entrada_edit, name='entrada_edit'),
     path('salida/<int:vale_id>/', salida_add, name='salida_add'),

@@ -458,3 +458,18 @@ def llanta_detalle(request, llanta_id):
     context["llanta"] = llanta
     
     return render(request, 'llanta.html', context)    
+
+
+@login_required
+def vale_erase(request, vale_id):
+    redirige_entrada = None
+    obj_vale = get_object_or_404(Vale, pk=vale_id)
+    if len(obj_vale.movimientos()) == 0:
+        obj_vale.delete()
+        messages.add_message(request, messages.SUCCESS, 'Se borró el Vale')
+    else:
+        messages.add_message(request, messages.WARNING, 'Este vale tiene movimientos, no se puede borrar.')
+    
+    
+    return HttpResponseRedirect(reverse('vales')+"?tipo="+obj_vale.tipo_movimiento.nombre)
+
