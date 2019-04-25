@@ -1,6 +1,7 @@
 from django.template import Variable, defaultfilters
 from django.http import HttpResponse
 from django.conf import settings
+from llantas.models import Llanta
 
 from datetime import datetime as datetime_datetime
 from datetime import date as datetime_date
@@ -116,3 +117,79 @@ def render_to_csv(queryset, filename):
           renglon.append(movimiento.creador.user.username)
           writer.writerow(renglon)
     return response    
+
+
+
+
+def render_to_xls_inventario(queryset, filename):
+
+    ezxf = xlwt.easyxf
+    book = xlwt.Workbook(encoding="utf-8")
+    sheet = book.add_sheet("movimientos")
+
+    font_style = xlwt.XFStyle()
+    font_style.font.bold = True
+    row_num = 0
+
+    columns = [
+            'Id',
+                  'Marca',
+                  'Medida',
+                  'Posición',
+                  'Dot',
+                  'Status',
+                  'Cantidad',
+                  'Ubicación',
+                  'Permisionarios',
+            ]
+
+    for col_num in range(len(columns)):
+        sheet.write(row_num, col_num, columns[col_num], font_style)
+
+    '''
+<td>{{llanta.marca.nombre}} </td>
+                    <td>{{llanta.medida.nombre}} </td>
+                    <td>{{llanta.posicion.nombre}} </td>
+                    <td>{{llanta.dot}} </td>
+                    <td>{{llanta.status.nombre}} </td>
+                    <td>{{llanta.cantidad_actual_total}} </td>
+                    <td>{% for ubicacion, cantidad in llanta.total_ubicaciones.items %} [ bodega: {{ubicacion}} ; cantidad {{cantidad}}]{% endfor %}</td>
+                    <td>{{ llanta.total_ubicaciones_detail  }}</td>
+    '''
+
+    rows = queryset.values_list('id', 
+        'marca__nombre',
+        'medida__nombre',
+        'posicion__nombre',
+        'dot',
+        'status__nombre',
+        )
+
+    new_rows = []
+    for row in rows:
+        llanta = Llanta.objects.get(id=row[0])
+        for ubicacion in llanta.total_ubicaciones():
+            uyc = ("ubicacion: "+ ubicacion, "  cantidad: {}".format(llanta.total_ubicaciones()[ubicacion]))
+
+        for ubicacion in llanta.total_ubicaciones_detail():
+            cadena = "ubicacion: "+ ubicacion
+            cadena = cadena + "  {}".format(llanta.total_ubicaciones_detail()[ubicacion])
+
+        new_rows.append(row + (llanta.cantidad_actual_total(), uyc, cadena))
+
+    for row in new_rows:
+        row_num += 1
+        for col_num in range(len(row)):
+            if isinstance(row[col_num], datetime_datetime):
+                fecha_row = row[col_num].astimezone(timezone(settings.TIME_ZONE)).strftime("%d-%m-%Y %H:%M")
+                sheet.write(row_num, col_num, fecha_row)    
+            elif isinstance(row[col_num], datetime_date):
+                fecha_row = row[col_num].strftime("%d-%m-%Y")#.astimezone(timezone(settings.TIME_ZONE)).strftime("%d-%m-%Y %H:%M")
+                sheet.write(row_num, col_num, fecha_row)    
+            else:                
+                sheet.write(row_num, col_num, row[col_num])
+        
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    book.save(response)
+    return response

@@ -17,7 +17,7 @@ from rest_framework.permissions import IsAuthenticated
 from .utils import *
 from .models import *
 from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm, AdjuntoValeForm
-from .render_to_XLS_util import render_to_xls, render_to_csv
+from .render_to_XLS_util import render_to_xls, render_to_csv, render_to_xls_inventario
 from .serializers import ValeSerializer    
 
 ## curl -X GET http://127.0.0.1:8000/api/v0/vale/ -H 'Authorization: Token ABCDEF343434342234234KMLMKMLKM'
@@ -227,6 +227,7 @@ def actual(request):
     context['numero_llantas'] = numero_llantas
 
     orden = request.GET.get("orden", None)#default marca
+    export = request.GET.get("export", None)#default marca
 
     if orden == 'marca':
         llantas = llantas.order_by('marca__nombre')
@@ -247,6 +248,14 @@ def actual(request):
         llantas = l    
     else:
         llantas = llantas.order_by('marca__nombre')
+
+
+    if export:
+        return render_to_xls_inventario(
+                queryset=llantas,
+                filename="export_inventario.xls"
+            )                
+
 
     context['orden'] = orden        
     context['llantas'] = llantas
