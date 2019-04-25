@@ -273,7 +273,7 @@ def actual(request):
 @login_required
 def salidas(request):
     context = {}
-    v = Vale.objects.filter(tipo_movimiento__nombre='SALIDA').order_by('-fecha_vale')
+    v = Vale.objects.filter(tipo_movimiento__nombre='SALIDA').order_by('-fecha_vale', '-no_folio')
     
     context["vales_count"] = v.count()
 
