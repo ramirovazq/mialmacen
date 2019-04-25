@@ -2,7 +2,7 @@
 
 {% block title_section %}            
 
-<h1 class="h2">Vales de {% if action == 'entrada'%}{{action}}{% else %}salida{% endif %}: {{vales_count}}</h1>
+<h1 class="h2">{% if action == 'ENTRADA'%}Facturas{% else %}Vales{% endif %} de {{action}}: {{vales_count}}</h1>
 {% endblock %}
 
 {% block extra_title_section %}

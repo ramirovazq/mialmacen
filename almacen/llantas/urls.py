@@ -6,8 +6,9 @@ from .views import *
 urlpatterns = [
     path('', movimientos, name='movimientos'),
     path('importacion/', importacion, name='importacion'),
-    path('entradas/', entradas, name='entradas'),
-    path('salidas/', salidas, name='salidas'),
+    #path('entradas/', entradas, name='entradas'),
+    #path('salidas/', salidas, name='salidas'),
+    path('vales/', vales, name='vales'),
     path('salida/', salida, name='salida'),
     path('entrada/', entrada, name='entrada'),
     path('salida/<int:vale_id>/edit/', salida_edit, name='salida_edit'),

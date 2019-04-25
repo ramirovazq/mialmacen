@@ -269,7 +269,7 @@ def actual(request):
 
     return render(request, 'actual.html', context)    
 
-
+'''
 @login_required
 def salidas(request):
     context = {}
@@ -283,6 +283,43 @@ def salidas(request):
     v = paginator.get_page(page)
 
     context["vales"] = v
+    return render(request, 'vales.html', context)    
+
+@login_required
+def entradas(request):
+    context = {}
+    v = Vale.objects.filter(tipo_movimiento__nombre='ENTRADA').order_by('-fecha_vale', '-no_folio')
+    
+    context["vales_count"] = v.count()
+
+
+    paginator = Paginator(v, settings.ITEMS_PER_PAGE) # Show 5 profiles per page
+    page = request.GET.get('page')
+    v = paginator.get_page(page)
+
+    context["vales"] = v
+    context["action"] = "entrada"
+    return render(request, 'vales.html', context)    
+'''
+
+@login_required
+def vales(request):
+    context = {}
+    action = request.GET.get("tipo", "ENTRADA")
+    
+    if action:
+        action = action.upper()
+
+    v = Vale.objects.filter(tipo_movimiento__nombre=action).order_by('-fecha_vale', '-no_folio')
+    context["vales_count"] = v.count()
+
+
+    paginator = Paginator(v, settings.ITEMS_PER_PAGE) # Show 5 profiles per page
+    page = request.GET.get('page')
+    v = paginator.get_page(page)
+
+    context["vales"] = v
+    context["action"] = action
     return render(request, 'vales.html', context)    
 
 
@@ -358,22 +395,6 @@ def salida_impresion(request, vale_id):
     context['vale'] = obj
     return render(request, 'formato.html', context)
 
-
-@login_required
-def entradas(request):
-    context = {}
-    v = Vale.objects.filter(tipo_movimiento__nombre='ENTRADA').order_by('-fecha_vale', '-no_folio')
-    
-    context["vales_count"] = v.count()
-
-
-    paginator = Paginator(v, settings.ITEMS_PER_PAGE) # Show 5 profiles per page
-    page = request.GET.get('page')
-    v = paginator.get_page(page)
-
-    context["vales"] = v
-    context["action"] = "entrada"
-    return render(request, 'vales.html', context)    
 
 
 @login_required
