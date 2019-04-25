@@ -51,7 +51,7 @@
                     <td>{{llanta.0.dot}} </td>
                     <td>{{llanta.0.status.nombre}} </td>
                     <td>{{llanta.1}} </td>
-                    <td>{% for ubicacion, cantidad in llanta.0.total_ubicaciones.items %} [ bodega: {{ubicacion}} ; cantidad {{cantidad}}]{% endfor %}</td>
+                    <td>{% for ubicacion, cantidad in llanta.0.total_ubicaciones.items %} {{ubicacion}}{% endfor %}</td>
                     <td>{{ llanta.0.total_ubicaciones_detail  }}</td>                    
                     <td><a href="{% url 'llanta_detalle' llanta.0.id %}">detalle</a> </td>
                   </tr>
@@ -66,7 +66,7 @@
                     <td>{{llanta.dot}} </td>
                     <td>{{llanta.status.nombre}} </td>
                     <td>{{llanta.cantidad_actual_total}} </td>
-                    <td>{% for ubicacion, cantidad in llanta.total_ubicaciones.items %} [ bodega: {{ubicacion}} ; cantidad {{cantidad}}]{% endfor %}</td>
+                    <td>{% for ubicacion, cantidad in llanta.total_ubicaciones.items %} {{ubicacion}}{% endfor %}</td>
                     <td>{{ llanta.total_ubicaciones_detail  }}</td>
                     <td><a href="{% url 'llanta_detalle' llanta.id %}">detalle</a> </td>
                   </tr>
