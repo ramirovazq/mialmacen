@@ -1,7 +1,7 @@
 {% extends "base_bootstrap.html" %}
 
 {% block title_section %}            
-<h1 class="h2">Llanta: {{llanta}}</h1>
+<h1 class="h2">Llanta: {{llanta.marca.nombre}} {{llanta.medida.nombre}} {{llanta.posicion.nombre}} {{llanta.status.nombre}} {{llanta.dot}} %{{llanta.porciento_vida }} vida</h1>
 {% endblock %}
 
 {% block extra_title_section %}
@@ -35,6 +35,12 @@
       Posicion: {{llanta.posicion}}
       </p>  
     </div>
+    <div class="col-sm">
+      <p class="lead">
+      Id: {{llanta.id}}
+      </p>  
+    </div>
+
   </div>
 
   <div class="row">
@@ -55,37 +61,129 @@
     </div>
   </div>
 
+  <div class="row">
+    <div class="col-sm">
+      <p class="lead">
+      Cantidad: {{llanta.cantidad_actual_total}}
+      </p>  
+    </div>
+  </div>
 
+<br><br>
 
-  {% if movimientos %}
-          <div class="table-responsive">
+      <div class="table-responsive">
+           {% for ubicacion, valor in llanta.total_ubicaciones_detail.items %}
             <table class="table table-striped table-sm">
               <thead>
                 <tr>
-                  
-                 
-                  <th>Vale No folio</th>
-                  <th>Tipo movimiento </th>
-                  <th>Fecha vale </th>
+                  <th>Ubicacion</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
-
-                  {% for movimiento in movimientos %} 
-                  <tr>                    
-                    <td>{{movimiento.vale}} </td>
-                    <td>{{movimiento.vale.tipo_movimiento}} </td>
-                    <td>{{movimiento.vale.fecha_vale}} </td>
+                  <tr>
+                    <td>{{ubicacion}}</td>
+                    <td></td>
+                  </tr>
+                  {% for key, value in valor.items %} 
+                  <tr>
+                    <td>Permisionario: {{key}}</td>
+                    <td>Cantidad: {{value}}</td>
                   </tr>
                   {% endfor %}
 
               </tbody>
             </table>
+            {% endfor %}
+          </div>
+
+
+  {% if llanta.movimientos_entrada %}
+          <div class="table-responsive">
+            <h3>Movimientos entrada</h3>
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>Vale No folio</th>
+                  <th>Tipo movimiento </th>
+                  <th>Fecha vale </th>
+                  <th>Id movimiento </th>
+
+                  <th>Origen</th>
+                  <th>Destino</th>
+                  <th>Cantidad</th>
+                  <th>Precio Unitario</th>
+                  <th>Creador</th>
+                  <th>Observacion</th>
+                  <th>Permisionario</th>
+                </tr>
+              </thead>
+              <tbody>
+                  {% for movimiento in llanta.movimientos_entrada %} 
+                  <tr>                    
+                    <td>{{movimiento.vale}} </td>
+                    <td>{{movimiento.vale.tipo_movimiento}} </td>
+                    <td>{{movimiento.vale.fecha_vale}} </td>
+                    <td>{{movimiento.id}} </td>
+                    <td>{{movimiento.origen}} </td>
+                    <td>{{movimiento.destino}} </td>
+                    <td>{{movimiento.cantidad}} </td>
+                    <td>{{movimiento.precio_unitario}} </td>
+                    <td>{{movimiento.creador}} </td>
+                    <td>{{movimiento.observacion}} </td>
+                    <td>{{movimiento.permisionario}} </td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+            </table>
           </div>
   {% else %}
-    Sin movimientos
+    Sin movimientos entrada
   {% endif %}
 
+<br><br>
+{% if llanta.movimientos_salida %}
+          <div class="table-responsive">
+            <h3>Movimientos salida</h3>
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>Vale No folio</th>
+                  <th>Tipo movimiento </th>
+                  <th>Fecha vale </th>
+                  <th>Id movimiento </th>
+
+                  <th>Origen</th>
+                  <th>Destino</th>
+                  <th>Cantidad</th>
+                  <th>Precio Unitario</th>
+                  <th>Creador</th>
+                  <th>Observacion</th>
+                  <th>Permisionario</th>
+                </tr>
+              </thead>
+              <tbody>
+                  {% for movimiento in llanta.movimientos_salida %} 
+                  <tr>                    
+                    <td>{{movimiento.vale}} </td>
+                    <td>{{movimiento.vale.tipo_movimiento}} </td>
+                    <td>{{movimiento.vale.fecha_vale}} </td>
+                    <td>{{movimiento.id}} </td>
+                    <td>{{movimiento.origen}} </td>
+                    <td>{{movimiento.destino}} </td>
+                    <td>{{movimiento.cantidad}} </td>
+                    <td>{{movimiento.precio_unitario}} </td>
+                    <td>{{movimiento.creador}} </td>
+                    <td>{{movimiento.observacion}} </td>
+                    <td>{{movimiento.permisionario}} </td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+            </table>
+          </div>
+  {% else %}
+    Sin movimientos salida
+  {% endif %}
 
 
 
