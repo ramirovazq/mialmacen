@@ -341,9 +341,6 @@ def salida_add_movimiento(request, vale_id):
             origen  = return_profile(nombre_origen, "BODEGA")
             creador  = return_profile(request.user.username, "STAFF")
 
-            dicc_ubicaciones = llanta.total_ubicaciones()
-            cantidad_en_ubicacion = dicc_ubicaciones[origen.user.username]
-
             dicc_movimiento = {
                     "vale":obj, 
                     "tipo_movimiento":obj.tipo_movimiento,
@@ -359,6 +356,13 @@ def salida_add_movimiento(request, vale_id):
             permisionario = return_permisionario(nombre_permisionario)
             if permisionario:
                 dicc_movimiento["permisionario"] = permisionario
+                nombre_permisionario = permisionario.user.username
+            else:
+                nombre_permisionario = nombre_permisionario
+
+            dicc_ubicaciones = llanta.total_ubicaciones_detail()
+
+            cantidad_en_ubicacion = dicc_ubicaciones[origen.user.username][nombre_permisionario]
 
 
             if cantidad <= cantidad_en_ubicacion: ## extra validacion, solo puede sacarse una cantidad menor o igual a lo existente

@@ -124,9 +124,9 @@
                             {% csrf_token %}
                             {{form_salida.as_p}}
 
-                            <input type="text" value="{{permisionario}}" name="nombre_permisionario" id="nombre_permisionario">
-                            <input type="text" value="{{ubicacion}}" name="nombre_origen" id="nombre_origen">
-                            <input type="text" value="{{llanta.id}}" name="id_llanta" id="id_llanta">
+                            <input type="hidden" value="{{permisionario}}" name="nombre_permisionario" id="nombre_permisionario">
+                            <input type="hidden" value="{{ubicacion}}" name="nombre_origen" id="nombre_origen">
+                            <input type="hidden" value="{{llanta.id}}" name="id_llanta" id="id_llanta">
                             <input type="submit" value="Agregar" class="btn btn-primary mb-2">
                           </form>
                         </td>
