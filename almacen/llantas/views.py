@@ -343,18 +343,26 @@ def salida_add_movimiento(request, vale_id):
 
             dicc_ubicaciones = llanta.total_ubicaciones()
             cantidad_en_ubicacion = dicc_ubicaciones[origen.user.username]
+
+            dicc_movimiento = {
+                    "vale":obj, 
+                    "tipo_movimiento":obj.tipo_movimiento,
+                    "fecha_movimiento":obj.fecha_vale,                
+                    "origen":origen,
+                    "destino":form.cleaned_data['destino'],
+                    "llanta":llanta,
+                    "cantidad":form.cleaned_data['cantidad'],
+                    "observacion":form.cleaned_data['observacion'],
+                    "creador":creador
+            }
+            nombre_permisionario = request.POST['nombre_permisionario']
+            permisionario = return_permisionario(nombre_permisionario)
+            if permisionario:
+                dicc_movimiento["permisionario"] = permisionario
+
+
             if cantidad <= cantidad_en_ubicacion: ## extra validacion, solo puede sacarse una cantidad menor o igual a lo existente
-                m = Movimiento(
-                    vale=obj, 
-                    tipo_movimiento=obj.tipo_movimiento,
-                    fecha_movimiento=obj.fecha_vale,                
-                    origen=origen,
-                    destino=form.cleaned_data['destino'],
-                    llanta=llanta,
-                    cantidad=form.cleaned_data['cantidad'],
-                    observacion=form.cleaned_data['observacion'],
-                    creador=creador
-                )
+                m = Movimiento(**dicc_movimiento)
                 m.save()
                 messages.add_message(request, messages.SUCCESS, 'Se adiciona movimiento {}'.format(m.id))
                 return HttpResponseRedirect(reverse('salida_add', args=[obj.id]))    

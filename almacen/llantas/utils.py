@@ -40,6 +40,26 @@ def return_or_create_user(username):
         u = User.objects.create_user(username, '{}@fletesexpress.com.mx'.format(username), pass_new)
     return u
 
+def return_permisionario(username):
+    
+    try:
+        tipo_permisionario = Tipo.objects.get(nombre="PERMISIONARIO")
+        u = User.objects.get(username=username)
+        profile = Profile.objects.get(user=u, tipo=tipo_permisionario)
+    except User.DoesNotExist:
+        u = None
+        profile = None        
+    except Profile.DoesNotExist:
+        u = None
+        profile = None
+    except Tipo.DoesNotExist:
+        u = None
+        profile = None
+
+    return profile
+
+
+
 def create_profile(user, tipo="STAFF"):
 
     tipo, flag = Tipo.objects.get_or_create(nombre=tipo)
