@@ -185,9 +185,6 @@ def salida_add(request, vale_id):
             form_profile = ProfileSearchForm(request.POST)
 
             if form_profile.is_valid():
-
-                messages.add_message(request, messages.INFO, 'Búsqueda por permisionario')
-
                 profile = form_profile.cleaned_data['profile']
                 movimientos_entrada = Movimiento.entradas()
                 movimientos_entrada_permisionario = movimientos_entrada.filter(permisionario=profile)
