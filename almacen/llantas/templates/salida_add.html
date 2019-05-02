@@ -112,6 +112,19 @@
     <input type="button" value="Limpiar" class="btn btn-secondary" id="boton_limpiar">
 </form>
 
+<form action="{% url 'salida_add' vale.id %}" method="post" id="profile_add_form">
+    {% csrf_token %}
+    {{ form_profile.errors }}
+      <div class="form-group">
+        {{form_profile.profile.errors}}
+        <label for="{{form_profile.profile.id_for_label}}">Permisionario</label>
+        {{form_profile.profile}}
+      </div>
+
+    <input type="submit" value="Buscar" class="btn btn-primary">
+    <input type="button" value="Limpiar" class="btn btn-secondary" id="boton_limpiar">
+</form>
+
 
   {% if llantas %}
   
@@ -173,6 +186,7 @@
           <script>
           $( function() {            
             $( "#boton_limpiar" ).click(function(){
+                $('#profile_add_form').trigger("reset");
                 $('#salida_add_form').trigger("reset");
                 window.location = "{% url 'salida_add' vale.id %}";
             });

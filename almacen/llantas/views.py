@@ -16,7 +16,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from .utils import *
 from .models import *
-from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm, AdjuntoValeForm
+from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm, AdjuntoValeForm, ProfileSearchForm
 from .render_to_XLS_util import render_to_xls, render_to_csv, render_to_xls_inventario
 from .serializers import ValeSerializer    
 
@@ -176,38 +176,65 @@ def salida_add(request, vale_id):
     context['vale'] = obj
 
     search = Llanta.objects.none()
+
+
     if request.method == 'POST':
-        form = SearchSalidaForm(request.POST)
+        if 'profile' in request.POST: ### cual formulario se envio
 
-        if form.is_valid():
-            search_filtrado = []
+            form = SearchSalidaForm()
+            form_profile = ProfileSearchForm(request.POST)
 
-            dicc_llanta = {}
-            dot = form.cleaned_data['dot']
-            marca = form.cleaned_data['marca']
-            medida = form.cleaned_data['medida']
-            posicion = form.cleaned_data['posicion']
-            status = form.cleaned_data['status']
+            if form_profile.is_valid():
 
-            if dot:
-                dicc_llanta['dot__icontains'] = dot
-            if marca:
-                dicc_llanta['marca'] = marca
-            if medida:
-                dicc_llanta['medida'] = medida
-            if posicion:
-                dicc_llanta['posicion'] = posicion
-            if status:
-                dicc_llanta['status'] = status
+                messages.add_message(request, messages.INFO, 'Búsqueda por permisionario')
 
-            if dicc_llanta.keys():
-                messages.add_message(request, messages.INFO, 'Búsqueda por: {}'.format(dicc_llanta))
-                search = Llanta.objects.filter(**dicc_llanta)
-            else:
-                messages.add_message(request, messages.INFO, 'Selecciona almenos un criterio de búsqueda.')
+                profile = form_profile.cleaned_data['profile']
+                movimientos_entrada = Movimiento.entradas()
+                movimientos_entrada_permisionario = movimientos_entrada.filter(permisionario=profile)
+
+                id_llanta = movimientos_entrada_permisionario.values_list('llanta__id')
+                unique_id_llanta = list(set(id_llanta))
+                lista_unique_id_llanta = [x[0] for x in unique_id_llanta]
+
+                messages.add_message(request, messages.INFO, 'Búsqueda por permisionario: {}'.format(profile))
+                search = Llanta.objects.filter(id__in=lista_unique_id_llanta)
+
+
+        else: ##
+            form = SearchSalidaForm(request.POST)
+            form_profile = ProfileSearchForm()
+            if form.is_valid():
+                search_filtrado = []
+
+                dicc_llanta = {}
+                dot = form.cleaned_data['dot']
+                marca = form.cleaned_data['marca']
+                medida = form.cleaned_data['medida']
+                posicion = form.cleaned_data['posicion']
+                status = form.cleaned_data['status']
+
+                if dot:
+                    dicc_llanta['dot__icontains'] = dot
+                if marca:
+                    dicc_llanta['marca'] = marca
+                if medida:
+                    dicc_llanta['medida'] = medida
+                if posicion:
+                    dicc_llanta['posicion'] = posicion
+                if status:
+                    dicc_llanta['status'] = status
+
+                if dicc_llanta.keys():
+                    messages.add_message(request, messages.INFO, 'Búsqueda por: {}'.format(dicc_llanta))
+                    search = Llanta.objects.filter(**dicc_llanta)
+                else:
+                    messages.add_message(request, messages.INFO, 'Selecciona almenos un criterio de búsqueda.')
+
     else:
         form = SearchSalidaForm()
+        form_profile = ProfileSearchForm()
 
+    context["form_profile"] = form_profile
     context["form"] = form
     context['form_salida'] = MovimientoSalidaForm()
     context['llantas'] = search 

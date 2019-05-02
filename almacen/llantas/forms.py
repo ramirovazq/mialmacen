@@ -157,6 +157,18 @@ class LlantaPosicionSearchChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
         return "{}".format(obj.nombre)#, obj.medida.nombre, obj.posicion.nombre, obj.status.nombre)
 
+class PermisionarioChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "%s" % (obj)
+
+
+class ProfileSearchForm(forms.Form):
+
+    profile = PermisionarioChoiceField(
+                required=False,
+                queryset=Profile.objects.filter(tipo__nombre="PERMISIONARIO"),#( Q(tipo__nombre="BODEGA") | Q(tipo__nombre="ECONOMICO")),#NOECONOMICO
+                widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
+    )
 
 class SearchSalidaForm(ModelForm):
 
@@ -224,10 +236,6 @@ class MarcaChoiceField(ModelChoiceField):
         return "{}".format(obj.nombre)#, obj.medida.nombre, obj.posicion.nombre, obj.status.nombre)
 
 class DestinoBodegaChoiceField(ModelChoiceField):
-    def label_from_instance(self, obj):
-        return "%s" % (obj)
-
-class PermisionarioChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
         return "%s" % (obj)
 
