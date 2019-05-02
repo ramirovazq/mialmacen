@@ -145,10 +145,23 @@ class ProfileChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
         return "{} {} [{}]".format(obj.user.first_name, obj.user.last_name, obj.user.username)
 
+class LlantaMedidaChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "{}".format(obj.nombre)#, obj.medida.nombre, obj.posicion.nombre, obj.status.nombre)
+
+class LlantaMarcaSearchChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "{}".format(obj.nombre)#, obj.medida.nombre, obj.posicion.nombre, obj.status.nombre)
+
+class LlantaPosicionSearchChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "{}".format(obj.nombre)#, obj.medida.nombre, obj.posicion.nombre, obj.status.nombre)
+
+
 class SearchSalidaForm(ModelForm):
 
     dot = forms.CharField(
-            required=True,
+            required=False,
             label='Dot', 
             max_length="100",
             widget=forms.TextInput(
@@ -158,9 +171,38 @@ class SearchSalidaForm(ModelForm):
                 }
     ))
 
+    marca = LlantaMarcaSearchChoiceField(
+                required=False,
+                label='Marca', 
+                queryset=Marca.objects.all().order_by('nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+    medida = LlantaMedidaChoiceField(
+                required=False,
+                label='Medida', 
+                queryset=Medida.objects.all().order_by('nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+    posicion = LlantaPosicionSearchChoiceField(
+                required=False,
+                label='Posición',
+                queryset=Posicion.objects.all().order_by('nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+    status = LlantaMarcaSearchChoiceField(
+                required=False,
+                label='Status',
+                queryset=Status.objects.all().order_by('nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+
     class Meta: 
-        model = Movimiento
-        fields = ['dot']
+        model = Llanta
+        fields = ['dot', 'marca', 'medida', 'posicion', 'status']
 
 class LlantaMarcaChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):

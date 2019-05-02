@@ -181,8 +181,30 @@ def salida_add(request, vale_id):
 
         if form.is_valid():
             search_filtrado = []
+
+            dicc_llanta = {}
             dot = form.cleaned_data['dot']
-            search = Llanta.objects.filter(dot__icontains=dot)
+            marca = form.cleaned_data['marca']
+            medida = form.cleaned_data['medida']
+            posicion = form.cleaned_data['posicion']
+            status = form.cleaned_data['status']
+
+            if dot:
+                dicc_llanta['dot__icontains'] = dot
+            if marca:
+                dicc_llanta['marca'] = marca
+            if medida:
+                dicc_llanta['medida'] = medida
+            if posicion:
+                dicc_llanta['posicion'] = posicion
+            if status:
+                dicc_llanta['status'] = status
+
+            if dicc_llanta.keys():
+                messages.add_message(request, messages.INFO, 'Búsqueda por: {}'.format(dicc_llanta))
+                search = Llanta.objects.filter(**dicc_llanta)
+            else:
+                messages.add_message(request, messages.INFO, 'Selecciona almenos un criterio de búsqueda.')
     else:
         form = SearchSalidaForm()
 

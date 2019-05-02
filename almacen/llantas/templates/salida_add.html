@@ -83,6 +83,31 @@
         <label for="{{form.dot.id_for_label}}">Dot</label>
         {{form.dot}}
       </div>
+      <div class="form-group">
+        {{form.marca.errors}}
+        <label for="{{form.marca.id_for_label}}">Marca</label>
+        {{form.marca}}
+      </div>
+
+      <div class="form-group">
+        {{form.medida.errors}}
+        <label for="{{form.medida.id_for_label}}">Medida</label>
+        {{form.medida}}
+      </div>
+
+      <div class="form-group">
+        {{form.posicion.errors}}
+        <label for="{{form.posicion.id_for_label}}">Posición</label>
+        {{form.posicion}}
+      </div>
+
+      <div class="form-group">
+        {{form.status.errors}}
+        <label for="{{form.status.id_for_label}}">Status</label>
+        {{form.status}}
+      </div>
+
+
     <input type="submit" value="Buscar" class="btn btn-primary">
     <input type="button" value="Limpiar" class="btn btn-secondary" id="boton_limpiar">
 </form>
