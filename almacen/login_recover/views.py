@@ -45,7 +45,8 @@ class Login(generics.GenericAPIView):
                     response_data = {
                         'token': token.key,
                         'email': user.email,
-                        'user_id': user.id
+                        'user_id': user.id,
+                        'username': user.username
                     }
                 except Token.DoesNotExist:
                     return Response({'error': 'Error'},

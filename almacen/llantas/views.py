@@ -18,7 +18,7 @@ from .utils import *
 from .models import *
 from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm, AdjuntoValeForm, ProfileSearchForm
 from .render_to_XLS_util import render_to_xls, render_to_csv, render_to_xls_inventario
-from .serializers import ValeSerializer    
+from .serializers import ValeSerializer, LlantaSerializer
 
 ## curl -X GET http://127.0.0.1:8000/api/v0/vale/ -H 'Authorization: Token ABCDEF343434342234234KMLMKMLKM'
 class ValeViewSet(viewsets.ModelViewSet):
@@ -30,6 +30,16 @@ class ValeViewSet(viewsets.ModelViewSet):
 
     queryset = Vale.objects.all().order_by('-fecha_created')
     serializer_class = ValeSerializer
+
+class LlantaViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    queryset = Llanta.objects.all()
+    serializer_class = LlantaSerializer
 
 
 
