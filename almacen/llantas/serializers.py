@@ -34,8 +34,6 @@ class LlantaSerializer(serializers.ModelSerializer):
         return obj.cantidad_actual_total()
 
     def get_detalle(self, obj):
-        print("----------------")
-        print(obj.total_ubicaciones_detail())
         return obj.total_ubicaciones_detail()
 
 
