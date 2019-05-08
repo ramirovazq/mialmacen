@@ -297,6 +297,35 @@ class Llanta(models.Model):
         return localizaciones
 
 
+    def total_ubicaciones_detail_endpoint(self):
+        localizaciones = {}
+        lugares = self.ubicaciones()
+        permisionarios = self.permisionarios()
+        
+        lista_interna = []
+        for bodega in lugares:
+            diccionario = {}
+            
+
+            for permisionario in permisionarios:
+                e = sum([m.cantidad for m in self.movimientos_entrada().filter(destino=bodega, permisionario=permisionario)])
+                s = sum([m.cantidad for m in self.movimientos_salida().filter(origen=bodega, permisionario=permisionario)])
+                if (e - s) > 0 :
+                    diccionario[bodega.user.username+"--"+permisionario.user.username] = e - s
+                    lista_interna.append(diccionario)
+
+            e = sum([m.cantidad for m in self.movimientos_entrada().filter(destino=bodega, permisionario__isnull=True)])
+            s = sum([m.cantidad for m in self.movimientos_salida().filter(origen=bodega, permisionario__isnull=True)])
+            diccionario_dos = {}
+            diccionario_dos[bodega.user.username+"--"+'sin_permisionario'] = e - s
+            lista_interna.append(diccionario_dos)
+
+
+            #diccionario['sin_permisionario'] = total - total_permisionarios
+            localizaciones[bodega.user.username] = lista_interna
+        return lista_interna
+
+
 class Movimiento(models.Model):
     vale = models.ForeignKey(
         Vale,
