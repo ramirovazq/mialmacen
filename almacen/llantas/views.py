@@ -16,9 +16,10 @@ from rest_framework.permissions import IsAuthenticated
 
 from .utils import *
 from .models import *
+from persona.models import Profile, Tipo
 from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm, AdjuntoValeForm, ProfileSearchForm
 from .render_to_XLS_util import render_to_xls, render_to_csv, render_to_xls_inventario
-from .serializers import ValeSerializer, LlantaSerializer
+from .serializers import ValeSerializer, LlantaSerializer, ProfileSerializer
 
 ## curl -X GET http://127.0.0.1:8000/api/v0/vale/ -H 'Authorization: Token ABCDEF343434342234234KMLMKMLKM'
 class ValeViewSet(viewsets.ModelViewSet):
@@ -41,6 +42,16 @@ class LlantaViewSet(viewsets.ModelViewSet):
     queryset = Llanta.objects.all()
     serializer_class = LlantaSerializer
 
+
+class EconomicoViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    queryset = Profile.objects.filter(tipo=Tipo.objects.get(nombre="ECONOMICO"))
+    serializer_class = ProfileSerializer
 
 
 @login_required

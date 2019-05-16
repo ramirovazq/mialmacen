@@ -1,5 +1,24 @@
 from rest_framework import serializers
 from llantas.models import Vale, Llanta, Marca, Medida, Posicion, Status
+from persona.models import Profile, Tipo
+
+class TipoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tipo
+        fields = '__all__'
+
+class ProfileSerializer(serializers.ModelSerializer):
+    tipo    = TipoSerializer(read_only=True)
+    nombre = serializers.SerializerMethodField()
+
+    def get_nombre(self, obj):
+        print(obj.user.username)
+        return obj.user.username
+
+    class Meta:
+        model = Profile
+        fields = '__all__'
+
 
 class StatusSerializer(serializers.ModelSerializer):
     class Meta:

@@ -311,13 +311,21 @@ class Llanta(models.Model):
                 e = sum([m.cantidad for m in self.movimientos_entrada().filter(destino=bodega, permisionario=permisionario)])
                 s = sum([m.cantidad for m in self.movimientos_salida().filter(origen=bodega, permisionario=permisionario)])
                 if (e - s) > 0 :
-                    diccionario[bodega.user.username+"--"+permisionario.user.username] = e - s
+                    diccionario['bodega'] = bodega.user.username
+                    diccionario['permisionario'] = permisionario.user.username
+                    diccionario['cantidad'] = e - s 
+                    diccionario['id'] = "{}-{}".format(bodega.user.id, permisionario.user.id)
+
+                    #diccionario[bodega.user.username+"--"+permisionario.user.username] = e - s
                     lista_interna.append(diccionario)
 
             e = sum([m.cantidad for m in self.movimientos_entrada().filter(destino=bodega, permisionario__isnull=True)])
             s = sum([m.cantidad for m in self.movimientos_salida().filter(origen=bodega, permisionario__isnull=True)])
             diccionario_dos = {}
-            diccionario_dos[bodega.user.username+"--"+'sin_permisionario'] = e - s
+            diccionario_dos['bodega'] = bodega.user.username
+            diccionario_dos['permisionario'] = "sin_permisionario"
+            diccionario_dos['cantidad'] = e - s   
+            diccionario_dos['id'] = "{}-{}".format(bodega.user.id, "sinperm")
             lista_interna.append(diccionario_dos)
 
 
