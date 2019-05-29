@@ -18,6 +18,7 @@ class TipoMovimientoAdmin(admin.ModelAdmin):
 
 class ValeAdmin(admin.ModelAdmin):
 	list_display = ['id', 'no_folio', 'tipo_movimiento', 'fecha_vale', 'con_iva', 'fecha_created', 'fecha_edited', 'persona_asociada']
+	list_filter = ['tipo_movimiento']
 
 class MovimientoAdmin(admin.ModelAdmin):
 	list_display = ['id', 'vale', 'fecha_movimiento', 'origen', 'destino', 'cantidad', 'creador', 'permisionario']
