@@ -5,6 +5,7 @@ from rest_framework import viewsets
 
 from .models import *
 from .serializers import LoginSerializer
+from persona.models import Profile
 
 from rest_framework.permissions import AllowAny
 from rest_framework import generics, status
@@ -42,12 +43,22 @@ class Login(generics.GenericAPIView):
                 try:
                     # user already verified exist
                     token, bandera_token = Token.objects.get_or_create(user=user)
-                    response_data = {
-                        'token': token.key,
-                        'email': user.email,
-                        'user_id': user.id,
-                        'username': user.username
-                    }
+                    try:
+                        p = Profile.objects.get(user__id=user.id)
+                        response_data = {
+                            'token': token.key,
+                            'email': user.email,
+                            'user_id': user.id,
+                            'profile_id': p.id,
+                            'username': user.username
+                        }
+                    except Profile.DoesNotExist:
+                        response_data = {
+                            'token': token.key,
+                            'email': user.email,
+                            'user_id': user.id,
+                            'username': user.username
+                        }
                 except Token.DoesNotExist:
                     return Response({'error': 'Error'},
                                 status=status.HTTP_404_NOT_FOUND)    

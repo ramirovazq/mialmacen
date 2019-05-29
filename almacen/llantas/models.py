@@ -172,14 +172,21 @@ class Vale(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
     VALE_FOLIO_INIT = "1"
 
     @staticmethod
-    def siguiente_folio():
-        vales = Vale.objects.all().order_by('-no_folio')
+    def siguiente_folio(tipo_movimiento_id=2): # 2 default salida
+        vales = Vale.objects.filter(tipo_movimiento__id=tipo_movimiento_id).order_by('-id')
         if len(vales) > 0:
-            ultima = vale[0]
-            return "{}".format(int(ultima.no_folio) + 1)
+            for vale in vales:
+                try:
+                    next_folio = "{}".format(int(vale.no_folio) + 1)
+                    return next_folio
+                except TypeError:
+                    pass
+                except ValueError:
+                    pass
+            ultima = vales[0]
+            return "{}-ID".format(int(ultima.id) + 1)
         else:
             return Vale.VALE_FOLIO_INIT
-
 
 
     def __str__(self):
@@ -311,8 +318,10 @@ class Llanta(models.Model):
                 e = sum([m.cantidad for m in self.movimientos_entrada().filter(destino=bodega, permisionario=permisionario)])
                 s = sum([m.cantidad for m in self.movimientos_salida().filter(origen=bodega, permisionario=permisionario)])
                 if (e - s) > 0 :
+                    diccionario['bodega_id'] = bodega.id
                     diccionario['bodega'] = bodega.user.username
                     diccionario['permisionario'] = permisionario.user.username
+                    diccionario['permisionario_id'] = permisionario.id
                     diccionario['cantidad'] = e - s 
                     diccionario['id'] = "{}-{}".format(bodega.user.id, permisionario.user.id)
 
@@ -323,7 +332,9 @@ class Llanta(models.Model):
             s = sum([m.cantidad for m in self.movimientos_salida().filter(origen=bodega, permisionario__isnull=True)])
             diccionario_dos = {}
             diccionario_dos['bodega'] = bodega.user.username
+            diccionario_dos['bodega_id'] = bodega.id
             diccionario_dos['permisionario'] = "sin_permisionario"
+            diccionario_dos['permisionario_id'] = ""
             diccionario_dos['cantidad'] = e - s   
             diccionario_dos['id'] = "{}-{}".format(bodega.user.id, "sinperm")
             lista_interna.append(diccionario_dos)

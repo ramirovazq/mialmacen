@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from llantas.models import Vale, Llanta, Marca, Medida, Posicion, Status
+from llantas.models import Vale, Llanta, Marca, Medida, Posicion, Status, Movimiento
 from persona.models import Profile, Tipo
 
 class TipoSerializer(serializers.ModelSerializer):
@@ -64,4 +64,10 @@ class LlantaSerializer(serializers.ModelSerializer):
 class ValeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vale
+        fields = '__all__'
+
+
+class MovimientoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Movimiento
         fields = '__all__'

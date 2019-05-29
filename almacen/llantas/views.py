@@ -8,7 +8,11 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.utils.timezone import now as d_utils_now
 
+from rest_framework.decorators import detail_route
 from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework import status
+
 from datetime import datetime
 
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
@@ -19,9 +23,20 @@ from .models import *
 from persona.models import Profile, Tipo
 from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm, AdjuntoValeForm, ProfileSearchForm
 from .render_to_XLS_util import render_to_xls, render_to_csv, render_to_xls_inventario
-from .serializers import ValeSerializer, LlantaSerializer, ProfileSerializer
+from .serializers import ValeSerializer, LlantaSerializer, ProfileSerializer, MovimientoSerializer
 
 ## curl -X GET http://127.0.0.1:8000/api/v0/vale/ -H 'Authorization: Token ABCDEF343434342234234KMLMKMLKM'
+class MovimientoViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    queryset = Movimiento.objects.all().order_by('-date_created')
+    serializer_class = MovimientoSerializer
+
+
 class ValeViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
@@ -31,6 +46,14 @@ class ValeViewSet(viewsets.ModelViewSet):
 
     queryset = Vale.objects.all().order_by('-fecha_created')
     serializer_class = ValeSerializer
+
+
+    def perform_create(self, serializer):
+        if not 'no_folio' in serializer.validated_data.keys():
+            vale = serializer.save(no_folio=Vale.siguiente_folio())
+        else:
+            vale = serializer.save()
+
 
 class LlantaViewSet(viewsets.ModelViewSet):
     """
