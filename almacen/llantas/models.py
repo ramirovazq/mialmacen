@@ -311,12 +311,10 @@ class Llanta(models.Model):
         
         lista_interna = []
         for bodega in lugares:
-            diccionario = {}
-            
-
             for permisionario in permisionarios:
                 e = sum([m.cantidad for m in self.movimientos_entrada().filter(destino=bodega, permisionario=permisionario)])
                 s = sum([m.cantidad for m in self.movimientos_salida().filter(origen=bodega, permisionario=permisionario)])
+                diccionario = {}
                 if (e - s) > 0 :
                     diccionario['bodega_id'] = bodega.id
                     diccionario['bodega'] = bodega.user.username
