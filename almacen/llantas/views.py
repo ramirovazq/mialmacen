@@ -8,7 +8,8 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.utils.timezone import now as d_utils_now
 
-from rest_framework.decorators import detail_route
+#from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
@@ -73,7 +74,8 @@ class EconomicoViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
 
-    queryset = Profile.objects.filter(tipo=Tipo.objects.get(nombre="ECONOMICO"))
+    obj_tipo, bandera = Tipo.objects.get_or_create(nombre="ECONOMICO")
+    queryset = Profile.objects.filter(tipo=obj_tipo)
     serializer_class = ProfileSerializer
 
 
