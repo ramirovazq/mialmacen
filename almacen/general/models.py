@@ -171,6 +171,7 @@ class Producto(models.Model):
                 elif x.movimiento.tipo_movimiento.nombre == 'SALIDA':
                     total_salida = total_salida + (x.movimiento.cantidad*x.movimiento.unidad.ratio)
             answer[profileposition.in_words()] = float(total_entrada-total_salida)
+        # returns dictionary, similar to dict["ALMACEN_ALTERNO>>Anaquel 11>>Nivel de Anaquel 23"] = 35
         return answer
 
 
