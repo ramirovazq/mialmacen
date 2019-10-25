@@ -48,7 +48,7 @@ class RecoverTestCase(TestCase):
 
   def test_api_login_notoken(self):
     response = self.client.post('/api/v0/login/', {'username': self.username1, 'password': self.password1})    
-    self.assertEqual(response.status_code, 404)#osea not found
+    self.assertEqual(response.status_code, 200) # this user, havent a token, but creates onfly
   
   def test_api_login_creating_token(self):
     Token.objects.create(user=self.usuario1)
