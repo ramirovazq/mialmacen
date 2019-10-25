@@ -151,19 +151,26 @@ class Producto(models.Model):
             list_exactpositions = [x.exactposition for x in ProductoExactProfilePosition.objects.filter(movimiento=movimiento_e)]
             if len(list_exactpositions) > 0:
                 answer.add(list_exactpositions[0])
+        '''
+        answer, set of exactposition, que es un ProfilePosition
+        '''
         return answer
 
 
     def positions_inventory(self, lugar=None):
         #movimientos_salida = self.movimientos("SALIDA", destino=lugar)
         answer = {}
-        set_positions_entrada = self.positions(lugar)
-        for profilepostion in set_positions_entrada:
-            print("----")
-            print(profilepostion.in_words())
-            answer[profilepostion.in_words()] = 0
-        print("answer ................")
-        print(answer)
+        set_positions_entrada = self.positions(lugar) #ProfilePosition
+        for profileposition in set_positions_entrada:
+            answer[profileposition.in_words()] = 0
+            total_entrada = 0
+            total_salida  = 0
+            for x in ProductoExactProfilePosition.objects.filter(exactposition=profileposition):
+                if x.movimiento.tipo_movimiento.nombre == 'ENTRADA':
+                    total_entrada = total_entrada + (x.movimiento.cantidad*x.movimiento.unidad.ratio)
+                elif x.movimiento.tipo_movimiento.nombre == 'SALIDA':
+                    total_salida = total_salida + (x.movimiento.cantidad*x.movimiento.unidad.ratio)
+            answer[profileposition.in_words()] = float(total_entrada-total_salida)
         return answer
 
 
