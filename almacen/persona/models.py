@@ -50,14 +50,14 @@ class Position(models.Model):
             return "{}".format(self.name)
 
 class ProfilePosition(models.Model):
-    profile = models.ForeignKey(
+    profile = models.ForeignKey( # self.bodega01 = return_profile("ALMACEN_GENERAL", "BODEGA")
         Profile,
         on_delete=models.PROTECT,
         blank=True,
         null=True,
         related_name="profileposition_profile_set",
     )
-    position = models.ForeignKey(
+    position = models.ForeignKey( # nivel_one = Position.objects.create(name="Nivel de Anaquel 1", parent=anaquel_one)
         Position,
         on_delete=models.PROTECT,
         blank=True,
