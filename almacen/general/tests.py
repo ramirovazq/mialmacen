@@ -739,14 +739,67 @@ class ProductosMovimientoPositionTestCase(TestCase):
         )
 
 
+        # bodega02
+        quinto_mov_entrada = MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento= self.tm_salida,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.bodega02,            
+            destino=self.tractor01,            
+            producto=self.cable_cuatro,
+            unidad=self.metro,
+            cantidad=6, # 3 kilometro
+            precio_unitario=2000,
+            creador=self.user01,
+            observacion="quinto movimiento"
+        )
+        ProductoExactProfilePosition.objects.create(
+            exactposition=self.bodega02_nivel_twenty_four,
+            movimiento=quinto_mov_entrada
+        )
+
+
+        # bodega01
+        sexto_mov_salida = MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento= self.tm_salida,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.bodega02,            
+            destino=self.tractor01,            
+            producto=self.cable_cuatro,
+            unidad= self.kilometro ,
+            cantidad=2, # 3 kilometro
+            precio_unitario=2000,
+            creador=self.user01,
+            observacion="sexto movimiento"
+        )
+        ProductoExactProfilePosition.objects.create(
+            exactposition=self.bodega01_nivel_six,
+            movimiento=sexto_mov_salida
+        )
+
+        # bodega01
+        septimo_mov_salida = MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento= self.tm_salida,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.bodega02,            
+            destino=self.tractor01,            
+            producto=self.cable_cuatro,
+            unidad= self.metro ,
+            cantidad=377, # 3 kilometro
+            precio_unitario=2000,
+            creador=self.user01,
+            observacion="septimo movimiento"
+        )
+        ProductoExactProfilePosition.objects.create(
+            exactposition=self.bodega01_nivel_six,
+            movimiento=septimo_mov_salida
+        )
+
+
         exactposition_cable_cuatro_inventory = self.cable_cuatro.positions_inventory()
         self.assertEqual(exactposition_cable_cuatro_inventory["ALMACEN_ALTERNO>>Anaquel 11>>Nivel de Anaquel 23"], 35)
         self.assertEqual(exactposition_cable_cuatro_inventory["ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 1"], 5.7)
-        self.assertEqual(exactposition_cable_cuatro_inventory["ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 6"], 3000)
-        self.assertEqual(exactposition_cable_cuatro_inventory["ALMACEN_ALTERNO>>Anaquel 11>>Nivel de Anaquel 24"], 18)
-'''
-        self.bodega02_nivel_twenty_three   35 m       "ALMACEN_ALTERNO>>Anaquel 11>>Nivel de Anaquel 23": 35
-        self.bodega01_nivel_one            5m  + .7    "ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 1": 5.7
-        self.bodega01_nivel_six            3000 m      "ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 6": 3000
-        self.bodega02_nivel_twenty_four    18 m        "ALMACEN_ALTERNO>>Anaquel 11>>Nivel de Anaquel 24": 18
-'''
+        self.assertEqual(exactposition_cable_cuatro_inventory["ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 6"], 623.0)
+        self.assertEqual(exactposition_cable_cuatro_inventory["ALMACEN_ALTERNO>>Anaquel 11>>Nivel de Anaquel 24"], 12.0)
