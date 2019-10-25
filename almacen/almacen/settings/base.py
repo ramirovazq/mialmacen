@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'persona',
     'llantas',
+    'general', # almacen general
     'VehicleInventory',
     'rest_framework',
     'rest_framework.authtoken',
