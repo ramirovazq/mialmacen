@@ -81,6 +81,9 @@ class UnidadMedida(models.Model): # cm, kg, km, Litro, etc
 class ValeAlmacenGeneral(Vale): # catálogo de tipos de movimiento, ENTRADA, SALIDA
     pass
 
+    def movimientos(self):
+        return MovimientoGeneral.objects.filter(vale=self)
+
 
 class Producto(models.Model):
     nombre = models.CharField( # AmerSteel, Dunlop, Michellin, etc
@@ -89,11 +92,20 @@ class Producto(models.Model):
             max_length=250
     )
 
-    def devuelve_unidad_referencia(self, movimiento):
+    def devuelve_unidad_referencia(self, movimiento=None):
         unidad_referencia = None
         tipo_referencia = TipoUnidadMedida.objects.get(tipo=0) # reference
-        unidad = movimiento.unidad
-        la_categoria = unidad.categoria
+        if movimiento:
+            unidad = movimiento.unidad
+            la_categoria = unidad.categoria
+        else:
+            movimientos = MovimientoGeneral.objects.filter(producto=self)
+            if movimientos.exists():
+                movimiento = movimientos[0]
+                unidad = movimiento.unidad
+                la_categoria = unidad.categoria
+            else:
+                la_categoria = None
 
         unidad_queryset = UnidadMedida.objects.filter(
             categoria=la_categoria,
@@ -121,6 +133,13 @@ class Producto(models.Model):
             **dict_query
             )
         return movimientos
+
+    def movimientos_entrada(self):
+        return self.movimientos("ENTRADA")
+
+    def movimientos_salida(self):
+        return self.movimientos("SALIDA")
+
 
     def inventory(self, lugar=None):
 
@@ -172,6 +191,18 @@ class Producto(models.Model):
                     total_salida = total_salida + (x.movimiento.cantidad*x.movimiento.unidad.ratio)
             answer[profileposition.in_words()] = float(total_entrada-total_salida)
         # returns dictionary, similar to dict["ALMACEN_ALTERNO>>Anaquel 11>>Nivel de Anaquel 23"] = 35
+        return answer
+
+
+    def what_in_positions_inventory(self, lugar=None):
+        #movimientos_salida = self.movimientos("SALIDA", destino=lugar)
+        answer = {}
+        set_positions_entrada = self.positions(lugar) #ProfilePosition
+        for profileposition in set_positions_entrada:
+            answer[profileposition.in_words()] = 0
+            total_entrada = 0
+            total_salida  = 0
+            answer[profileposition.in_words()] = ProductoExactProfilePosition.objects.filter(exactposition=profileposition)
         return answer
 
 
@@ -248,6 +279,15 @@ class MovimientoGeneral(models.Model):
         blank=True,
         null=True
     )
+
+    def le_positions(self):
+        return ProductoExactProfilePosition.objects.filter(movimiento=self)
+
+    def list_exact_positions(self):
+        l = []
+        for x in self.le_positions():
+            l.append(x.exactposition)
+        return l
 
 
 

@@ -1,0 +1,200 @@
+{% extends "base_bootstrap_general.html" %}
+
+{% block title_section %}            
+<h1 class="h2">Producto: {{producto.nombre}} </h1>
+{% endblock %}
+
+{% block extra_title_section %}
+{% endblock %}
+
+
+{% block buttons_section %}
+{% endblock %}
+
+
+{% block section %}
+	
+<div class="container">
+
+  <div class="row">
+    <div class="col-sm">
+      <p class="lead">
+      Nombre: {{producto.nombre}}
+      </p>  
+    </div>
+    <div class="col-sm">
+      <p class="lead">
+      Cantidad: {{cantidad|floatformat }}
+      </p>  
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm">
+      <p class="lead">
+      unidades: {{unidad.nombre}}
+      </p>  
+    </div>
+    <div class="col-sm">
+      <p class="lead">
+      símbolo: {{unidad.simbolo}} 
+      </p>  
+    </div>
+    <div class="col-sm">
+      <p class="lead">
+      categoria: ({{unidad.categoria.nombre}})
+      </p>  
+    </div>
+  </div>
+
+<br><br>
+
+      <div class="table-responsive">
+
+           {% for ubicacion, lista_movimientos in producto.what_in_positions_inventory.items %}
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th colspan="4">Detalle ubicacion {{ubicacion}}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for movimiento in lista_movimientos %}
+                  <tr>
+                    <td>
+                      {{movimiento.movimiento.tipo_movimiento}}, </td>
+                    <td>
+                      {{movimiento.movimiento.producto}} </td>
+                    <td>
+                      {{movimiento.movimiento.cantidad }}</td>
+                    <td>
+                      {{movimiento.movimiento.unidad.simbolo}} </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% endfor %}
+
+
+
+           {% for ubicacion, valor in producto.positions_inventory.items %}
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>Cantidad en Ubicacion</th>
+                  <th>cantidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                    <td>{{ubicacion}}</td>
+                    <td>{{valor}}</td>
+                  </tr>
+              </tbody>
+            </table>
+            {% endfor %}
+          </div>
+
+
+  {% if producto.movimientos %}
+          <div class="table-responsive">
+            <h3>Movimientos entrada</h3>
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>Vale No folio</th>
+                  <th>Id movimiento </th>
+                  <th>Tipo movimiento </th>
+                  <th>Fecha vale </th>
+
+                  <th>Origen</th>
+                  <th>Destino</th>
+                  <th>Cantidad</th>
+                  <th>Unidad</th>
+                  <th>Precio Unitario</th>
+                  <th>Creador</th>
+                  <th>Observacion</th>
+
+                </tr>
+              </thead>
+              <tbody>
+                  {% for movimiento in producto.movimientos_entrada %} 
+                  <tr>                    
+                    <td>{{movimiento.vale}} </td>
+                    <td>{{movimiento.id}} </td>
+                    <td>{{movimiento.vale.tipo_movimiento}} </td>
+                    <td>{{movimiento.vale.fecha_vale}} </td>
+                    <td>{{movimiento.origen}} </td>
+                    <td>{{movimiento.destino}} </td>
+                    <td>{{movimiento.cantidad}} </td>
+                    <td>{{movimiento.unidad.simbolo}} </td>
+
+                    <td>{{movimiento.precio_unitario}} </td>
+                    <td>{{movimiento.creador}} </td>
+                    <td>{{movimiento.observacion}} </td>
+
+                  </tr>
+                    {% for position in movimiento.list_exact_positions %} 
+                      <tr>
+                        <td colspan="1">{{movimiento.vale}} </td>                    
+                        <td colspan="1">{{movimiento.id}} </td>                    
+                        <td colspan="10">{{position.in_words}} </td>
+                      </tr>
+                    {% endfor %}
+                  {% endfor %}
+              </tbody>
+            </table>
+          </div>
+  {% else %}
+    Sin movimientos entrada
+  {% endif %}
+
+<br><br>
+{% if llanta.movimientos_salida %}
+          <div class="table-responsive">
+            <h3>Movimientos salida</h3>
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>Vale No folio</th>
+                  <th>Tipo movimiento </th>
+                  <th>Fecha vale </th>
+                  <th>Id movimiento </th>
+
+                  <th>Origen</th>
+                  <th>Destino</th>
+                  <th>Cantidad</th>
+                  <th>Precio Unitario</th>
+                  <th>Creador</th>
+                  <th>Observacion</th>
+                  <th>Permisionario</th>
+                </tr>
+              </thead>
+              <tbody>
+                  {% for movimiento in llanta.movimientos_salida %} 
+                  <tr>                    
+                    <td>{{movimiento.vale}} </td>
+                    <td>{{movimiento.vale.tipo_movimiento}} </td>
+                    <td>{{movimiento.vale.fecha_vale}} </td>
+                    <td>{{movimiento.id}} </td>
+                    <td>{{movimiento.origen}} </td>
+                    <td>{{movimiento.destino}} </td>
+                    <td>{{movimiento.cantidad}} </td>
+                    <td>{{movimiento.precio_unitario}} </td>
+                    <td>{{movimiento.creador}} </td>
+                    <td>{{movimiento.observacion}} </td>
+                    <td>{{movimiento.permisionario}} </td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+            </table>
+          </div>
+  {% else %}
+    Sin movimientos salida
+  {% endif %}
+
+
+
+</div>
+
+{% endblock %}

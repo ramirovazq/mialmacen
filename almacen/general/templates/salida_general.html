@@ -1,0 +1,98 @@
+{% extends "base_bootstrap_general.html" %}
+
+{% block title_section %}            
+<h1 class="h2">Vale Entrega del Almacen General</h1>
+{% endblock %}
+
+{% block extra_title_section %}
+{% endblock %}
+
+
+{% block buttons_section %}
+{% if action == 'edit' %}
+<form action="{% url 'salida_edit' vale.id %}" method="post" id="salida_form">
+{% else %}
+<form action="{% url 'salida_general' %}" method="post" id="salida_form">
+{% endif %}
+    {% csrf_token %}
+
+    {{ form.errors }}
+
+      <div class="form-group">
+        {{form.no_folio.errors}}
+        <label for="{{form.no_folio.id_for_label}}">No folio</label>
+        {{form.no_folio}}
+      </div>
+
+      <div class="form-group">
+        {{form.persona_asociada.errors}}
+        <label for="{{form.persona_asociada.id_for_label}}">Quien entrega</label>
+        {{form.persona_asociada}}
+      </div>
+
+      <div class="form-row">
+           {{form.fecha_vale.errors}}
+           <label for="{{form.fecha_vale.id_for_label}}">Fecha Vale:</label>
+           {{form.fecha_vale}}
+      </div>
+
+      <div class="form-group">
+        {{form.observaciones_grales.errors}}
+        <label for="{{form.observaciones_grales.id_for_label}}">Observaciones generales</label>
+        {{form.observaciones_grales}}
+      </div>
+
+      <div class="form-group">
+        {{form.tipo_movimiento.errors}}
+        <label for="{{form.tipo_movimiento.id_for_label}}">Tipo movimiento</label>
+        {{form.tipo_movimiento}}
+      </div>
+
+      <div class="form-group">
+        {{form.creador_vale.errors}}
+        <label for="{{form.creador_vale.id_for_label}}">Usuario actual</label>
+        {{form.creador_vale}}
+      </div>
+
+
+    
+    {% if action == 'edit' %}
+    <input type="submit" value="Guardar Cambios" class="btn btn-primary">
+    {% else %}
+    <input type="submit" value="Crear Vale" class="btn btn-primary">
+    {% endif %}
+    <input type="button" value="Limpiar" class="btn btn-secondary" id="boton_limpiar">
+
+</form>
+  <br><br>
+{% endblock %}
+
+
+{% block section %}
+
+{% endblock %}
+
+{% block javascript_bottom %}
+          <script>
+          $( function() {
+            $( "#id_fecha_vale" ).datepicker({dateFormat: 'dd-mm-yy'});
+
+            $('#salida_form').submit(function () { 
+              $('#id_tipo_movimiento').removeAttr('disabled'); 
+              $('#id_creador_vale').removeAttr('disabled'); 
+            })
+
+            $( "#boton_limpiar" ).click(function(){
+                $('#salida_form').trigger("reset");
+
+              {% if action == 'edit' %}
+                window.location = "{% url 'salida_edit' vale.id %}";
+              {% else %}
+                window.location = "{% url 'salida' %}";
+              {% endif %}
+
+
+            });
+          });
+          </script>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base_bootstrap.html" %}
+
+{% block title_section %}            
+<h1 class="h2">Vales de salida: {{vales_count}}</h1>
+{% endblock %}
+
+{% block extra_title_section %}
+<a class="btn btn-info" href="{% url 'salida' %}">Nueva Salida</a>
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    {% if vales.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1">&laquo;</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ vales.previous_page_number }}">&lt</a></li>
+    {% endif %}
+        <li class="page-item"><a class="page-link disabled" href="#">{{ vales.number }}/{{ vales.paginator.num_pages }}</a></li>
+    {% if vales.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ vales.next_page_number }}">&gt</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ vales.paginator.num_pages }}">&raquo;</a></li>
+    {% endif %}
+  </ul>
+</nav>
+
+{% endblock %}
+
+
+{% block buttons_section %}
+{% endblock %}
+
+
+{% block section %}
+	{% if vales %}
+          <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>No Folio</th>
+                  <th>Tipo Movimiento</th>
+                  <th>Fecha Vale</th>
+                  <th>Quien entrega</th>
+                  <th>Creador</th>
+                  <th>Observacion</th>
+                  <th># movimientos</th>
+                </tr>
+              </thead>
+              <tbody>
+              	{% for vale in vales %} 
+                <tr>
+                  <td><a href="{% url 'salida_add' vale.id %}" class="btn btn-primary">#{{vale.no_folio}}</a> </td>
+                  <td>{{vale.tipo_movimiento}}</td>
+                  <td>{{vale.fecha_vale}}</td>
+                  <td>{{vale.persona_asociada.user.username}}</td>
+                  <td>{{vale.creador_vale.user.username}}</td>
+                  <td>{{vale.observaciones_grales}}</td>
+                  <td>{{vale.movimientos.count}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+	{% else %}
+		Sin vales de salida
+	{% endif %}
+
+{% endblock %}
+
+{% block javascript_bottom %}
+          <script>
+          </script>
+{% endblock %}
