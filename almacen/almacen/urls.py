@@ -9,6 +9,7 @@ from rest_framework.authtoken import views as views_rest_framwork
 from VehicleInventory import views as views_vehicleinventory
 from VehicleInventory import urls as vehicleinventory_urls
 from llantas import urls as llantas_urls
+from general import urls as general_urls
 from llantas import urls_api as llantas_api_urls
 from persona import urls as profiles_urls
 from login_recover import views as login_recover_views
@@ -22,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^llantas/', include(llantas_urls)),
+    url(r'^general/', include(general_urls)),    
     url(r'^profiles/', include(profiles_urls)),    
     url(r'^vehicles/', include(vehicleinventory_urls)),
     url(r'^apiref/', views.SwaggerSchemaView.as_view()),
