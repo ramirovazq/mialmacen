@@ -595,7 +595,7 @@ class ValeForm(ModelForm):
 
     persona_asociada = ProfileChoiceField(
                 required=True,
-                queryset=Profile.objects.filter(tipo__nombre="STAFF").order_by('user__first_name'),
+                queryset=Profile.objects.filter(tipo__nombre="STAFF", user__is_active=True).order_by('user__username'),
                 widget=forms.Select(attrs={'class':'form-control m-b'})
     )
 
