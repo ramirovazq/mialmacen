@@ -55,7 +55,7 @@
                     {% if action == 'ENTRADA'%}
                     <a href="{% url 'entrada_detail' vale.id %}" class="btn btn-primary">#{{vale.no_folio}}</a> 
                     {% else %}
-                    <a href="{% url 'salida_add' vale.id %}" class="btn btn-primary">#{{vale.no_folio}}</a> 
+                    <a href="{% url 'salida_general_add' vale.id %}" class="btn btn-primary">#{{vale.no_folio}}</a> 
                     {% endif %}
                   </td>
                   <td>{{vale.tipo_movimiento}}</td>

@@ -5,6 +5,22 @@
 {% endblock %}
 
 {% block extra_title_section %}
+
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    {% if productos.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1">&laquo;</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ productos.previous_page_number }}">&lt</a></li>
+    {% endif %}
+        <li class="page-item"><a class="page-link disabled" href="#">{{ productos.number }}/{{ productos.paginator.num_pages }} </a></li>
+    {% if productos.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ productos.next_page_number }}">&gt</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ productos.paginator.num_pages }}">&raquo;</a></li>
+    {% endif %}
+  </ul>
+</nav>
+
+<!--
   <ul class="pagination">
     <li class="page-item"><a class="page-link" href="?orden=nombre">Nombre</a></li>
     <li class="page-item"><a class="page-link" href="?orden=medida">Medida</a></li>
@@ -14,7 +30,7 @@
     <li class="page-item"><a class="page-link" href="?orden=cantidad">Cantidad</a></li>
     <li class="page-item"><a class="page-link" href="{{ url_export }}"> <span data-feather="download"></span> Descargar</a></li>
   </ul>
-
+-->
 {% endblock %}
 
 
@@ -33,7 +49,6 @@
                   <th>Unidad </th>
                   <th>Lugar </th>
                   <th> </th>
-                  <th> </th>
                 </tr>
               </thead>
               <tbody>
@@ -41,12 +56,9 @@
                 	{% for producto in productos %} 
                   <tr>
                     <td>{{producto.nombre}}</td>
-                      
                       <td>{{producto.inventory.0 }}</td>
                       <td>{{producto.inventory.1.simbolo }}</td>
                       <td>{% for x,y in producto.positions_inventory.items %}{{x}} {% endfor %}</td>
-                    
-                    
                     <td><a href="{% url 'producto_detalle' producto.id %}" class="btn btn-primary btn-sm" role="button">detalle</a> </td>
                   </tr>
                   {% endfor %}
