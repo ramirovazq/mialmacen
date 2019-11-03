@@ -153,7 +153,7 @@ class MovimientoSalidaGeneralForm(ModelForm):
 
     destino = DestinoChoiceField(
                 required=True,
-                queryset=Profile.objects.filter(tipo__nombre="ECONOMICO"),#NOECONOMICO
+                queryset=Profile.objects.filter(tipo__nombre="ECONOMICO").order_by('user__username'),#NOECONOMICO
                 widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
     )
 
@@ -161,6 +161,7 @@ class MovimientoSalidaGeneralForm(ModelForm):
         model = MovimientoGeneral
         fields = ['cantidad',\
                   'observacion',\
+                  'unidad',
                   'destino']
 
 
