@@ -1077,6 +1077,7 @@ class ProductosExactPositionTestCase(TestCase):
 
         exactposition_filtro = self.filtro_aire.what_in_positions_inventory_specific()
         exactposition_producto_x = self.producto_x.what_in_positions_inventory_specific()
+        #print(exactposition_filtro)
         self.assertEqual(exactposition_filtro['ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 1'], float(130))
         self.assertEqual(exactposition_filtro['ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 23'], float(13))
         self.assertEqual(exactposition_producto_x['ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 1'], float(500))
@@ -1093,3 +1094,6 @@ class ProductosExactPositionTestCase(TestCase):
         inventory_producto_x = self.producto_x.inventory()
         self.assertEqual(inventory_filtro[0], float(143))
         self.assertEqual(inventory_producto_x[0], float(500))
+
+        exactposition_filtro = self.filtro_aire.what_in_positions_inventory_specific_obj()
+        #print(exactposition_filtro)
