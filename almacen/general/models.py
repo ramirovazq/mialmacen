@@ -172,12 +172,26 @@ class Producto(models.Model):
                 answer.add(list_exactpositions[0])
         '''
         answer, set of exactposition, que es un ProfilePosition
+            class ProfilePosition(models.Model):
+                 profile = models.ForeignKey( # self.bodega01 = return_profile("ALMACEN_GENERAL", "BODEGA")
+                 Profile,
+                )
+                position = models.ForeignKey( # nivel_one = Position.objects.create(name="Nivel de Anaquel 1", parent=anaquel_one)
+                Position,
+                )
+        example: {<ProfilePosition: ALMACEN_GENERAL [BODEGA] Anaquel 1>>Nivel de Anaquel 1>, <ProfilePosition: ALMACEN_GENERAL [BODEGA] Anaquel 1>>Nivel de Anaquel 23>}
         '''
         return answer
 
 
     def positions_inventory(self, lugar=None):
-        #movimientos_salida = self.movimientos("SALIDA", destino=lugar)
+        '''
+        regresa un dicc
+        llaves: las posiciones exactas en donde estan los productos
+        valor: el totalde elementos que estan en las posiciones exactas
+        # producto_X
+        example: {'ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 1': 630.0, 'ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 23': 13.0}
+        '''
         answer = {}
         set_positions_entrada = self.positions(lugar) #ProfilePosition
         for profileposition in set_positions_entrada:
@@ -190,7 +204,7 @@ class Producto(models.Model):
                 elif x.movimiento.tipo_movimiento.nombre == 'SALIDA':
                     total_salida = total_salida + (x.movimiento.cantidad*x.movimiento.unidad.ratio)
             answer[profileposition.in_words()] = float(total_entrada-total_salida)
-        # returns dictionary, similar to dict["ALMACEN_ALTERNO>>Anaquel 11>>Nivel de Anaquel 23"] = 35
+        # returns {'ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 1': 630.0, 'ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 23': 13.0}
         return answer
 
 
@@ -203,6 +217,85 @@ class Producto(models.Model):
             total_entrada = 0
             total_salida  = 0
             answer[profileposition.in_words()] = ProductoExactProfilePosition.objects.filter(exactposition=profileposition)
+        '''
+            answer = {
+                'BODEGA_GENERAL>>ANAQUEL 19>>NIVEL DE ANAQUEL 10': 
+                <QuerySet [
+                    <ProductoExactProfilePosition: BODEGA_GENERAL [BODEGA] ANAQUEL 19>>NIVEL DE ANAQUEL 10 3935>, 
+                    <ProductoExactProfilePosition: BODEGA_GENERAL [BODEGA] ANAQUEL 19>>NIVEL DE ANAQUEL 10 3936>, 
+                    <ProductoExactProfilePosition: BODEGA_GENERAL [BODEGA] ANAQUEL 19>>NIVEL DE ANAQUEL 10 3937>, 
+                    <ProductoExactProfilePosition: BODEGA_GENERAL [BODEGA] ANAQUEL 19>>NIVEL DE ANAQUEL 10 3938>]>, 
+                'OFICINA_CONTADOR>>ANAQUEL 1>>NIVEL DE ANAQUEL 1': 
+                <QuerySet [
+                    <ProductoExactProfilePosition: OFICINA_CONTADOR [BODEGA] ANAQUEL 1>>NIVEL DE ANAQUEL 1 4448>, 
+                    <ProductoExactProfilePosition: OFICINA_CONTADOR [BODEGA] ANAQUEL 1>>NIVEL DE ANAQUEL 1 4449>,
+                    <ProductoExactProfilePosition: OFICINA_CONTADOR [BODEGA] ANAQUEL 1>>NIVEL DE ANAQUEL 1 4450>, 
+                    <ProductoExactProfilePosition: OFICINA_CONTADOR [BODEGA] ANAQUEL 1>>NIVEL DE ANAQUEL 1 4457>, 
+                    <ProductoExactProfilePosition: OFICINA_CONTADOR [BODEGA] ANAQUEL 1>>NIVEL DE ANAQUEL 1 4526>]>}
+
+            class ProductoExactProfilePosition(models.Model):
+                exactposition = models.ForeignKey(
+                    ProfilePosition,
+                )
+                movimiento = models.ForeignKey(
+                    MovimientoGeneral,
+                )
+        '''
+        return answer
+
+
+    def what_in_positions_inventory_specific(self):
+        '''
+        returns
+        example: {'ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 1': Decimal('130.0000'), 'ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 23': Decimal('13.0000')}
+        '''
+        answer = {}
+        total_entrada = 0
+        total_salida  = 0
+        dicc_y = self.what_in_positions_inventory() # answer["OFICINA_CONTADOR>>ANAQUEL 1>>NIVEL DE ANAQUEL 1"] = <QuerySet [<ProductoExactProfilePosition: BODEGA_GENE
+
+        for llave_y in dicc_y:
+            productexactprofileposition = dicc_y[llave_y] # productexactprofileposition
+
+            total_entrada = 0
+            total_salida  = 0
+
+            for  x in productexactprofileposition:
+                if x.movimiento.producto == self:
+                    if x.movimiento.tipo_movimiento.nombre == 'ENTRADA':
+                        total_entrada = total_entrada + (x.movimiento.cantidad*x.movimiento.unidad.ratio)
+                    elif x.movimiento.tipo_movimiento.nombre == 'SALIDA':
+                        total_salida = total_salida + (x.movimiento.cantidad*x.movimiento.unidad.ratio)
+                answer[x.exactposition.in_words()] = total_entrada - total_salida
+        return answer
+
+
+    def what_in_positions_inventory_specific_obj(self):
+        '''
+        too similiar to what_in_positions_inventory_specific
+        but in key returns <ProfilePosition object>
+        is better when rendering template
+        returns
+        example: {<ProfilePosition: ALMACEN_GENERAL [BODEGA] Anaquel 1>>Nivel de Anaquel 1>: Decimal('130.0000'), <ProfilePosition: ALMACEN_GENERAL [BODEGA] Anaquel 1>>Nivel de Anaquel 23>: Decimal('13.0000')}
+        '''
+        answer = {}
+        total_entrada = 0
+        total_salida  = 0
+        dicc_y = self.what_in_positions_inventory() # answer["OFICINA_CONTADOR>>ANAQUEL 1>>NIVEL DE ANAQUEL 1"] = <QuerySet [<ProductoExactProfilePosition: BODEGA_GENE
+
+        for llave_y in dicc_y:
+            productexactprofileposition = dicc_y[llave_y] # productexactprofileposition
+
+            total_entrada = 0
+            total_salida  = 0
+
+            for  x in productexactprofileposition:
+                if x.movimiento.producto == self:
+                    if x.movimiento.tipo_movimiento.nombre == 'ENTRADA':
+                        total_entrada = total_entrada + (x.movimiento.cantidad*x.movimiento.unidad.ratio)
+                    elif x.movimiento.tipo_movimiento.nombre == 'SALIDA':
+                        total_salida = total_salida + (x.movimiento.cantidad*x.movimiento.unidad.ratio)
+                answer[x.exactposition] = total_entrada - total_salida
         return answer
 
 
