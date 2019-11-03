@@ -19,7 +19,7 @@ from rest_framework.permissions import IsAuthenticated
 from datetime import datetime
 
 from .models import *
-from persona.models import Profile, Tipo
+from persona.models import Profile, Tipo, ProfilePosition
 from .forms import FilterMovimientoForm
 from llantas.utils import return_profile
 from .forms import ValeAlmacenGeneralForm, SearchSalidaGeneralForm, MovimientoSalidaGeneralForm
@@ -28,7 +28,7 @@ from .forms import ValeAlmacenGeneralForm, SearchSalidaGeneralForm, MovimientoSa
 #from .serializers import ValeSerializer, LlantaSerializer, ProfileSerializer, MovimientoSerializer
 
 @login_required
-def movimientos(request):
+def movimientos_general(request):
     context = {}
     m = MovimientoGeneral.objects.all().order_by('-fecha_movimiento')
     
@@ -225,7 +225,7 @@ def entrada_general(request, tipo_movimiento="ENTRADA"):
 @login_required
 def salida_general_add(request, vale_id):
     context = {}
-    obj = get_object_or_404(Vale, pk=vale_id)
+    obj = get_object_or_404(ValeAlmacenGeneral, pk=vale_id)
     context['vale'] = obj
 
     search = Producto.objects.none()
@@ -238,7 +238,7 @@ def salida_general_add(request, vale_id):
                 dicc_llanta = {}
                 prod = form.cleaned_data['nombre']
                 if prod:
-                    dicc_llanta['id'] = prod.id
+                    dicc_llanta['nombre'] = prod.nombre
 
                 if dicc_llanta.keys():
                     messages.add_message(request, messages.INFO, 'Búsqueda por: {}'.format(dicc_llanta))
@@ -248,6 +248,7 @@ def salida_general_add(request, vale_id):
     else:
         form = SearchSalidaGeneralForm()
 
+    context['form_salida'] = MovimientoSalidaGeneralForm()
     context["form"] = form
     context['productos'] = search 
     return render(request, 'salida_general_add.html', context)
@@ -255,7 +256,6 @@ def salida_general_add(request, vale_id):
 
 @login_required
 def vale_general_erase(request, vale_id):
-    print("ping .....................")
     redirige_entrada = None
     obj_vale = get_object_or_404(ValeAlmacenGeneral, pk=vale_id)
     if len(obj_vale.movimientos()) == 0:
@@ -263,6 +263,60 @@ def vale_general_erase(request, vale_id):
         messages.add_message(request, messages.SUCCESS, 'Se borró el Vale de salida del almacen general')
     else:
         messages.add_message(request, messages.WARNING, 'Este vale tiene movimientos, no se puede borrar.')
-    
-    
     return HttpResponseRedirect(reverse('vales_general')+"?tipo="+obj_vale.tipo_movimiento.nombre)
+
+
+@login_required
+def salida_general_add_movimiento(request, vale_id):
+    
+    obj = get_object_or_404(ValeAlmacenGeneral, pk=vale_id)
+
+    if request.method == 'POST':
+        form = MovimientoSalidaGeneralForm(request.POST)
+        if form.is_valid():
+
+            cantidad = form.cleaned_data['cantidad']
+            cantidad_max = request.POST['cantidad_max']
+            id_producto = request.POST['id_producto']
+            id_origen = request.POST['id_origen']
+            id_profileposition = request.POST['id_profileposition']
+            producto  = get_object_or_404(Producto, pk=id_producto)
+            origen = get_object_or_404(Profile, pk=id_origen)
+            profileposition = get_object_or_404(ProfilePosition, pk=id_profileposition)
+
+            creador  = return_profile(request.user.username, "STAFF")
+
+            dicc_movimiento = {
+                    "vale":obj, 
+                    "tipo_movimiento":obj.tipo_movimiento,
+                    "fecha_movimiento":obj.fecha_vale,                
+
+                    "origen":origen,
+                    "producto":producto,                    
+
+                    "unidad": form.cleaned_data['unidad'],
+                    "cantidad":form.cleaned_data['cantidad'],
+                    "observacion":form.cleaned_data['observacion'],
+                    "destino":form.cleaned_data['destino'],
+
+                    "creador":creador
+            }
+
+            if float(cantidad) <= float(cantidad_max): ## extra validacion, solo puede sacarse una cantidad menor o igual a lo existente
+                m = MovimientoGeneral(**dicc_movimiento)
+                m.save()
+
+                ProductoExactProfilePosition.objects.create(
+                    exactposition=profileposition, #nivel_twenty_three
+                    movimiento=m
+                )
+
+                messages.add_message(request, messages.SUCCESS, 'Se adiciona movimiento {}'.format(m.id))
+                return HttpResponseRedirect(reverse('salida_general_add', args=[obj.id]))    
+            else:
+                messages.add_message(request, messages.ERROR, 'No se puede sacar una cantidad mayor a la que existente en la ubicacion')        
+                return HttpResponseRedirect(reverse('salida_general_add', args=[obj.id]))
+
+
+    messages.add_message(request, messages.ERROR, 'Error en formulario')        
+    return HttpResponseRedirect(reverse('salida_general_add', args=[obj.id]))
