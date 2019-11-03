@@ -31,15 +31,13 @@
               <thead>
                 <tr>
                   <th> id </th>
+                  <th> Fecha </th>
+                  <th> Producto </th>
+                  <th> Unidad </th>
                   <th> Cantidad </th>
-                  <th> Marca </th>
-                  <th> Medida </th>
-                  <th> Posición </th>                  
-                  <th> Status </th>
-                  <th> DOT </th>
-                  <th> Permisionario </th>
-
+                  <th> Creador </th>
                   <th> Origen </th>
+                  <th> Origen Specifico</th>
                   <th> No. Económico </th>
                   <th> Observaciones </th>
                   <th>  </th>
@@ -49,15 +47,13 @@
                 {% for movimiento in vale.movimientos %}
                 <tr>
                   <td>{{movimiento.id}} </td>
+                  <td>{{movimiento.fecha_movimiento}}</td>
+                  <td>{{movimiento.producto.nombre}}</td>
+                  <td>{{movimiento.unidad.simbolo}} </td>
                   <td>{{movimiento.cantidad}} </td>
-                  <td>{{movimiento.llanta.marca.nombre}} </td>
-                  <td>{{movimiento.llanta.medida.nombre}} </td>
-                  <td>{{movimiento.llanta.posicion.nombre}} </td>
-                  <td>{{movimiento.llanta.status.nombre}} </td>
-                  <td>{{movimiento.llanta.dot}} </td>
-                  <td>{{movimiento.permisionario}} </td>
-
+                  <td>{{movimiento.creador}} </td>
                   <td>{{movimiento.origen}} </td>
+                  <td>{% for x in movimiento.list_exact_positions %}{{x}}{% endfor %}</td>
                   <td>{{movimiento.destino}} </td>
                   <td>{{movimiento.observacion}} </td>
                   <td><a class="page-link" href="{% url 'salida_erase_movimiento' vale.id  movimiento.id %}">borrar</a></td>
@@ -157,7 +153,7 @@
             $( "#boton_limpiar" ).click(function(){
                 $('#profile_add_form').trigger("reset");
                 $('#salida_add_form').trigger("reset");
-                window.location = "{% url 'salida_add' vale.id %}";
+                window.location = "{% url 'salida_general_add' vale.id %}";
             });
           });
           </script>
