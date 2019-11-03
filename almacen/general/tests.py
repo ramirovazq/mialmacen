@@ -897,7 +897,7 @@ class ProductosExactPositionTestCase(TestCase):
 
 
 
-    def test_three_entries_one_warehouse(self):
+    def test_specific_locations_for_a_product(self):
 
         #vale01 # bodega01 # ENTRADA # nivel one #filtro_aire  12 
         other_mov_entrada = MovimientoGeneral.objects.create(
@@ -1076,5 +1076,20 @@ class ProductosExactPositionTestCase(TestCase):
 
 
         exactposition_filtro = self.filtro_aire.what_in_positions_inventory_specific()
+        exactposition_producto_x = self.producto_x.what_in_positions_inventory_specific()
         self.assertEqual(exactposition_filtro['ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 1'], float(130))
         self.assertEqual(exactposition_filtro['ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 23'], float(13))
+        self.assertEqual(exactposition_producto_x['ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 1'], float(500))
+
+        positions_inventory = self.filtro_aire.positions_inventory()
+        self.assertEqual(positions_inventory['ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 1'], float(630))
+        self.assertEqual(positions_inventory['ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 23'], float(13))
+        #print(positions_inventory)
+
+        #positions = self.filtro_aire.positions()
+        #print(positions)
+
+        inventory_filtro = self.filtro_aire.inventory()
+        inventory_producto_x = self.producto_x.inventory()
+        self.assertEqual(inventory_filtro[0], float(143))
+        self.assertEqual(inventory_producto_x[0], float(500))
