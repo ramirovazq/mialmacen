@@ -320,3 +320,22 @@ def salida_general_add_movimiento(request, vale_id):
 
     messages.add_message(request, messages.ERROR, 'Error en formulario')        
     return HttpResponseRedirect(reverse('salida_general_add', args=[obj.id]))
+
+@login_required
+def salida_general_erase_movimiento(request, vale_id, movimiento_id):
+    
+    obj_vale = get_object_or_404(ValeAlmacenGeneral, pk=vale_id)
+    obj_movimiento = get_object_or_404(MovimientoGeneral, pk=movimiento_id)
+    for productoexactprofileposition in obj_movimiento.le_positions():
+        productoexactprofileposition.delete()
+    obj_movimiento.delete()
+
+    messages.add_message(request, messages.SUCCESS, 'Se borra movimiento')
+    return HttpResponseRedirect(reverse('salida_general_add', args=[obj_vale.id]))
+
+@login_required
+def salida_general_impresion(request, vale_id):
+    context = {}
+    obj = get_object_or_404(ValeAlmacenGeneral, pk=vale_id)
+    context['vale'] = obj
+    return render(request, 'formato_general.html', context)

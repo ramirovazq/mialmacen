@@ -1,0 +1,119 @@
+<html>
+<head>
+<style type="text/css">
+    .myTable { background-color:white;border-collapse:collapse; }
+    .myTable th { background-color:#eee;color:black;width:50%; }
+    .myTable td, .myTable th { padding:5px;border:1px solid #000; font-family: Arial !important; }
+
+    .fuente_peque th
+    {
+       font-size: 15px !important;
+       color: #000 !important;
+       font-family: Arial !important;
+    }
+
+    .fuente_peque td
+    {
+       font-size: 12px !important;
+       color: #000 !important;
+       font-family: Arial !important;
+       border:1px solid #000;
+    }
+
+    p {
+       font-family: Arial !important;
+    }
+
+    .texto_vertical { writing-mode: tb-rl; }
+
+</style>
+</head>
+<body>
+
+    {% block antes_del_formato %}
+    {% endblock %}
+
+
+    <table class="myTable" border="3">
+		<tr>
+			<td align="center">FLETES EXPRESS R.B., S.A. DE C.V.</td>
+            <td align="center">&nbsp;&nbsp;&nbsp;</td>
+            <td align="center">
+
+                <table border="0" class="fuente_peque" width="100%">
+		            <tr>
+			            <th colspan="8">Vale de Entrega de Almacén General</th>
+		            </tr>
+		            <tr>
+			            <td colspan="4">Folio:</td><td colspan="4">#{{vale.no_folio}}</td>
+		            </tr>
+                </table>
+
+            </td>
+		</tr>
+		<tr>
+            <td colspan="3">
+
+                <table border="0" class="fuente_peque" width="100%">
+		            <tr>
+                  <th> id </th>
+                  <th> Fecha </th>
+                  <th> Producto </th>
+                  <th> Unidad </th>
+                  <th> Cantidad </th>
+                  <th> Creador </th>
+                  <th> Origen </th>
+                  <th> Origen Specifico</th>
+                  <th> No. Económico </th>
+                  <th> Observaciones </th>
+		            </tr>
+                {% for movimiento in vale.movimientos %}
+                <tr>
+                  <td>{{movimiento.id}} </td>
+                  <td>{{movimiento.fecha_movimiento}}</td>
+                  <td>{{movimiento.producto.nombre}}</td>
+                  <td>{{movimiento.unidad.simbolo}} </td>
+                  <td>{{movimiento.cantidad}} </td>
+                  <td>{{movimiento.creador}} </td>
+                  <td>{{movimiento.origen}} </td>
+                  <td>{% for x in movimiento.list_exact_positions %}{{x}}{% endfor %}</td>
+                  <td>{{movimiento.destino}} </td>
+                  <td>{{movimiento.observacion}} </td>
+
+                  
+                </tr>
+                {% endfor %}
+
+                </table>
+
+
+
+            </td>
+		</tr>
+		<tr>
+            <td colspan="3">
+
+                <table border="0" class="fuente_peque" width="100%">
+		            <tr>
+			            <th>Nombre de quien entrega</th>
+			            <th>Fecha</th>
+			            <th>Firma</th>
+		            </tr>
+		            <tr>
+			            <td>{{vale.persona_asociada.user.first_name}}<br/><br/><br/></td>
+			            <td>{{vale.fecha_vale}}</td>
+			            <td></td>
+		            </tr>
+                </table>
+
+
+
+            </td>
+		</tr>
+
+    </table>
+
+
+			
+</body>
+</html>	

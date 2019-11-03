@@ -6,7 +6,7 @@
 
 {% block extra_title_section %}
   <ul class="pagination">
-    <li class="page-item"><a class="page-link" href="{% url 'salida_impresion' vale.id %}" target="_blank">Impresión</a></li>
+    <li class="page-item"><a class="page-link" href="{% url 'salida_general_impresion' vale.id %}" target="_blank">Impresión</a></li>
   </ul>
 
 {% endblock %}
@@ -56,7 +56,7 @@
                   <td>{% for x in movimiento.list_exact_positions %}{{x}}{% endfor %}</td>
                   <td>{{movimiento.destino}} </td>
                   <td>{{movimiento.observacion}} </td>
-                  <td><a class="page-link" href="{% url 'salida_erase_movimiento' vale.id  movimiento.id %}">borrar</a></td>
+                  <td><a class="page-link" href="{% url 'salida_general_erase_movimiento' vale.id  movimiento.id %}">borrar</a></td>
                   
                 </tr>
                 {% endfor %}
