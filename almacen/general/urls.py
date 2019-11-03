@@ -10,7 +10,7 @@ urlpatterns = [
     #path('entradas/', entradas, name='entradas'),
     #path('salidas/', salidas, name='salidas'),
 
-    path('vales/', vales, name='vales_general'),
+    path('vales/', vales_general, name='vales_general'),
     path('vale/<int:vale_id>/erase/', vale_general_erase, name='vale_general_erase'),
 
     path('salida/', salida_general, name='salida_general'),

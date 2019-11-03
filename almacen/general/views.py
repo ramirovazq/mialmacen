@@ -66,7 +66,7 @@ def movimientos_general(request):
 
 
 @login_required
-def vales(request):
+def vales_general(request):
     context = {}
     action = request.GET.get("tipo", "ENTRADA")
     
@@ -153,6 +153,11 @@ def actual_general(request):
                 queryset=llantas,
                 filename="export_inventario.xls"
             )                
+
+    paginator = Paginator(llantas, settings.ITEMS_PER_PAGE) # Show 5 profiles per page
+    page = request.GET.get('page')
+    llantas = paginator.get_page(page)
+
 
     context['orden'] = orden        
     context['productos'] = llantas
