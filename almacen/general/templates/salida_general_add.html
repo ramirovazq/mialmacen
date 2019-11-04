@@ -127,6 +127,7 @@
                             {{form_salida.errors}}
                             {% csrf_token %}
                             {{form_salida.as_p}}
+                            <input type="hidden" value="{{producto.inventory.1.id}}" name="id_unidad_referencia" id="id_unidad_referencia">
                             <input type="hidden" value="{{cantidad}}" name="cantidad_max" id="cantidad_max">
                             <input type="hidden" value="{{lugar.profile.id}}" name="id_origen" id="id_origen">
                             <input type="hidden" value="{{producto.id}}" name="id_producto" id="id_producto">

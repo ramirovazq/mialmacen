@@ -122,6 +122,10 @@ class SearchSalidaGeneralForm(ModelForm):
         model = Producto
         fields = ['nombre']
 
+class UnidadMedidaChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "{} ({}) {}".format(obj.nombre, obj.simbolo, obj.categoria)
+
 
 class MovimientoSalidaGeneralForm(ModelForm):
     cantidad  = forms.IntegerField(
@@ -157,6 +161,12 @@ class MovimientoSalidaGeneralForm(ModelForm):
                 widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
     )
 
+    unidad = UnidadMedidaChoiceField(
+                required=True,
+                queryset=UnidadMedida.objects.all().order_by('nombre'),#NOECONOMICO
+                widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
+
+    )
     class Meta: 
         model = MovimientoGeneral
         fields = ['cantidad',\

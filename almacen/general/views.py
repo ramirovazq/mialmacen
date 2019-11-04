@@ -285,6 +285,7 @@ def salida_general_add_movimiento(request, vale_id):
             cantidad_en_unidades_base = unidad.ratio * cantidad
 
 
+            id_unidadmedida_referencia = request.POST['id_unidad_referencia']
             cantidad_max = request.POST['cantidad_max']
             id_producto = request.POST['id_producto']
             id_origen = request.POST['id_origen']
@@ -292,6 +293,8 @@ def salida_general_add_movimiento(request, vale_id):
             producto  = get_object_or_404(Producto, pk=id_producto)
             origen = get_object_or_404(Profile, pk=id_origen)
             profileposition = get_object_or_404(ProfilePosition, pk=id_profileposition)
+            unidadmedida_referencia  = get_object_or_404(UnidadMedida, pk=id_unidadmedida_referencia)
+            unidad_enviada = form.cleaned_data['unidad']
 
             creador  = return_profile(request.user.username, "STAFF")
 
@@ -310,6 +313,13 @@ def salida_general_add_movimiento(request, vale_id):
 
                     "creador":creador
             }
+
+            if unidadmedida_referencia.categoria == unidad_enviada.categoria:
+                pass
+                #messages.add_message(request, messages.SUCCESS, 'La unidad de medida enviada, es correcta.')
+            else:
+                messages.add_message(request, messages.ERROR, 'La unidad de medida enviado, no corresponde con el producto')
+                return HttpResponseRedirect(reverse('salida_general_add', args=[obj.id]))    
 
             if float(cantidad_en_unidades_base) <= float(cantidad_max): ## extra validacion, solo puede sacarse una cantidad menor o igual a lo existente
                 m = MovimientoGeneral(**dicc_movimiento)
