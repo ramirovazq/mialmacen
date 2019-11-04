@@ -280,7 +280,11 @@ def salida_general_add_movimiento(request, vale_id):
         form = MovimientoSalidaGeneralForm(request.POST)
         if form.is_valid():
 
+            unidad = form.cleaned_data['unidad']
             cantidad = form.cleaned_data['cantidad']
+            cantidad_en_unidades_base = unidad.ratio * cantidad
+
+
             cantidad_max = request.POST['cantidad_max']
             id_producto = request.POST['id_producto']
             id_origen = request.POST['id_origen']
@@ -300,14 +304,14 @@ def salida_general_add_movimiento(request, vale_id):
                     "producto":producto,                    
 
                     "unidad": form.cleaned_data['unidad'],
-                    "cantidad":form.cleaned_data['cantidad'],
+                    "cantidad":cantidad,
                     "observacion":form.cleaned_data['observacion'],
                     "destino":form.cleaned_data['destino'],
 
                     "creador":creador
             }
 
-            if float(cantidad) <= float(cantidad_max): ## extra validacion, solo puede sacarse una cantidad menor o igual a lo existente
+            if float(cantidad_en_unidades_base) <= float(cantidad_max): ## extra validacion, solo puede sacarse una cantidad menor o igual a lo existente
                 m = MovimientoGeneral(**dicc_movimiento)
                 m.save()
 
