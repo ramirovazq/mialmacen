@@ -4,7 +4,7 @@ from django.db.models import Q
 from .models import *
 from persona.models import Profile
 from llantas.utils import agrupacion_dots, devuelve_llanta
-from llantas.forms import TipoMovimientoChoiceField, OrigenChoiceField, DestinoChoiceField, OrigenDestinoChoiceField, ProfileChoiceField, ValeForm
+from llantas.forms import TipoMovimientoChoiceField, OrigenChoiceField, DestinoChoiceField, OrigenDestinoChoiceField, ProfileChoiceField, ValeForm, EntradaForm
 
 
 class FilterMovimientoForm(ModelForm):
@@ -176,3 +176,84 @@ class MovimientoSalidaGeneralForm(ModelForm):
 
 
 
+class EntradaGeneralForm(EntradaForm):
+    class Meta: 
+        model = ValeAlmacenGeneral
+        fields = ['no_folio', 'observaciones_grales',\
+                   'tipo_movimiento', 'fecha_vale', \
+                   'persona_asociada', 'creador_vale',\
+                   'con_iva']
+
+class MovimientoEntradaGeneralForm(ModelForm):
+    '''
+    origen = OrigenChoiceField(
+                required=True,
+                queryset=Profile.objects.filter(tipo__nombre="BODEGA"),
+                widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
+    )
+    '''
+
+    producto = ProductoSearchChoiceField(
+                required=True,
+                help_text="* Campo Requerido.",
+                label='Producto', 
+                queryset=Producto.objects.all().order_by('nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+    unidad = UnidadMedidaChoiceField(
+                required=True,
+                help_text="* Campo Requerido.",
+                queryset=UnidadMedida.objects.all().order_by('nombre'),#NOECONOMICO
+                widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
+
+    )
+
+    cantidad  = forms.IntegerField(
+                required=True,
+                help_text="* Campo Requerido.",
+                min_value=1,
+                widget=forms.TextInput(
+                attrs={ 
+                'class':'form-control mb-2 mr-sm-2',
+                'placeholder':'Ejemplo: 2'
+                }
+    ))
+
+    precio_unitario  = forms.FloatField(
+                required=True,
+                help_text="* Campo Requerido.",
+                min_value=0,
+                widget=forms.TextInput(
+                attrs={ 
+                'class':'form-control mb-2 mr-sm-2',
+                'placeholder':'Ejemplo: 480.5'
+                }
+    ))
+
+    observacion = forms.CharField(
+                required=False,
+                label='Observacion', 
+                widget=forms.TextInput(
+                attrs={ 
+                'class':'form-control mb-2 mr-sm-2',
+                'placeholder':'Ejemplo: se llevan las llantas a renovacion'
+                }
+    ))
+    '''
+    destino = DestinoChoiceField(
+                required=True,
+                queryset=Profile.objects.filter(tipo__nombre="ECONOMICO").order_by('user__username'),#NOECONOMICO
+                widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
+    )
+    '''
+    class Meta: 
+        model = MovimientoGeneral
+        fields = [
+                  #'origen',
+                  'producto',
+                  'unidad',
+                  'cantidad',\
+                  'precio_unitario',
+                  'observacion',\
+                  ]

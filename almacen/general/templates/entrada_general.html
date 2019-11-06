@@ -1,7 +1,7 @@
-{% extends "base_bootstrap.html" %}
+{% extends "base_bootstrap_general.html" %}
 
 {% block title_section %}            
-<h1 class="h2">Entrada de llantas</h1>
+<h1 class="h2">Entrada de factura al almacén</h1>
 {% endblock %}
 
 {% block extra_title_section %}
@@ -10,9 +10,9 @@
 
 {% block buttons_section %}
 {% if action == 'edit' %}
-<form action="{% url 'entrada_edit' vale.id %}" method="post" id="entrada_form">
+<form action="{% url 'entrada_general_edit' vale.id %}" method="post" id="entrada_form">
 {% else %}
-<form action="{% url 'entrada' %}" method="post" id="entrada_form">
+<form action="{% url 'entrada_general' %}" method="post" id="entrada_form">
 {% endif %}
     {% csrf_token %}
 
@@ -92,9 +92,9 @@
                 $('#salida_form').trigger("reset");
 
               {% if action == 'edit' %}
-                window.location = "{% url 'entrada_edit' vale.id %}";
+                window.location = "{% url 'entrada_general_edit' vale.id %}";
               {% else %}
-                window.location = "{% url 'entrada' %}";
+                window.location = "{% url 'entrada_general' %}";
               {% endif %}
 
 

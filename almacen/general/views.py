@@ -22,7 +22,7 @@ from .models import *
 from persona.models import Profile, Tipo, ProfilePosition
 from .forms import FilterMovimientoForm
 from llantas.utils import return_profile
-from .forms import ValeAlmacenGeneralForm, SearchSalidaGeneralForm, MovimientoSalidaGeneralForm
+from .forms import ValeAlmacenGeneralForm, SearchSalidaGeneralForm, MovimientoSalidaGeneralForm, MovimientoEntradaGeneralForm, EntradaGeneralForm
 #from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm, AdjuntoValeForm, ProfileSearchForm
 #from .render_to_XLS_util import render_to_xls, render_to_csv, render_to_xls_inventario
 #from .serializers import ValeSerializer, LlantaSerializer, ProfileSerializer, MovimientoSerializer
@@ -86,30 +86,6 @@ def vales_general(request):
     return render(request, 'vales_general.html', context)    
 
 
-@login_required
-def entrada_detail(request, vale_id):
-    context = {}
-    obj = get_object_or_404(ValeAlmacenGeneral, pk=vale_id)
-    context['vale'] = obj
-
-    if request.method == 'POST':
-        form = NewLlantaForm(request.POST)
-
-        if form.is_valid():
-            existia, movimiento = form.save(obj)
-            if existia:
-                messages.add_message(request, messages.INFO, 'Ya existia una llanta con esas caracteristicas.')
-            else:
-                messages.add_message(request, messages.SUCCESS, 'Se crea una llanta con las nuevas caracteristicas.')
-            messages.add_message(request, messages.SUCCESS, 'Se adiciona el movimiento de entrada {}'.format(movimiento))
-            return HttpResponseRedirect(reverse('entrada_add', args=[obj.id]))    
-    else:
-        form = NewLlantaForm()
-
-    context["adjuntosarchivos"] = AdjuntoVale.objects.filter(vale=obj).order_by('-fecha_created')
-    context["form"] = form
-    context["MEDIA_URL"] = settings.MEDIA_URL
-    return render(request, 'entrada_general_detail.html', context)
 
 
 @login_required
@@ -212,15 +188,15 @@ def entrada_general(request, tipo_movimiento="ENTRADA"):
     initial_data = {'tipo_movimiento': tm, 'fecha_vale': fecha_hoy, 'creador_vale': profile_asociado}
 
     if request.method == 'POST':
-        vale_instance = Vale(tipo_movimiento=tm, creador_vale=profile_asociado)
-        form = EntradaForm(request.POST, instance=vale_instance)
+        vale_instance = ValeAlmacenGeneral(tipo_movimiento=tm, creador_vale=profile_asociado)
+        form = EntradaGeneralForm(request.POST, instance=vale_instance)
         if form.is_valid():
             vale = form.save()
-            return HttpResponseRedirect(reverse('entrada_add', args=[vale.id]))
+            return HttpResponseRedirect(reverse('entrada_general_add', args=[vale.id]))
         else:
             messages.add_message(request, messages.ERROR, 'Error en formulario')
     else:
-        form = EntradaForm(initial=initial_data)
+        form = EntradaGeneralForm(initial=initial_data)
 
     context["action"] = 'add'    
     context["form"] = form
@@ -257,6 +233,33 @@ def salida_general_add(request, vale_id):
     context["form"] = form
     context['productos'] = search 
     return render(request, 'salida_general_add.html', context)
+
+@login_required
+def entrada_general_add(request, vale_id):
+    context = {}
+    obj = get_object_or_404(ValeAlmacenGeneral, pk=vale_id)
+    context['vale'] = obj
+
+    if request.method == 'POST':
+        profile_asociado = return_profile(request.user.username)
+        movimiento_instance = MovimientoGeneral(
+                vale=obj,
+                tipo_movimiento=obj.tipo_movimiento,
+                fecha_movimiento=obj.fecha_vale,
+                origen=obj.persona_asociada,
+                creador=profile_asociado)
+        form = MovimientoEntradaGeneralForm(request.POST, instance=movimiento_instance) # MovimientoGeneral
+        if form.is_valid():
+            mov = form.save()
+            messages.add_message(request, messages.SUCCESS, 'Movimiento de entrada insertado: {}'.format(mov.id))
+            return HttpResponseRedirect(reverse('entrada_general_add', args=[obj.id]))
+        else:
+            messages.add_message(request, messages.ERROR, 'Revisa el formulario')
+    else:
+        form = MovimientoEntradaGeneralForm()
+
+    context["form"] = form
+    return render(request, 'entrada_general_add.html', context)
 
 
 @login_required
@@ -351,6 +354,19 @@ def salida_general_erase_movimiento(request, vale_id, movimiento_id):
 
     messages.add_message(request, messages.SUCCESS, 'Se borra movimiento')
     return HttpResponseRedirect(reverse('salida_general_add', args=[obj_vale.id]))
+
+@login_required
+def entrada_general_erase_movimiento(request, vale_id, movimiento_id):
+    
+    obj_vale = get_object_or_404(ValeAlmacenGeneral, pk=vale_id)
+    obj_movimiento = get_object_or_404(MovimientoGeneral, pk=movimiento_id)
+    for productoexactprofileposition in obj_movimiento.le_positions():
+        productoexactprofileposition.delete()
+    obj_movimiento.delete()
+
+    messages.add_message(request, messages.SUCCESS, 'Se borra movimiento')
+    return HttpResponseRedirect(reverse('entrada_general_add', args=[obj_vale.id]))
+
 
 @login_required
 def salida_general_impresion(request, vale_id):
