@@ -26,6 +26,8 @@ urlpatterns = [
     path('salida/<int:vale_id>/impresion/', salida_general_impresion, name='salida_general_impresion'),
     path('salida/<int:vale_id>/movimiento/', salida_general_add_movimiento, name='salida_general_add_movimiento'),
 
+    path('entrada/<int:vale_id>/movimiento/position/', entrada_general_add_movimiento_position, name='entrada_general_add_movimiento_position'),
+
 
     path('salida/<int:vale_id>/movimiento/<int:movimiento_id>/erase/', salida_general_erase_movimiento, name='salida_general_erase_movimiento'),
     path('entrada/<int:vale_id>/movimiento/<int:movimiento_id>/erase/', entrada_general_erase_movimiento, name='entrada_general_erase_movimiento'),    

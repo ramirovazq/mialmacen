@@ -61,7 +61,17 @@
                   <td>{{movimiento.cantidad}} </td>
                   <td>{{movimiento.creador}} </td>
                   <td>{{movimiento.origen}} </td>
-                  <td>{% for x in movimiento.list_exact_positions %}{{x}}{% endfor %}</td>
+                  <td>
+                    {% if movimiento.list_exact_positions %}
+                    {% for x in movimiento.list_exact_positions %}{{x}}{% endfor %}
+                    {% else %}
+                      <form action="{% url 'entrada_general_add_movimiento_position' vale.id %}" method="post" id="entrada_add_movimiento_form" class="form-inline">
+                        {{form_position.as_p}}
+                        <input type="hidden" value="{{movimiento.id}}" name="id_movimiento" id="id_movimiento">
+                        <input type="submit" value="Agregar" class="btn btn-primary mb-2">
+                      </form>
+                    {% endif %}
+                  </td>
                   <td>{{movimiento.destino}} </td>
                   <td>{{movimiento.observacion}} </td>
                   <td><a class="page-link" href="{% url 'entrada_general_erase_movimiento' vale.id  movimiento.id %}">borrar</a></td>

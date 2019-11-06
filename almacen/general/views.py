@@ -20,9 +20,9 @@ from datetime import datetime
 
 from .models import *
 from persona.models import Profile, Tipo, ProfilePosition
-from .forms import FilterMovimientoForm
 from llantas.utils import return_profile
-from .forms import ValeAlmacenGeneralForm, SearchSalidaGeneralForm, MovimientoSalidaGeneralForm, MovimientoEntradaGeneralForm, EntradaGeneralForm
+from .forms import ValeAlmacenGeneralForm, SearchSalidaGeneralForm, MovimientoSalidaGeneralForm, FilterMovimientoForm
+from .forms import MovimientoEntradaGeneralForm, EntradaGeneralForm, PositionForm
 #from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm, AdjuntoValeForm, ProfileSearchForm
 #from .render_to_XLS_util import render_to_xls, render_to_csv, render_to_xls_inventario
 #from .serializers import ValeSerializer, LlantaSerializer, ProfileSerializer, MovimientoSerializer
@@ -258,8 +258,33 @@ def entrada_general_add(request, vale_id):
     else:
         form = MovimientoEntradaGeneralForm()
 
+    context['form_position'] = PositionForm()
     context["form"] = form
     return render(request, 'entrada_general_add.html', context)
+
+@login_required
+def entrada_general_add_movimiento_position(request, vale_id):
+    context = {}
+    obj = get_object_or_404(ValeAlmacenGeneral, pk=vale_id)
+
+    if request.method == 'POST':
+        id_movimiento = request.POST['id_movimiento']
+        movimiento  = get_object_or_404(MovimientoGeneral, pk=id_movimiento)        
+        position_instance = ProductoExactProfilePosition(
+            movimiento=movimiento
+        )
+        form = PositionForm(request.POST, instance=position_instance) # MovimientoGeneral
+        if form.is_valid():
+            productexact = form.save()
+            movimiento.destino = productexact.exactposition.profile
+            movimiento.save()
+            messages.add_message(request, messages.SUCCESS, 'Se asocia una posicion para el producto de forma exitosa')
+        else:
+            messages.add_message(request, messages.ERROR, 'No se pudo asociar un producto a una posicion')
+    print("...............obj")
+    print(obj)
+    print(obj.id)
+    return HttpResponseRedirect(reverse('entrada_general_add', kwargs={"vale_id": obj.id}))
 
 
 @login_required

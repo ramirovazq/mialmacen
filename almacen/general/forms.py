@@ -257,3 +257,25 @@ class MovimientoEntradaGeneralForm(ModelForm):
                   'precio_unitario',
                   'observacion',\
                   ]
+
+class ExactPositionChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "{}".format(obj)
+
+
+class PositionForm(ModelForm):
+
+    exactposition = ExactPositionChoiceField(
+                required=True,
+                queryset=ProfilePosition.objects.all().order_by('profile'),#NOECONOMICO
+                widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
+
+    )
+
+
+    class Meta:
+        model = ProductoExactProfilePosition
+        fields = [
+                    'exactposition',
+                ]
+  
