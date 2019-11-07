@@ -88,7 +88,7 @@
 
                 <table border="0" class="fuente_peque" width="100%">
 		            <tr>
-                  <th style="width:40px;"> id </th>
+                  <th style="width:40px;"> id prod</th>
                   <th style="width:50px;"> Fecha </th>
                   <th> Producto </th>
                   <th style="width:50px;"> Unidad </th>
@@ -110,7 +110,7 @@
 		            </tr>
                 {% for movimiento in vale.movimientos %}
                 <tr>
-                  <td>{{movimiento.id}}</td>
+                  <td>#{{movimiento.producto.id}}</td>
                   <td>{{movimiento.fecha_movimiento|date:"D d/M/y"}}</td>
                   <td>{{movimiento.producto.nombre}}</td>
                   <td>{{movimiento.unidad.simbolo}} </td>

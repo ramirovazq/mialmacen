@@ -79,7 +79,7 @@
                 <tr>
                   <td>{{movimiento.id}} </td>
                   <td>{{movimiento.fecha_movimiento}}</td>
-                  <td>{{movimiento.producto.nombre}}</td>
+                  <td>{{movimiento.producto.nombre}} (#{{movimiento.producto.id}})</td>
                   <td>{{movimiento.unidad.simbolo}} </td>
                   <td>{{movimiento.cantidad}} </td>
                   <td>${{movimiento.precio_unitario|floatformat:2|intcomma}} </td>
