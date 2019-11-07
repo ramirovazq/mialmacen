@@ -19,6 +19,7 @@
         <div class="col">Tipo movimiento: {{vale.tipo_movimiento.nombre}}</div>        
          <div class="col"><a class="page-link" href="{% url 'entrada_edit' vale.id %}">editar</a></div> 
       </div>
+
      <div class="row">
         <div class="col">Fecha: {{vale.fecha_vale}}</div>
         <div class="col">Proveedor: {{vale.persona_asociada.user.username}}</div>
@@ -37,7 +38,7 @@
                 {% for archivos in adjuntosarchivos %}
                 <tr>
                   <td>{{archivos.id}} </td>
-                  <td>{{archivos.fecha_created}}</td>
+                  <td>{{archivos.fecha_created|date:"D d/M/Y"}}</td>
                   <td><a class="page-link" href="{{MEDIA_URL}}{{archivos.upload}}">{{archivos.upload}}</a></td>
                 </tr>
                 {% endfor %}

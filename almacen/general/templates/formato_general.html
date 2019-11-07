@@ -53,6 +53,27 @@
             <td colspan="4">Folio:</td><td colspan="4">#{{vale.no_folio}}</td>
           </tr>
         </table>
+
+        {% if vale.tipo_movimiento.nombre == 'ENTRADA' %}
+        <table border="0" class="fuente_peque" width="100%">
+          <tr>
+            <th colspan="4">Proveedor</th><th colspan="4">Fecha</th>
+          </tr>
+          <tr>
+            <td colspan="4">{{vale.persona_asociada.user.username}}</td><td colspan="4">{{vale.fecha_vale|date:"D d/M/Y"}}</td>
+          </tr>
+        </table>
+        {% else %}
+        <table border="0" class="fuente_peque" width="100%">
+          <tr>
+            <th colspan="4">Fecha</th>
+          </tr>
+          <tr>
+            <td colspan="4" style="text-align: center;">{{vale.fecha_vale|date:"D d/M/Y"}}</td>
+          </tr>
+        </table>
+        {% endif %}
+
       </td>
     </tr>
         </table>
@@ -106,12 +127,35 @@
                 </tr>
                 {% endfor %}
 
-{% if vale.tipo_movimiento.nombre == 'ENTRADA' %}
+          {% if vale.tipo_movimiento.nombre == 'ENTRADA' %}
               <tr>
                   <td colspan="5"> </td>
                   <td>{% if vale.con_iva %}Con IVA{% else %}Sin IVA{% endif %} ${{vale.total|floatformat:2|intcomma}}</td>          
-                  <td colspan="4"> </td>
+                  <td colspan="4"> 
+                  {% if vale.observaciones_grales %}
+                   <div class="row">
+                      <div class="col">Observaciones: {{vale.observaciones_grales}}</div>
+                    </div>
+                  {% endif %}
 
+                  </td>
+              </tr>
+            {% else %}
+              <tr>
+                  <td colspan="5"> </td>
+                  <td></td>          
+                  <td colspan="4"> 
+                  {% if vale.observaciones_grales %}
+                   <div class="row">
+                      <div class="col">Observaciones: {{vale.observaciones_grales}}</div>
+                    </div>
+                   {% else %} 
+                   <div class="row">
+                      <div class="col">Observaciones: </div>
+                    </div>
+                  {% endif %}
+
+                  </td>
               </tr>
             {% endif %}                  
                 </table>
@@ -129,7 +173,11 @@
 			            <th style="width:40%;">Firma</th>
 		            </tr>
 		            <tr style="text-align: center;">
-			            <td>{{vale.persona_asociada.user.first_name}}<br/><br/></td>
+                  {% if vale.tipo_movimiento.nombre == 'ENTRADA' %}
+			            <td>{{vale.creador_vale.user.username}} {{vale.creador_vale.user.first_name}} {{vale.creador_vale.user.last_name}}<br/><br/></td>
+                  {% else %}
+                  <td>{{vale.persona_asociada.user.username }} {{vale.persona_asociada.user.first_name}} {{vale.persona_asociada.user.last_name}}<br/><br/></td>
+                  {% endif %}
 			            <td>{{vale.fecha_vale}}</td>
 			            <td style="height: 120px;"></td>
 		            </tr>
