@@ -84,6 +84,10 @@ class ValeAlmacenGeneral(Vale): # catálogo de tipos de movimiento, ENTRADA, SAL
     def movimientos(self):
         return MovimientoGeneral.objects.filter(vale=self)
 
+    def total(self):
+        return sum([m.precio_total() for m in self.movimientos()])
+
+
 
 class Producto(models.Model):
     nombre = models.CharField( # AmerSteel, Dunlop, Michellin, etc

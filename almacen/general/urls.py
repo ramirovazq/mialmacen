@@ -23,7 +23,9 @@ urlpatterns = [
 
     #path('entrada/<int:vale_id>/', entrada_detail, name='entrada_detail'),
     #path('entrada/<int:vale_id>/adjuntar/', entrada_adjuntar, name='entrada_adjuntar'),
-    path('salida/<int:vale_id>/impresion/', salida_general_impresion, name='salida_general_impresion'),
+
+
+    path('<int:vale_id>/impresion/', general_impresion, name='general_impresion'),
     path('salida/<int:vale_id>/movimiento/', salida_general_add_movimiento, name='salida_general_add_movimiento'),
 
     path('entrada/<int:vale_id>/movimiento/position/', entrada_general_add_movimiento_position, name='entrada_general_add_movimiento_position'),

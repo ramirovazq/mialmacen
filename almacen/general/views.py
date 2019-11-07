@@ -394,7 +394,7 @@ def entrada_general_erase_movimiento(request, vale_id, movimiento_id):
 
 
 @login_required
-def salida_general_impresion(request, vale_id):
+def general_impresion(request, vale_id):
     context = {}
     obj = get_object_or_404(ValeAlmacenGeneral, pk=vale_id)
     context['vale'] = obj

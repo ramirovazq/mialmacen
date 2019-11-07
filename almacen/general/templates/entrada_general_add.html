@@ -1,4 +1,5 @@
 {% extends "base_bootstrap_general.html" %}
+{% load humanize %}
 
 {% block title_section %}            
 <h1 class="h2">Factura de entrada Almacen General, Folio: #{{vale.no_folio}}</h1>
@@ -7,9 +8,7 @@
 {% block extra_title_section %}
   <ul class="pagination">
     <li class="page-item">
-      <!--
-      <a class="page-link" href="{% url 'salida_general_impresion' vale.id %}" target="_blank">Impresión</a>
-      -->
+      <a class="page-link" href="{% url 'general_impresion' vale.id %}" target="_blank">Impresión</a>
     </li>
   </ul>
 
@@ -27,11 +26,27 @@
           </div>
 
       </div>
-     <div class="row">
+
+      <div class="row">
         <div class="col">Fecha: {{vale.fecha_vale}}</div>
         <div class="col">Proveedor: {{vale.persona_asociada}}</div>
       </div>
+      
       <br/><br/>
+
+     <div class="row">
+        <div class="col">Crea: {{vale.creador_vale.user.username}}</div>
+        <div class="col">{% if vale.con_iva %}Con IVA{% else %}Sin IVA{% endif %} ${{vale.total|floatformat:2|intcomma}}</div>
+      </div>
+
+    {% if vale.observaciones_grales %}
+     <div class="row">
+        <div class="col">Observaciones: {{vale.observaciones_grales}}</div>
+      </div>
+    {% endif %}
+
+      <br/><br/>
+
 
 
           <div class="table-responsive">
@@ -43,6 +58,14 @@
                   <th> Producto </th>
                   <th> Unidad </th>
                   <th> Cantidad </th>
+                  <th> Precio Unitario </th>                  
+
+                  {% if vale.con_iva %}
+                  <th> Total con IVA </th>
+                  {% else %}
+                  <th> Total sin IVA </th>
+                  {% endif %}                  
+
                   <th> Creador </th>
                   <th> Origen </th>
                   <th> Almacenado en</th>
@@ -59,6 +82,10 @@
                   <td>{{movimiento.producto.nombre}}</td>
                   <td>{{movimiento.unidad.simbolo}} </td>
                   <td>{{movimiento.cantidad}} </td>
+                  <td>${{movimiento.precio_unitario|floatformat:2|intcomma}} </td>
+
+                  <td>${{movimiento.precio_total|floatformat:2|intcomma}} </td>                  
+
                   <td>{{movimiento.creador}} </td>
                   <td>{{movimiento.origen}} </td>
                   <td>

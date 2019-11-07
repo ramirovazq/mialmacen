@@ -1,3 +1,4 @@
+{% load humanize %}
 <html>
 <head>
 <style type="text/css">
@@ -46,7 +47,7 @@
       <td align="center">
         <table border="0" class="fuente_peque" width="100%">
           <tr>
-            <th colspan="8">Vale de Entrega de Almacén General</th>
+            <th colspan="8">{% if vale.tipo_movimiento.nombre == 'ENTRADA' %}Entrada de{% else %}Vale de Entrega de{% endif %} Almacén General</th>
           </tr>
           <tr>
             <td colspan="4">Folio:</td><td colspan="4">#{{vale.no_folio}}</td>
@@ -71,6 +72,16 @@
                   <th> Producto </th>
                   <th style="width:50px;"> Unidad </th>
                   <th style="width:50px;"> Cantidad </th>
+
+            {% if vale.tipo_movimiento.nombre == 'ENTRADA' %}
+                  {% if vale.con_iva %}
+                  <th style="width:50px;"> Total con IVA </th>
+                  {% else %}
+                  <th style="width:50px;"> Total sin IVA </th>
+                  {% endif %}                  
+            {% endif %}                  
+
+
                   <th style="width:100px;"> Creador </th>
                   <th> Origen</th>
                   <th> No. Económico </th>
@@ -83,12 +94,26 @@
                   <td>{{movimiento.producto.nombre}}</td>
                   <td>{{movimiento.unidad.simbolo}} </td>
                   <td>{{movimiento.cantidad}} </td>
+
+{% if vale.tipo_movimiento.nombre == 'ENTRADA' %}
+                  <td>${{movimiento.precio_total|floatformat:2|intcomma}} </td>                  
+            {% endif %}                  
+
                   <td>{{movimiento.creador}} </td>
                   <td>{% for x in movimiento.list_exact_positions %}{{x}}{% endfor %}</td>
                   <td>{{movimiento.destino}} </td>
                   <td>{{movimiento.observacion}} </td>          
                 </tr>
                 {% endfor %}
+
+{% if vale.tipo_movimiento.nombre == 'ENTRADA' %}
+              <tr>
+                  <td colspan="5"> </td>
+                  <td>{% if vale.con_iva %}Con IVA{% else %}Sin IVA{% endif %} ${{vale.total|floatformat:2|intcomma}}</td>          
+                  <td colspan="4"> </td>
+
+              </tr>
+            {% endif %}                  
                 </table>
       </td>
       <td></td>
