@@ -2,8 +2,8 @@ from django.contrib import admin
 from .models import *
 
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ['id', 'nombre']
-    search_fields = ['nombre']
+    list_display = ['id', 'nombre', 'numero_de_parte_uno', 'numero_de_parte_dos']
+    search_fields = ['nombre', 'numero_de_parte_uno', 'numero_de_parte_dos']
 
 class ValeAlmacenGeneralAdmin(admin.ModelAdmin):
     list_display = ['id', 'no_folio', 'tipo_movimiento', 'fecha_vale', 'con_iva', 'fecha_created', 'fecha_edited', 'persona_asociada']

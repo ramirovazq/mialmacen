@@ -106,7 +106,17 @@ class ValeAlmacenGeneralForm(ValeForm):
 
 class ProductoSearchChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
-        return "%s" % (obj.nombre)
+
+        if obj.numero_de_parte_uno and obj.numero_de_parte_dos:
+            cadena = "{} [número de parte {}] [número de parte {}]".format(obj.nombre, obj.numero_de_parte_uno, obj.numero_de_parte_dos)
+        elif obj.numero_de_parte_uno:
+            cadena = "{} [número de parte {}]".format(obj.nombre, obj.numero_de_parte_uno)
+        else:
+            cadena = "{}".format(obj.nombre)
+        return cadena
+
+
+        return "%s %s" % (obj.nombre, obj.numero_de_parte_uno)
 
 
 class SearchSalidaGeneralForm(ModelForm):

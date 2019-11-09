@@ -95,7 +95,27 @@ class Producto(models.Model):
             null = True,
             max_length=250
     )
+    numero_de_parte_uno = models.CharField( # AmerSteel, Dunlop, Michellin, etc
+            blank=True,
+            null = True,
+            max_length=70
+    )
+    numero_de_parte_dos = models.CharField( # AmerSteel, Dunlop, Michellin, etc
+            blank=True,
+            null = True,
+            max_length=70
+    )
 
+    def __str__(self):
+        cadena = "producto"
+        if self.numero_de_parte_uno and self.numero_de_parte_dos:
+            cadena = "{}, [número de parte {}] [número de parte {}]".format(self.nombre, self.numero_de_parte_uno, self.numero_de_parte_dos)
+        elif self.numero_de_parte_uno:
+            cadena = "{}, [número de parte {}]".format(self.nombre, self.numero_de_parte_uno)
+        else:
+            cadena = "{}".format(self.nombre)
+        return cadena
+        
     def devuelve_unidad_referencia(self, movimiento=None):
         unidad_referencia = None
         tipo_referencia = TipoUnidadMedida.objects.get(tipo=0) # reference
