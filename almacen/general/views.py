@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.conf import settings
 from django.http import HttpResponse
 from django.utils.timezone import now as d_utils_now
+from django.db.models import Q
 
 #from rest_framework.decorators import detail_route
 from rest_framework.decorators import action
@@ -25,7 +26,35 @@ from .forms import ValeAlmacenGeneralForm, SearchSalidaGeneralForm, MovimientoSa
 from .forms import MovimientoEntradaGeneralForm, EntradaGeneralForm, PositionForm
 #from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm, AdjuntoValeForm, ProfileSearchForm
 #from .render_to_XLS_util import render_to_xls, render_to_csv, render_to_xls_inventario
-#from .serializers import ValeSerializer, LlantaSerializer, ProfileSerializer, MovimientoSerializer
+from .serializers import ProductoSerializer
+
+class ProductoViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    #authentication_classes = (TokenAuthentication, SessionAuthentication)
+    #permission_classes = (IsAuthenticated,)
+
+    queryset = Producto.objects.all().order_by('nombre')
+    serializer_class = ProductoSerializer
+
+    @action(detail=False, methods=['get'])
+    def search_product(self, request):
+        productos_serializados = ProductoSerializer()
+        if 'search' in request.query_params.keys():
+            search = request.query_params.get('search')
+            if len(search) >= 2:
+                print("valor d ebusqueda {}".format(search))
+                print("query params ......")
+                print(request.query_params)
+                productos = Producto.objects.filter(
+                        Q(nombre__icontains=search) | 
+                        Q(numero_de_parte_uno__icontains=search) |
+                        Q(numero_de_parte_dos__icontains=search)
+                )
+                productos_serializados = ProductoSerializer(productos, many=True)
+                print(productos_serializados.data)
+        return Response(productos_serializados.data)
 
 @login_required
 def movimientos_general(request):
