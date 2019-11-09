@@ -104,8 +104,19 @@
 
 
                   <th style="width:100px;"> Creador </th>
-                  <th> Origen</th>
-                  <th> No. Económico </th>
+              {% if vale.tipo_movimiento.nombre == 'ENTRADA' %}
+              {% else %}
+                <th> Origen salida </th>
+              {% endif %}                  
+
+
+
+            {% if vale.tipo_movimiento.nombre == 'ENTRADA' %}
+                  <th> Lugar en almacén </th>
+            {% else %}
+                <th> No. Económico </th>
+            {% endif %}                  
+
                   <th> Observaciones </th>
 		            </tr>
                 {% for movimiento in vale.movimientos %}
@@ -116,13 +127,34 @@
                   <td>{{movimiento.unidad.simbolo}} </td>
                   <td>{{movimiento.cantidad}} </td>
 
-{% if vale.tipo_movimiento.nombre == 'ENTRADA' %}
-                  <td>${{movimiento.precio_total|floatformat:2|intcomma}} </td>                  
-            {% endif %}                  
+                  {% if vale.tipo_movimiento.nombre == 'ENTRADA' %}
+                    <td>${{movimiento.precio_total|floatformat:2|intcomma}} </td>                  
+                  {% endif %}                  
 
                   <td>{{movimiento.creador}} </td>
+
+                  {% if vale.tipo_movimiento.nombre == 'ENTRADA' %}
+                  {% else %}                  
                   <td>{% for x in movimiento.list_exact_positions %}{{x}}{% endfor %}</td>
-                  <td>{{movimiento.destino}} </td>
+                  {% endif %}
+
+
+
+                  {% if vale.tipo_movimiento.nombre == 'ENTRADA' %}
+                  <td>
+                    {% if movimiento.list_exact_positions %}
+                      {% for x in movimiento.list_exact_positions %}{{x}}{% endfor %}
+                    {% else %}
+                      {{movimiento.destino|default_if_none:"no se ha colocado"}} 
+                    {% endif %} 
+                  </td>
+                  {% else %}
+                  <td>
+                      {{movimiento.destino|default_if_none:"no se ha colocado"}} 
+                  </td>                  
+                  {% endif %}
+
+
                   <td>{{movimiento.observacion}} </td>          
                 </tr>
                 {% endfor %}
