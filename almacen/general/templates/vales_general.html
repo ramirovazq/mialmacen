@@ -45,6 +45,7 @@
                   <th>Observacion</th>
                   <th># movimientos</th>
                   <th></th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -66,6 +67,9 @@
                   <td>{{vale.movimientos.count}}</td>
                   <td>
                     <a href="{% url 'vale_general_erase' vale.id %}" class="btn btn-primary{% if vale.movimientos.count != 0 %} disabled{% endif %}">borrar</a> 
+                  </td>
+                  <td>
+                    <a href="{% url 'general_impresion' vale.id %}" target="_blank" class="btn btn-info{% if vale.movimientos.count == 0 %} disabled{% endif %}">formato</a> 
                   </td>
                 </tr>
                 {% endfor %}
