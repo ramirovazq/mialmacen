@@ -3,6 +3,20 @@ from general.models import Producto
 #from persona.models import Profile, Tipo
 
 class ProductoSerializer(serializers.ModelSerializer):
+    position = serializers.SerializerMethodField()
+    inventory = serializers.SerializerMethodField()
+
+    def get_position(self, obj):
+        return obj.what_in_positions_inventory_specific()
+
+
+    def get_inventory(self, obj):
+        #print('specific_position...... ini')
+        #print(obj.what_in_positions_inventory_specific_obj())
+        #print('specific_position...... fin')
+        return obj.inventory_words()
+
+
     class Meta:
         model = Producto
         fields = '__all__'

@@ -187,6 +187,30 @@ class Producto(models.Model):
 
         return total_entrada-total_salida, unidad_referencia
 
+    def inventory_words(self, lugar=None):
+
+        movimientos_entrada = self.movimientos("ENTRADA", destino=lugar)
+        movimientos_salida  = self.movimientos("SALIDA", origen=lugar)
+
+        try:
+            primer_movimiento = movimientos_entrada[0]
+            unidad_referencia = self.devuelve_unidad_referencia(primer_movimiento)
+        except IndexError:
+            unidad_referencia = None
+
+        total_entrada = 0
+        total_salida  = 0
+
+        for m_entrada in movimientos_entrada:
+            total_entrada = total_entrada + (m_entrada.cantidad*m_entrada.unidad.ratio)
+
+        for m_salida in movimientos_salida:
+            total_salida = total_salida + (m_salida.cantidad*m_salida.unidad.ratio)
+
+        return {"total": total_entrada-total_salida, "unidad_referencia":unidad_referencia.simbolo}
+
+
+
     def positions(self, lugar=None):
         movimientos_entrada = self.movimientos("ENTRADA", destino=lugar)
         answer = set()
