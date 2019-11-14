@@ -230,10 +230,11 @@ class MovimientoEntradaGeneralForm(ModelForm):
                 }
     ))
 
-    precio_unitario  = forms.FloatField(
+    precio_unitario  = forms.DecimalField(
                 required=True,
                 help_text="* Campo Requerido.",
-                min_value=0,
+                max_digits=8,
+                decimal_places=2,
                 widget=forms.TextInput(
                 attrs={ 
                 'class':'form-control mb-2 mr-sm-2',
