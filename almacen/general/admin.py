@@ -6,8 +6,8 @@ class ProductoAdmin(admin.ModelAdmin):
     search_fields = ['nombre', 'numero_de_parte_uno', 'numero_de_parte_dos']
 
 class ValeAlmacenGeneralAdmin(admin.ModelAdmin):
-    list_display = ['id', 'no_folio', 'tipo_movimiento', 'fecha_vale', 'con_iva', 'fecha_created', 'fecha_edited', 'persona_asociada']
-    list_filter = ['tipo_movimiento']
+    list_display = ['id', 'no_folio', 'tipo_movimiento', 'fecha_vale', 'con_iva', 'fecha_created', 'fecha_edited', 'persona_asociada', 'vale_llantas']
+    list_filter = ['tipo_movimiento', 'vale_llantas']
 
 class MovimientoGeneralAdmin(admin.ModelAdmin):
     list_display = ['id', 'vale', 'fecha_movimiento', 'origen', 'destino', 'cantidad', 'creador', 'producto', 'unidad']

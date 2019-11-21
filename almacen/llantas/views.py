@@ -402,7 +402,7 @@ def vales(request):
     if action:
         action = action.upper()
 
-    v = Vale.objects.filter(tipo_movimiento__nombre=action).order_by('-fecha_vale', '-no_folio')
+    v = Vale.objects.filter(tipo_movimiento__nombre=action, vale_llantas=True).order_by('-fecha_vale', '-no_folio')
     context["vales_count"] = v.count()
 
 

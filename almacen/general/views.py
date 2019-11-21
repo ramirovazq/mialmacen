@@ -98,7 +98,7 @@ def vales_general(request):
     if action:
         action = action.upper()
 
-    v = ValeAlmacenGeneral.objects.filter(tipo_movimiento__nombre=action).order_by('-fecha_vale', '-no_folio')
+    v = ValeAlmacenGeneral.objects.filter(tipo_movimiento__nombre=action, vale_llantas=False).order_by('-fecha_vale', '-no_folio')
     context["vales_count"] = v.count()
 
 
@@ -191,8 +191,8 @@ def salida_general(request, tipo_movimiento="SALIDA"):
     initial_data = {'tipo_movimiento': tm.id, 'fecha_vale': fecha_hoy, 'creador_vale': profile_asociado.id}
 
     if request.method == 'POST':
-        vale_instance = ValeAlmacenGeneral(tipo_movimiento=tm, creador_vale=profile_asociado)
-        form = ValeAlmacenGeneralForm(request.POST)#, instance=vale_instance)
+        vale_instance = ValeAlmacenGeneral(tipo_movimiento=tm, creador_vale=profile_asociado, vale_llantas=False)
+        form = ValeAlmacenGeneralForm(request.POST, instance=vale_instance)
         if form.is_valid():
             vale = form.save()
             return HttpResponseRedirect(reverse('salida_general_add', args=[vale.id]))
@@ -213,7 +213,7 @@ def entrada_general(request, tipo_movimiento="ENTRADA"):
     initial_data = {'tipo_movimiento': tm, 'fecha_vale': fecha_hoy, 'creador_vale': profile_asociado}
 
     if request.method == 'POST':
-        vale_instance = ValeAlmacenGeneral(tipo_movimiento=tm, creador_vale=profile_asociado)
+        vale_instance = ValeAlmacenGeneral(tipo_movimiento=tm, creador_vale=profile_asociado, vale_llantas=False)
         form = EntradaGeneralForm(request.POST, instance=vale_instance)
         if form.is_valid():
             vale = form.save()

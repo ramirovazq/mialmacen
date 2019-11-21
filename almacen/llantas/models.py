@@ -159,6 +159,8 @@ class Vale(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
 
     con_iva = models.BooleanField(default=True)
 
+    vale_llantas = models.BooleanField(default=True)
+
     def movimientos(self):
         return Movimiento.objects.filter(vale=self)
 

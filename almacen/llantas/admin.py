@@ -22,8 +22,8 @@ class TipoMovimientoAdmin(admin.ModelAdmin):
     search_fields = ['nombre']
 
 class ValeAdmin(admin.ModelAdmin):
-    list_display = ['id', 'no_folio', 'tipo_movimiento', 'fecha_vale', 'con_iva', 'fecha_created', 'fecha_edited', 'persona_asociada']
-    list_filter = ['tipo_movimiento']
+    list_display = ['id', 'no_folio', 'tipo_movimiento', 'fecha_vale', 'con_iva', 'fecha_created', 'fecha_edited', 'persona_asociada', 'vale_llantas']
+    list_filter = ['tipo_movimiento', 'vale_llantas']
     search_fields = ['no_folio']
 
 class MovimientoAdmin(admin.ModelAdmin):
