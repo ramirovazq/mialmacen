@@ -10,6 +10,7 @@
     <!-- Custom styles for this template -->
     <link href="{% static 'css/temporal.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'jquery-ui-1.12.1.custom/jquery-ui.css' %}">
+    <link rel="stylesheet" href="{% static 'Autocomplete/content/styles.css' %}">
     <title>Almacen</title>
   </head>
   <body>
@@ -17,10 +18,8 @@
 
     <nav class="navbar navbar-dark bg-primary fixed-top flex-md-nowrap p-0 shadow">
       <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="/general/">Almacén General</a>
-      <!--
-      <input class="form-control form-control-dark w-100" type="text" placeholder="Buscar" aria-label="Search">
-    -->
-      <div id="buscador_piezas"></div>
+
+      <input class="form-control form-control-dark w-100" type="text" placeholder="Buscar" aria-label="Search" id="autocomplete" name="buscador">
 
       <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
@@ -155,7 +154,22 @@
     <script src="{% static 'jquery/3.3.1/jquery-3.3.1.js' %}" ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="{% static 'bootstrap/4.3.1/js/bootstrap.min.js' %}"></script>
+     
     <script src="{% static 'jquery-ui-1.12.1.custom/jquery-ui.js' %}" ></script>
+
+    <script src="{% static 'Autocomplete/src/jquery.autocomplete.js' %}" ></script>
+    <script>
+    var countries = [
+       { value: 'Andorra', data: 'AD' },
+       { value: 'Zimbabwe', data: 'ZZ' }
+    ];
+      $('#autocomplete').devbridgeAutocomplete({
+          lookup: countries,
+          onSelect: function (suggestion) {
+              alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
+          }
+      });
+    </script>
 
 
     <!-- Icons -->
