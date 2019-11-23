@@ -207,8 +207,10 @@ class Producto(models.Model):
         for m_salida in movimientos_salida:
             total_salida = total_salida + (m_salida.cantidad*m_salida.unidad.ratio)
 
-        return {"total": total_entrada-total_salida, "unidad_referencia":unidad_referencia.simbolo}
-
+        if unidad_referencia:
+            return {"total": total_entrada-total_salida, "unidad_referencia":unidad_referencia.simbolo}
+        else:
+            return {"total": total_entrada-total_salida, "unidad_referencia": "?"}
 
 
     def positions(self, lugar=None):
