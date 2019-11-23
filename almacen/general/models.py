@@ -295,7 +295,8 @@ class Producto(models.Model):
     def what_in_positions_inventory_specific(self):
         '''
         returns
-        example: {'ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 1': Decimal('130.0000'), 'ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 23': Decimal('13.0000')}
+        example: {'ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 1': Decimal('130.0000'), 
+                 'ALMACEN_GENERAL>>Anaquel 1>>Nivel de Anaquel 23': Decimal('13.0000')}
         '''
         answer = {}
         total_entrada = 0

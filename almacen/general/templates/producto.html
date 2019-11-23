@@ -51,48 +51,29 @@
 
       <div class="table-responsive">
 
-           {% for ubicacion, lista_movimientos in producto.what_in_positions_inventory.items %}
+           
             <table class="table table-striped table-sm">
               <thead>
                 <tr>
-                  <th colspan="4">Detalle ubicacion {{ubicacion}}</th>
+                  <th>Ubicacion</th>
+                  <th>Cantidad</th>
                 </tr>
               </thead>
               <tbody>
-                {% for movimiento in lista_movimientos %}
+                {% for ubicacion, cantidad in producto.what_in_positions_inventory_specific_obj.items %}
                   <tr>
                     <td>
-                      {{movimiento.movimiento.tipo_movimiento}}, </td>
+                      {{ubicacion}} </td>
                     <td>
-                      {{movimiento.movimiento.producto}} </td>
-                    <td>
-                      {{movimiento.movimiento.cantidad }}</td>
-                    <td>
-                      {{movimiento.movimiento.unidad.simbolo}} </td>
+                      {{cantidad}} </td>
                   </tr>
                 {% endfor %}
               </tbody>
             </table>
-            {% endfor %}
 
 
 
-           {% for ubicacion, valor in producto.positions_inventory.items %}
-            <table class="table table-striped table-sm">
-              <thead>
-                <tr>
-                  <th>Cantidad en Ubicacion</th>
-                  <th>cantidad</th>
-                </tr>
-              </thead>
-              <tbody>
-                  <tr>
-                    <td>{{ubicacion}}</td>
-                    <td>{{valor}}</td>
-                  </tr>
-              </tbody>
-            </table>
-            {% endfor %}
+
           </div>
 
 
@@ -150,7 +131,7 @@
   {% endif %}
 
 <br><br>
-{% if llanta.movimientos_salida %}
+{% if producto.movimientos_salida %}
           <div class="table-responsive">
             <h3>Movimientos salida</h3>
             <table class="table table-striped table-sm">
@@ -171,7 +152,7 @@
                 </tr>
               </thead>
               <tbody>
-                  {% for movimiento in llanta.movimientos_salida %} 
+                  {% for movimiento in producto.movimientos_salida %} 
                   <tr>                    
                     <td>{{movimiento.vale}} </td>
                     <td>{{movimiento.vale.tipo_movimiento}} </td>

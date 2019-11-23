@@ -41,9 +41,9 @@ class ProductoViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def search_product(self, request):
         productos_serializados = ProductoSerializer()
-        if 'search' in request.query_params.keys():
-            search = request.query_params.get('search')
-            if len(search) >= 2:
+        if 'query' in request.query_params.keys():
+            search = request.query_params.get('query')
+            if len(search) >= 3:
                 productos = Producto.objects.filter(
                         Q(nombre__icontains=search) | 
                         Q(numero_de_parte_uno__icontains=search) |

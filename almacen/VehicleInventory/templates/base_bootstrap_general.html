@@ -159,12 +159,34 @@
 
     <script src="{% static 'Autocomplete/src/jquery.autocomplete.js' %}" ></script>
     <script>
-    var countries = [
-       { value: 'Andorra', data: 'AD' },
-       { value: 'Zimbabwe', data: 'ZZ' }
-    ];
       $('#autocomplete').devbridgeAutocomplete({
-          lookup: countries,
+          minChars:3,
+          serviceUrl: '/api/v0/producto/search_product/?format=json',
+          transformResult: function(response) {
+              console.log('...........response');
+              console.log(response);
+              var response_json = JSON.parse(response);
+              console.log('...........response_json');
+              console.log(response_json);
+              console.log(typeof(response_json));
+              return {
+                  suggestions: response_json.map(function(dataItem) {
+                      var elnombre = `${dataItem.nombre}`; // init with nombre
+                      if (dataItem.numero_de_parte_uno !== null) {
+                         elnombre = elnombre + ` ${dataItem.numero_de_parte_uno}`
+                      }
+                      if (dataItem.numero_de_parte_dos !== null) {
+                         elnombre = elnombre + ` ${dataItem.numero_de_parte_dos}`
+                      }
+                      if (dataItem.position !== null ){
+                         for (const property in dataItem.position){
+                         elnombre = elnombre + ` [posicion: ${property}] [cantidad: ${dataItem.position[property]}]`;
+                         } // for
+                      }
+                      return { value: elnombre, data: dataItem.id };
+                  })
+              };
+          },
           onSelect: function (suggestion) {
               alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
           }
