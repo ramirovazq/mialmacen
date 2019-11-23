@@ -163,12 +163,7 @@
           minChars:3,
           serviceUrl: '/api/v0/producto/search_product/?format=json',
           transformResult: function(response) {
-              console.log('...........response');
-              console.log(response);
               var response_json = JSON.parse(response);
-              console.log('...........response_json');
-              console.log(response_json);
-              console.log(typeof(response_json));
               return {
                   suggestions: response_json.map(function(dataItem) {
                       var elnombre = `${dataItem.nombre}`; // init with nombre
@@ -188,7 +183,8 @@
               };
           },
           onSelect: function (suggestion) {
-              alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
+              //alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
+              window.location.href = `/general/detalle/${suggestion.data}/movimientos/`;
           }
       });
     </script>
