@@ -2,6 +2,12 @@ from django.contrib import admin
 from .models import *
 from shared.models import ExportCsvMixin
 
+class NumeroParteAdmin(admin.ModelAdmin, ExportCsvMixin):
+    list_display = ['id', 'producto', 'numero_de_parte']
+    search_fields = ['producto']
+    actions = ["export_as_csv"]
+
+
 class ProductoAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = ['id', 'nombre', 'numero_de_parte_uno', 'numero_de_parte_dos']
     search_fields = ['nombre', 'numero_de_parte_uno', 'numero_de_parte_dos']
@@ -34,3 +40,4 @@ admin.site.register(Producto, ProductoAdmin)
 admin.site.register(ValeAlmacenGeneral, ValeAlmacenGeneralAdmin)
 admin.site.register(MovimientoGeneral, MovimientoGeneralAdmin)
 admin.site.register(ProductoExactProfilePosition, ProductoExactProfilePositionAdmin)
+admin.site.register(NumeroParte, NumeroParteAdmin)
