@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import *
 from shared.models import ExportCsvMixin
 
-class ProductoAdmin(admin.ModelAdmin):
+class ProductoAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = ['id', 'nombre', 'numero_de_parte_uno', 'numero_de_parte_dos']
     search_fields = ['nombre', 'numero_de_parte_uno', 'numero_de_parte_dos']
     actions = ["export_as_csv"]
