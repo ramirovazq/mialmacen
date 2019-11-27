@@ -106,15 +106,11 @@ class Producto(models.Model):
             max_length=70
     )
 
-    def __str__(self):
-        cadena = "producto"
-        if self.numero_de_parte_uno and self.numero_de_parte_dos:
-            cadena = "{}, [número de parte {}] [número de parte {}]".format(self.nombre, self.numero_de_parte_uno, self.numero_de_parte_dos)
-        elif self.numero_de_parte_uno:
-            cadena = "{}, [número de parte {}]".format(self.nombre, self.numero_de_parte_uno)
-        else:
-            cadena = "{}".format(self.nombre)
-        return cadena
+    def numeros_de_parte(self):
+        return NumeroParte.objects.filter(producto=self)
+
+    def numeros_de_parte_format(self):
+        return ["[{}]".format(x.numero_de_parte) for x in self.numeros_de_parte()]
         
     def devuelve_unidad_referencia(self, movimiento=None):
         unidad_referencia = None
@@ -351,7 +347,42 @@ class Producto(models.Model):
 
 
     def __str__(self):
-        return "{} (id, {})".format(self.nombre, self.id)
+        cadena = ""
+        cadena = "{}".format(self.nombre)
+        '''
+        if self.numero_de_parte_uno and self.numero_de_parte_dos:
+            cadena = "{}, [número de parte {}] [número de parte {}]".format(self.nombre, self.numero_de_parte_uno, self.numero_de_parte_dos)
+        elif self.numero_de_parte_uno:
+            cadena = "{}, [número de parte {}]".format(self.nombre, self.numero_de_parte_uno)
+        else:
+            cadena = "{}".format(self.nombre)
+
+        ## standar way
+        return "{} (id, {})".format(self.nombre, self.id)   
+        '''
+        if self.numeros_de_parte_format():
+            return cadena + " "+ ";".join(self.numeros_de_parte_format())
+        else:
+            return cadena
+
+class NumeroParte(models.Model):
+    producto = models.ForeignKey( # AmerSteel, Dunlop, Michellin, etc
+            Producto,
+            related_name='producto_numero_de_parte',
+            on_delete=models.PROTECT,
+            blank=False,
+            null=False,
+            db_index=True)
+
+    numero_de_parte = models.CharField( # AmerSteel, Dunlop, Michellin, etc
+            blank = False,
+            null = False,
+            max_length=70
+    )
+    class Meta:
+        unique_together = (('producto', 'numero_de_parte'))
+        
+
 
 
 class MovimientoGeneral(models.Model):
