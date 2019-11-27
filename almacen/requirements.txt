@@ -2,3 +2,4 @@ Django==2.1.11
 djangorestframework
 xlwt
 django-rest-swagger==2.1.2
+unicodecsv
