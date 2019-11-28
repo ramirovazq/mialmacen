@@ -3,3 +3,4 @@
 *.sw*
 *.sqlite3
 .DS_Store
+*.csv
