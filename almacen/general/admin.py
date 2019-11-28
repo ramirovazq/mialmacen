@@ -4,7 +4,7 @@ from shared.models import ExportCsvMixin
 
 class NumeroParteAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = ['id', 'producto', 'numero_de_parte']
-    search_fields = ['producto']
+    search_fields = ['producto__nombre', 'numero_de_parte']
     actions = ["export_as_csv"]
 
 
