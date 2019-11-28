@@ -15,6 +15,15 @@ class Command(BaseCommand):
     help = 'Load init productos from CSV, for almacen general.'
     def handle(self, *args, **options):
         
+        def crea_numero_de_parte(producto, numero_de_parte, msg):
+            if numero_de_parte != "":
+                obj, created= NumeroParte.objects.get_or_create(producto=producto, numero_de_parte=numero_de_parte)
+                if created:
+                    msg = msg + " :D num_parte"
+                else:
+                    msg = msg + " :l existia num_parte"
+            return msg
+
         with open(settings.BASE_DIR + '/load_init/articulos_con_numero_de_parte.csv') as csvfile_in:
             readCSV = csv.reader(csvfile_in, delimiter=';')
 
@@ -27,21 +36,23 @@ class Command(BaseCommand):
                 if indice == 0:
                     nombre_title         = row[0].strip() # ENTRADA SALIDA ## mayusculas
                     numero_parte_title     = row[1].strip() # ENTRADA SALIDA ## mayusculas
-                    
                 else: # quit name of column
-
                     producto_original      = row[0].strip() # ENTRADA SALIDA ## mayusculas
                     producto_original      = producto_original.upper() # ENTRADA SALIDA ## mayusculas
+                    numero_de_parte      = row[1].strip()
 
                     try:
                         producto = Producto.objects.get(nombre=producto_original)
-                        msg = 'True'.format(producto_original)
-                        #msg = ""
-                        self.stdout.write(self.style.SUCCESS(msg))
+                        msg = 'True {}'.format(producto_original)
+                        msg = crea_numero_de_parte(producto, numero_de_parte, msg)
                         existe_producto += 1
+                        #msg = ''
+                        self.stdout.write(self.style.SUCCESS(msg))
                     except Producto.DoesNotExist:
-                        msg = 'False {}'.format(producto_original)
-                        #msg = ""
+                        if numero_de_parte:
+                            msg = '{};{}'.format(producto_original, numero_de_parte)
+                        else:
+                            msg = '{};'.format(producto_original)
                         self.stdout.write(self.style.ERROR(msg))
                         no_existe_producto += 1
                     except MultipleObjectsReturned:

@@ -344,7 +344,7 @@ class Producto(models.Model):
     def __str__(self):
         cadena = ""
         cadena = "{} {}".format(self.id, self.nombre)
-        if self.numeros_de_parte_format():
+        if len(self.numeros_de_parte()) > 0:
             return cadena + " "+ ";".join(self.numeros_de_parte_format())
         else:
             return cadena
