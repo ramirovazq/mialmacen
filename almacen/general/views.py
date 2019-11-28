@@ -44,11 +44,20 @@ class ProductoViewSet(viewsets.ModelViewSet):
         if 'query' in request.query_params.keys():
             search = request.query_params.get('query')
             if len(search) >= 3:
-                productos = Producto.objects.filter(
-                        Q(nombre__icontains=search) | 
-                        Q(numero_de_parte_uno__icontains=search) |
-                        Q(numero_de_parte_dos__icontains=search)
-                )
+
+                lista_productos = Producto.objects.filter(
+                    nombre__icontains=search
+                ).values('id')
+                lista_productos = [x['id'] for x in lista_productos]
+
+                lista_productos_np = NumeroParte.objects.filter(
+                    numero_de_parte__icontains=search
+                ).values('producto__id')
+                lista_productos_np = [x['producto__id'] for x in lista_productos_np]
+
+                lista_productos_suma = set(lista_productos+lista_productos_np)                
+                productos = Producto.objects.filter(id__in=lista_productos_suma)
+                
                 productos_serializados = ProductoSerializer(productos, many=True)
         return Response(productos_serializados.data)
 

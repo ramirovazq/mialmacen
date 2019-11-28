@@ -1,8 +1,13 @@
 from rest_framework import serializers
-from general.models import Producto
+from general.models import Producto, NumeroParte
 #from persona.models import Profile, Tipo
+class NumeroParteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NumeroParte
+        fields = '__all__'
 
 class ProductoSerializer(serializers.ModelSerializer):
+    numeros_de_parte = NumeroParteSerializer(many=True, read_only=True)
     position = serializers.SerializerMethodField()
     inventory = serializers.SerializerMethodField()
 
@@ -19,7 +24,13 @@ class ProductoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Producto
-        fields = '__all__'
+        fields = [
+            'id',
+            'nombre',
+            'position',
+            'inventory',
+            'numeros_de_parte'
+            ]
 '''
 class ProfileSerializer(serializers.ModelSerializer):
     tipo    = TipoSerializer(read_only=True)

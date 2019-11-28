@@ -97,7 +97,8 @@ class Producto(models.Model):
     )
 
     class Meta:
-        unique_together = (('nombre',))
+        unique_together = (('nombre',
+        ))
 
 
     def numeros_de_parte(self):
@@ -343,17 +344,6 @@ class Producto(models.Model):
     def __str__(self):
         cadena = ""
         cadena = "{} {}".format(self.id, self.nombre)
-        '''
-        if self.numero_de_parte_uno and self.numero_de_parte_dos:
-            cadena = "{}, [número de parte {}] [número de parte {}]".format(self.nombre, self.numero_de_parte_uno, self.numero_de_parte_dos)
-        elif self.numero_de_parte_uno:
-            cadena = "{}, [número de parte {}]".format(self.nombre, self.numero_de_parte_uno)
-        else:
-            cadena = "{}".format(self.nombre)
-
-        ## standar way
-        return "{} (id, {})".format(self.nombre, self.id)   
-        '''
         if self.numeros_de_parte_format():
             return cadena + " "+ ";".join(self.numeros_de_parte_format())
         else:
