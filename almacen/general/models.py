@@ -95,7 +95,11 @@ class Producto(models.Model):
             null = True,
             max_length=250
     )
-    
+
+    class Meta:
+        unique_together = (('nombre',))
+
+
     def numeros_de_parte(self):
         return NumeroParte.objects.filter(producto=self)
 
