@@ -348,7 +348,7 @@ class Producto(models.Model):
 
     def __str__(self):
         cadena = ""
-        cadena = "{}".format(self.nombre)
+        cadena = "{} {}".format(self.id, self.nombre)
         '''
         if self.numero_de_parte_uno and self.numero_de_parte_dos:
             cadena = "{}, [número de parte {}] [número de parte {}]".format(self.nombre, self.numero_de_parte_uno, self.numero_de_parte_dos)
