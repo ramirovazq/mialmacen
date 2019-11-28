@@ -9,8 +9,8 @@ class NumeroParteAdmin(admin.ModelAdmin, ExportCsvMixin):
 
 
 class ProductoAdmin(admin.ModelAdmin, ExportCsvMixin):
-    list_display = ['id', 'nombre', 'numero_de_parte_uno', 'numero_de_parte_dos']
-    search_fields = ['nombre', 'numero_de_parte_uno', 'numero_de_parte_dos']
+    list_display = ['id', 'nombre']
+    search_fields = ['nombre']
     actions = ["export_as_csv"]
 
 class ValeAlmacenGeneralAdmin(admin.ModelAdmin):

@@ -36,19 +36,15 @@ class Command(BaseCommand):
                     try:
                         producto = Producto.objects.get(nombre=producto_original)
                         msg = 'True'.format(producto_original)
-                        msg = ""
-                        #self.stdout.write(self.style.SUCCESS(msg))
+                        #msg = ""
+                        self.stdout.write(self.style.SUCCESS(msg))
                         existe_producto += 1
                     except Producto.DoesNotExist:
                         msg = 'False {}'.format(producto_original)
-                        msg = ""
-                        #self.stdout.write(self.style.ERROR(msg))
+                        #msg = ""
+                        self.stdout.write(self.style.ERROR(msg))
                         no_existe_producto += 1
                     except MultipleObjectsReturned:
-                        #msg = 'True .... varios {} encontrados {}'.format(producto_original, varios)
-
-                        #msg = ""
-                        
                         existe_producto += 1
                         varios = Producto.objects.filter(nombre=producto_original) #.first()
                         overview = ""

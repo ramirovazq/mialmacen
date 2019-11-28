@@ -95,17 +95,7 @@ class Producto(models.Model):
             null = True,
             max_length=250
     )
-    numero_de_parte_uno = models.CharField( # AmerSteel, Dunlop, Michellin, etc
-            blank=True,
-            null = True,
-            max_length=70
-    )
-    numero_de_parte_dos = models.CharField( # AmerSteel, Dunlop, Michellin, etc
-            blank=True,
-            null = True,
-            max_length=70
-    )
-
+    
     def numeros_de_parte(self):
         return NumeroParte.objects.filter(producto=self)
 
