@@ -15,7 +15,11 @@ import textdistance as textd
 class Command(BaseCommand):
     help = 'Load init productos from CSV, for almacen general.'
     def handle(self, *args, **options):
-        
+        '''
+        Toma el archivo productos_no_encontrados.csv  y 
+        producce verificar.csv que es donde busca articulos que tengan igual o mas del 50% de coincidencia
+        tambien produce sinmatch.csv, donde vienen articulos que no encontraron coincidencia, se creen que son nuevos en verdad
+        '''
         def crea_numero_de_parte(producto, numero_de_parte, msg):
             if numero_de_parte != "":
                 obj, created= NumeroParte.objects.get_or_create(producto=producto, numero_de_parte=numero_de_parte)
@@ -26,30 +30,21 @@ class Command(BaseCommand):
             return msg
 
         def compare_with_db(nombre_producto, numero_porcentaje_parecido=.5):
-
             '''
-            for productodb in Producto.objects.all():                                                                                                                                                    
-                numero = textd.hamming(productodb.nombre, nombre_producto)     
-                if numero <= numero_entero_parecido:                                                                                                                     
-                    print("{} -- {} -- {}".format(numero, nombre_producto, productodb.nombre))
-
-            print("------------------")
-            print("------------------")
-            print("------------------")
+            esta funcion compara una cadena nombre_producto
+            contra todas los productos de la db
+            si el parecido es mayor o igual a numero_porcentaje_parecido, se agrega a la lista de parecidos
+            finralmente se regresa la lista de parecidos, pero ordenados por los mas parecidos hasta arriba
             '''
-
             respuesta = False
             lista = []
             for productodb in Producto.objects.all():                                                                                                                                                    
                 numero = textd.levenshtein.normalized_similarity(productodb.nombre, nombre_producto) 
                 if numero >= numero_porcentaje_parecido:                                                         
                     lista.append((numero, nombre_producto, productodb.nombre))
+                    respuesta = True
 
             lista_sorted = sorted(lista, key=lambda x: x[0], reverse=True)
-
-            if len(lista_sorted) > 0:
-                respuesta = True
-
             return respuesta, lista_sorted
 
 
@@ -65,7 +60,9 @@ class Command(BaseCommand):
    
             total = 0
             encuentra_match = 0
+            repetidos = 0
             sinmatch = 0
+            avoid_repetitions = {} 
 
             for indice, row in enumerate(lines):
                 if indice == 0:
@@ -76,29 +73,34 @@ class Command(BaseCommand):
                     producto_original      = producto_original.upper() # ENTRADA SALIDA ## mayusculas
                     numero_de_parte      = row[1].strip()
             
-                    respuesta, lista_posibles = compare_with_db(producto_original)
+                    repetido = False
+                    # avoid repetitions
+                    if not producto_original in avoid_repetitions.keys():
+                        repetido = False
+                        avoid_repetitions[producto_original] = 1
+
+                    else:
+                        repetido = True
+                        repetidos += 1
+                        avoid_repetitions[producto_original] += 1
 
                     total += 1
-                    if respuesta:
-                        encuentra_match += 1
-                        writer.writerow([producto_original, '', ''])
-                        for x in lista_posibles:
-                            print("{} -- {} ---- {}".format(x[0], x[1], x[2]))
-                            writer.writerow(['', x[2], str(x[0])])
-                    else:
-                        sinmatch += 1
-                        writer_sin_match.writerow([producto_original, numero_de_parte])
+                    if not repetido:
+                        respuesta, lista_posibles = compare_with_db(producto_original)
+                        if respuesta:
+                            encuentra_match += 1
+                            writer.writerow([producto_original, '', ''])
+                            for x in lista_posibles:
+                                print("{} -- {} ---- {}".format(x[0], x[1], x[2]))
+                                writer.writerow(['', x[2], str(x[0])])
+                        else:
+                            sinmatch += 1
+                            writer_sin_match.writerow([producto_original, numero_de_parte])
             print(" ")        
             print(" ")        
             print("RESUMEN")
-            print(" .........  encuentra posibles: {}".format(encuentra_match))
-            print(" ..................  sin match: {}".format(sinmatch))
+            print(" ................... repetidos: {}".format(repetidos)).       ## 116
+            print(" .........  encuentra posibles: {}".format(encuentra_match)). ## 523
+            print(" ..................  sin match: {}".format(sinmatch))         ## 220
             print("__________________________________")
-            print(" ......................  total: {}".format(total))
-'''
-from general.models import *
-import textdistance
-p = "ABRAZADERA 5.5 ESCALONADA"
-parecidos = Producto.objects.filter(nombre__startswith="ABRAZA")
-
-'''
+            print(" ......................  total: {}".format(total))             ## 859
