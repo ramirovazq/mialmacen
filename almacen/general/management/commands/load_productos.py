@@ -14,7 +14,13 @@ import csv, os, datetime
 class Command(BaseCommand):
     help = 'Load init productos from CSV, for almacen general.'
     def handle(self, *args, **options):
-        
+        '''
+        lee el archivo articulos_con_numero_de_parte.csv, el original para analisis
+        de ahi, se hacen 3 agrupaciones
+        a) los que se encuentran directos en la db existe_producto 365. De estos, aqui mismo se crean los numeros de parte sino existen.
+        b) los que no encuentra en la db no_existe_producto 859 etos solo son impresos, y por ello se pueden llevar a un csv
+        c) si llegara a haber un producto repetido, en la tabla de productos (se evita al hacerlo unique en la tabla de productos) pero es de tiempos pasados
+        '''
         def crea_numero_de_parte(producto, numero_de_parte, msg):
             if numero_de_parte != "":
                 obj, created= NumeroParte.objects.get_or_create(producto=producto, numero_de_parte=numero_de_parte)
