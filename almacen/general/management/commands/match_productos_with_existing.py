@@ -56,7 +56,7 @@ class Command(BaseCommand):
             writer_sin_match.writerow(['Producto sin match', 'numero_de_parte'])
 
             writer = csv.writer(csvfile_out, delimiter=";")
-            writer.writerow(['Producto con match', 'Posibles', 'porcentaje'])
+            writer.writerow(['Numer_de_parte', 'Producto con match', 'Posibles', 'porcentaje'])
    
             total = 0
             encuentra_match = 0
@@ -89,18 +89,18 @@ class Command(BaseCommand):
                         respuesta, lista_posibles = compare_with_db(producto_original)
                         if respuesta:
                             encuentra_match += 1
-                            writer.writerow([producto_original, '', ''])
+                            writer.writerow([numero_de_parte, producto_original, '', ''])
                             for x in lista_posibles:
-                                print("{} -- {} ---- {}".format(x[0], x[1], x[2]))
-                                writer.writerow(['', x[2], str(x[0])])
+                                print("{} -- {} -- {} ---- {}".format(numero_de_parte, x[0], x[1], x[2]))
+                                writer.writerow(['', '', x[2], str(x[0])])
                         else:
                             sinmatch += 1
                             writer_sin_match.writerow([producto_original, numero_de_parte])
             print(" ")        
             print(" ")        
             print("RESUMEN")
-            print(" ................... repetidos: {}".format(repetidos)).       ## 116
-            print(" .........  encuentra posibles: {}".format(encuentra_match)). ## 523
+            print(" ................... repetidos: {}".format(repetidos))       ## 116
+            print(" .........  encuentra posibles: {}".format(encuentra_match)) ## 523
             print(" ..................  sin match: {}".format(sinmatch))         ## 220
             print("__________________________________")
             print(" ......................  total: {}".format(total))             ## 859
