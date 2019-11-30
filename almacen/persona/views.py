@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from .forms import *
 from .models import *
 from .utils import *
+from shared.utils import compare_with_db
 
 @login_required
 def profiles(request):
@@ -71,3 +72,43 @@ def proveedor_add(request):
 
     context["form"] = form
     return render(request, 'proveedor_add.html', context)
+
+
+@login_required(redirect_field_name='next')
+@group_required(settings.GROUP_NAME_ADMINS)
+def producto_add(request):
+    context = {}
+    if request.method == 'POST':
+
+        form = ProductoForm(request.POST)
+        if form.is_valid(): # not empty, and at least 2 characters
+            #profile = form.save()
+            messages.add_message(request, messages.INFO, 'Verifica las coincidencias')
+            nombre_validado = form.cleaned_data['nombre']
+            respuesta, lista_posible = compare_with_db(nombre_validado.upper(), numero_porcentaje_parecido=.3)
+            context["lista"] = lista_posible
+            context["nombre_validado"] = nombre_validado.upper()
+            instancia = Producto(nombre=nombre_validado.upper())
+            formdos = ProductoValidadoForm(instance= instancia)
+            context["form_validado"] = formdos
+    else:
+        form = ProductoForm()
+
+    context["form"] = form
+    return render(request, 'producto_add.html', context)
+
+
+@login_required(redirect_field_name='next')
+@group_required(settings.GROUP_NAME_ADMINS)
+def producto_confirma_add(request):
+    context = {}
+    if request.method == 'POST':
+        form = ProductoValidadoForm(request.POST)
+        if form.is_valid(): # not empty, and at least 2 characters
+            nuevo_producto = form.save()
+            messages.add_message(request, messages.SUCCESS, 'Se agregó de forma correcta el producto: {}'.format(nuevo_producto.nombre))
+        else:
+            messages.add_message(request, messages.ERROR, 'Error, verifica')
+            for e in form.errors:
+                messages.add_message(request, messages.ERROR, form.errors[e])
+    return HttpResponseRedirect(reverse('producto_add'))

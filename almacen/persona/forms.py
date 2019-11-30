@@ -3,6 +3,7 @@ from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from llantas.utils import return_profile
+from general.models import Producto
 
 class BodegaForm(forms.Form):
     nombre = forms.CharField(
@@ -94,3 +95,37 @@ class ProveedorForm(forms.Form):
         profile = return_profile(nombre, tipo="PROVEEDOR")
         return profile
 
+
+
+
+class ProductoForm(forms.ModelForm):
+    nombre = forms.CharField(
+        label='Nombre',
+        min_length=3,
+        max_length=250,
+        required=True,
+        help_text="",
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'placeholder': 'Ejemplo: Rondana de presión'
+            }
+        )
+    )
+
+    class Meta:
+        model = Producto
+        fields = ['nombre']
+
+class ProductoValidadoForm(ProductoForm):
+    #pass
+    
+    nombre = forms.CharField(
+        label='Nombre',
+        min_length=3,
+        max_length=250,
+        required=True,
+        help_text="",
+        widget=forms.HiddenInput()
+    )
+    

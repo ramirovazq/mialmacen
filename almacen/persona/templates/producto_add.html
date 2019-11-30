@@ -1,0 +1,88 @@
+{% extends "base_bootstrap.html" %}
+
+{% block title_section %}            
+<h1 class="h2">Adicionar Producto Almacen General</h1>
+{% endblock %}
+
+{% block extra_title_section %}
+{% endblock %}
+
+
+{% block buttons_section %}
+{% endblock %}
+
+
+{% block section %}
+
+<form action="{% url 'producto_add' %}" method="post" id="producto_add_form">
+    {% csrf_token %}
+    {{ form.errors }}
+    {{ form.as_p }}
+    <input type="submit" value="Buscar" class="btn btn-primary">
+    <input type="button" value="Limpiar" class="btn btn-secondary" id="boton_limpiar">
+</form>
+
+
+  <div class="row">
+    <div class="col-sm">
+      <table class="table table-striped table-sm">
+        <thead>
+          <tr>
+            <th>Verfica que no exista</th>
+            <th>% parecido </th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for producto in lista %}
+            <tr>
+              <td>
+                {{producto.2}} </td>
+              <td>
+                {{producto.0}} </td>
+            </tr>
+          {% endfor %}
+
+            {% if form_validado %}
+            <form action="{% url 'producto_confirma_add' %}" method="post" id="producto_confirmacion_add_form">
+            <tr>
+              <td>
+              {% csrf_token %}
+              <br/>
+              <p class="font-weight-bold">{{nombre_validado}}</p> <br/>
+              {{ form_validado.errors }}
+              {{ form_validado.as_p }}
+                <input type="submit" value="Agregar, es nuevo" class="btn btn-primary">
+                <input type="button" value="Cancelar, ya existe" class="btn btn-secondary" id="boton_cancelar">
+
+              </td>
+              <td>
+              </td>
+            </tr>
+            </form>
+
+            {% endif %}
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+
+{% endblock %}
+
+{% block javascript_bottom %}
+          <script>
+          $( function() {            
+            $( "#boton_limpiar" ).click(function(){
+                $('#producto_add_form').trigger("reset");
+                window.location = "{% url 'producto_add' %}";
+            });
+            $( "#boton_cancelar" ).click(function(){
+                $('#producto_confirmacion_add_form').trigger("reset");
+                window.location = "{% url 'producto_add' %}";
+            });
+
+          });
+          </script>
+{% endblock %}
