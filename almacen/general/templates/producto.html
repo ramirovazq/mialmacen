@@ -52,7 +52,12 @@
       <table class="table table-striped table-sm">
         <thead>
           <tr>
-            <th>Número de parte</th>
+            <th>Número de parte 
+              <a  href="{% url 'producto_add_numero' producto.id %}">
+                  <span data-feather="file"></span>
+                  Agregar Número de Parte
+                </a>
+            </th>
           </tr>
         </thead>
         <tbody>

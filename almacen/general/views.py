@@ -21,9 +21,10 @@ from datetime import datetime
 
 from .models import *
 from persona.models import Profile, Tipo, ProfilePosition
+from persona.utils import group_required
 from llantas.utils import return_profile
 from .forms import ValeAlmacenGeneralForm, SearchSalidaGeneralForm, MovimientoSalidaGeneralForm, FilterMovimientoForm
-from .forms import MovimientoEntradaGeneralForm, EntradaGeneralForm, PositionForm
+from .forms import MovimientoEntradaGeneralForm, EntradaGeneralForm, PositionForm, NumeroParteForm
 #from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm, AdjuntoValeForm, ProfileSearchForm
 #from .render_to_XLS_util import render_to_xls, render_to_csv, render_to_xls_inventario
 from .serializers import ProductoSerializer
@@ -433,3 +434,24 @@ def general_impresion(request, vale_id):
     obj = get_object_or_404(ValeAlmacenGeneral, pk=vale_id)
     context['vale'] = obj
     return render(request, 'formato_general.html', context)
+
+
+
+@login_required(redirect_field_name='next')
+@group_required(settings.GROUP_NAME_ADMINS)
+def producto_add_numero(request, producto_id):
+    context = {}
+    obj = get_object_or_404(Producto, pk=producto_id)
+    if request.method == 'POST':
+        intancia = NumeroParte(producto=obj)
+        form = NumeroParteForm(request.POST, instance=intancia)
+        if form.is_valid():
+            numparte = form.save()
+            messages.add_message(request, messages.SUCCESS, 'Se agrego el numero de parte: {} al producto {}'.format(numparte.numero_de_parte, numparte.producto.nombre))
+            return HttpResponseRedirect(reverse('producto_detalle', args=[numparte.producto.id]))
+    else:
+        form = NumeroParteForm()
+
+    context['producto'] = obj
+    context["form"] = form
+    return render(request, 'producto_add_numero.html', context)

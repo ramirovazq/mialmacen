@@ -283,3 +283,26 @@ class PositionForm(ModelForm):
                     'exactposition',
                 ]
   
+class NumeroParteForm(ModelForm):
+
+    numero_de_parte =  forms.CharField(
+        label='Numero de parte',
+        min_length=2,
+        max_length=69,
+        required=True,
+        help_text="",
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'placeholder': 'Ejemplo, numero de parte que tiene el proveedor: AX11R'
+            }
+        )
+    )
+
+
+
+    class Meta:
+        model = NumeroParte
+        fields = [
+                    'numero_de_parte',
+                ]

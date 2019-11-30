@@ -1,0 +1,36 @@
+{% extends "base_bootstrap_general.html" %}
+
+{% block title_section %}            
+<h1 class="h2">Adicionar Numero de Parte para {{producto.nombre}}</h1>
+{% endblock %}
+
+{% block extra_title_section %}
+{% endblock %}
+
+
+{% block buttons_section %}
+{% endblock %}
+
+
+{% block section %}
+
+<form action="{% url 'producto_add_numero' producto.id %}" method="post" id="producto_numero_add_form">
+    {% csrf_token %}
+    {{ form.errors }}
+    {{ form.as_p }}
+    <input type="submit" value="Adicionar" class="btn btn-primary">
+    <input type="button" value="Cancelar" class="btn btn-secondary" id="boton_limpiar">
+</form>
+
+{% endblock %}
+
+{% block javascript_bottom %}
+          <script>
+          $( function() {            
+            $( "#boton_limpiar" ).click(function(){
+                $('#producto_numero_add_form').trigger("reset");
+                window.location = "{% url 'producto_detalle' producto.id %}";
+            });
+          });
+          </script>
+{% endblock %}
