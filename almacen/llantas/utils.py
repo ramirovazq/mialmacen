@@ -1,10 +1,31 @@
 from django.contrib.auth.models import User
 from persona.models import Profile, Tipo
 from llantas.models import Llanta
+from general.models import NumeroParte, Producto
 from random import randint
 from datetime import datetime
 import string
 import random
+
+def crea_numero_de_parte(producto, numero_de_parte, msg=""):
+    if numero_de_parte != "":
+        obj, created= NumeroParte.objects.get_or_create(producto=producto, numero_de_parte=numero_de_parte)
+        if created:
+            msg = msg + " :D num_parte"
+        else:
+            msg = msg + " :l existia num_parte"
+    return msg
+
+def crea_producto(producto, msg=""):
+    obj = None
+    if producto != "":
+        obj, created= Producto.objects.get_or_create(nombre=producto)
+        if created:
+            msg = msg + "producto :D creado"
+        else:
+            msg = msg + "producto :l ya existia"
+    return obj, msg
+
 
 def devuelve_llanta(marca, medida, posicion, status, dot):
     llanta_already_exist = False

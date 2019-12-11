@@ -73,34 +73,25 @@ class Command(BaseCommand):
                     producto_original      = producto_original.upper() # ENTRADA SALIDA ## mayusculas
                     numero_de_parte      = row[1].strip()
             
-                    repetido = False
-                    # avoid repetitions
-                    if not producto_original in avoid_repetitions.keys():
-                        repetido = False
-                        avoid_repetitions[producto_original] = 1
-
-                    else:
-                        repetido = True
-                        repetidos += 1
-                        avoid_repetitions[producto_original] += 1
 
                     total += 1
-                    if not repetido:
-                        respuesta, lista_posibles = compare_with_db(producto_original)
-                        if respuesta:
-                            encuentra_match += 1
-                            writer.writerow([numero_de_parte, producto_original, '', ''])
-                            for x in lista_posibles:
-                                print("{} -- {} -- {} ---- {}".format(numero_de_parte, x[0], x[1], x[2]))
-                                writer.writerow(['', '', x[2], str(x[0])])
-                        else:
-                            sinmatch += 1
-                            writer_sin_match.writerow([producto_original, numero_de_parte])
+                    
+                    respuesta, lista_posibles = compare_with_db(producto_original)
+                    if respuesta:
+                        encuentra_match += 1
+                        writer.writerow([numero_de_parte, producto_original, '', ''])
+                        for x in lista_posibles:
+                            print("{} -- {} -- {} ---- {}".format(numero_de_parte, x[0], x[1], x[2]))
+                            writer.writerow(['', '', x[2], str(x[0])])
+                    else:
+                        sinmatch += 1
+                        writer_sin_match.writerow([producto_original, numero_de_parte])
+
             print(" ")        
             print(" ")        
             print("RESUMEN")
-            print(" ................... repetidos: {}".format(repetidos))       ## 116
-            print(" .........  encuentra posibles: {}".format(encuentra_match)) ## 523
-            print(" ..................  sin match: {}".format(sinmatch))         ## 220
+            print(" ................... repetidos: {}".format(repetidos))       ## 116.       0
+            print(" .........  encuentra posibles: {}".format(encuentra_match)) ## 523.     595
+            print(" ..................  sin match: {}".format(sinmatch))         ## 220.    264
             print("__________________________________")
-            print(" ......................  total: {}".format(total))             ## 859
+            print(" ......................  total: {}".format(total))             ## 859.   859
