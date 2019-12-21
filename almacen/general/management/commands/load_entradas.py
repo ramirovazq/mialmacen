@@ -32,6 +32,21 @@ class Command(BaseCommand):
                         'precio_unitario', 'subtotal',
                         'iva', 'total', 'tractor'])
 
+            tipo_smaller,   bandera = TipoUnidadMedida.objects.get_or_create(tipo="-1")
+            tipo_reference, bandera = TipoUnidadMedida.objects.get_or_create(tipo="0")
+            tipo_greater,   bandera = TipoUnidadMedida.objects.get_or_create(tipo="1")
+
+            categoria_unidad,   bandera = CategoriaUnidadMedida.objects.get_or_create(nombre="Unidad")
+
+            unidad_gral, band = UnidadMedida.objects.get_or_create(
+                nombre="Unidad",
+                categoria=categoria_unidad,
+                tipo_unidad=tipo_reference,
+                ratio=1,
+                simbolo="u"
+            )
+
+            destino_obj = Profile.objects.get(user__username="BODEGA_GENERAL") #default a Bodega General
 
             existe_producto = 0
             no_existe_producto = 0
@@ -57,6 +72,10 @@ class Command(BaseCommand):
                     proveedor              = proveedor_normalize(row[1]) # sin espacios, mayusculas y en slug
 
                     numero_folio           = row[2].strip() # ENTRADA SALIDA ## mayusculas
+
+                    if numero_folio:
+                        cadena_proveedor = cadena_proveedor + numero_folio
+
                     numero_parte           = row[3].strip() # ENTRADA SALIDA ## mayusculas
 
                     cantidad               = row[4].strip()
@@ -73,7 +92,7 @@ class Command(BaseCommand):
                         bandera_iva = False
                     total                  = row[9].strip()
 
-                    tractor                = row[10] # ENTRADA SALIDA ## mayusculas
+                    #tractor                = row[10] # ENTRADA SALIDA ## mayusculas
 
                     '''
                     PRODUCTO 
@@ -154,13 +173,21 @@ class Command(BaseCommand):
                     '''
                     VALE NUEVO, O EXISTENTE
                     '''
+                    #if numero_folio != "": # combino numero_folio con proveedor_anterior
+                     #   cadena_proveedor_anterior = "{}".format(cadena_proveedor_anterior)
+                      #  cadena_proveedor = "{}".format(cadena_proveedor)
+
                     if cadena_proveedor != cadena_proveedor_anterior: # nueva factura
+                        #print(cadena_proveedor, "!=", cadena_proveedor_anterior)
+                        #self.stdout.write(self.style.SUCCESS("NUEVA ...")) 
                         cadena_proveedor_anterior = cadena_proveedor
                         folio_tmp += 1
 
                         numero_folio_final = concatenate_folio(folio_tmp, numero_folio, folio_nota)
+                        #numero_folio_final = concatenate_folio_(numero_folio, folio_nota)
                         try:
                             vale = ValeAlmacenGeneral.objects.get(no_folio=numero_folio_final)
+                            self.stdout.write(self.style.ERROR("vale {} ya existente".format(vale.no_folio))) 
                         except ValeAlmacenGeneral.DoesNotExist:                        
                             vale = ValeAlmacenGeneral.objects.create(
                                 vale_llantas=False, # es almacen general
@@ -172,17 +199,52 @@ class Command(BaseCommand):
                                 creador_vale=admin_profile,
                                 con_iva=bandera_iva
                             )
+                            self.stdout.write(self.style.SUCCESS("vale {} nuevo".format(vale.no_folio))) 
                         vale_anterior = vale
-
                     else: # usa la ultima factura
-                        vale_anterior
+                        #vale_anterior
+                        self.stdout.write(self.style.ERROR("ANTERIOR ...{}".format(vale_anterior.no_folio))) 
 
 
-                    '''
-                    if producto: # encuentra el producto
-                        pass
+                    
+                    if producto and precio_unitario: # encuentra el producto
+                        origen_obj = obj_proveedor # el origen es el proveedor mismo
+                        dicc_mov_default = {
+                            #"precio_unitario":precio_unitario,
+                            "origen":origen_obj,
+                            "destino":destino_obj,
+                            "unidad":unidad_gral,
+                            #"cantidad":cantidad
+                        }
 
-                    '''
+                        movimiento, bandera_movimiento = MovimientoGeneral.objects.get_or_create(
+                            vale=vale_anterior,
+                            tipo_movimiento=vale_anterior.tipo_movimiento,
+                            fecha_movimiento = vale_anterior.fecha_vale,                         
+                            creador=vale_anterior.persona_asociada,
+                            producto=producto,
+                            cantidad=cantidad,
+                            precio_unitario=precio_unitario,
+                            observacion="",
+                            defaults=dicc_mov_default
+                        )
+                        if bandera_movimiento:
+                            self.stdout.write(self.style.SUCCESS('Movimiento creado {}'.format(movimiento.id)))
+                        else:
+                            self.stdout.write(self.style.ERROR('Movimiento NO creado ********************************************************** ya existia'))
+                            MovimientoGeneral.objects.create(
+                                                        vale=vale_anterior,
+                                                        tipo_movimiento=vale_anterior.tipo_movimiento,
+                                                        fecha_movimiento = vale_anterior.fecha_vale,                         
+                                                        creador=vale_anterior.persona_asociada,
+                                                        producto=producto,
+                                                        cantidad=cantidad,
+                                                        precio_unitario=precio_unitario,
+                                                        observacion="repetido en factura",
+                                                        origen=origen_obj,
+                                                        destino=destino_obj,
+                                                        unidad=unidad_gral
+                                                    )
 
 
 

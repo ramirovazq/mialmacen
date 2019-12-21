@@ -25,14 +25,31 @@ def return_folio_str(number, places=5):
 def concatenate_folio(number, folio_xls, folio_nota):
     answer = ""    
     folio_tmp = return_folio_str(number)
+    
     if folio_xls != "":
         answer = "{}-{}".format(folio_tmp, folio_xls)
     else:
         answer = "{}".format(folio_tmp)
+    
 
     if folio_nota:
         answer = "{}-{}".format(answer, folio_nota)
     return answer
+
+def concatenate_folio_(folio_xls, folio_nota):
+    answer = ""    
+    
+    if folio_xls != "":
+        answer = "{}".format(folio_xls)    
+
+    if answer:    
+        if folio_nota:
+            answer = "{}-{}".format(answer, folio_nota)
+    elif folio_nota:
+        answer = "{}".format(folio_nota)
+        
+    return answer
+
 
 def proveedor_desconocido():
     return return_profile("DESCONOCIDO", tipo="PROVEEDOR")
