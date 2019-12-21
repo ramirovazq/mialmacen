@@ -1,12 +1,99 @@
+from django.conf import settings
+from django.utils.text import slugify
 from django.contrib.auth.models import User
+
 from persona.models import Profile, Tipo
 from llantas.models import Llanta
 from general.models import NumeroParte, Producto
+
 from random import randint
 from datetime import datetime
+
 import string
 import random
 import textdistance as textd
+import csv
+
+def return_folio_str(number, places=5):
+    '''
+    redibe un enter, number
+    devuelve en str ese entero lleno con ceros
+    '''
+    n_str = "{}".format(number)
+    return n_str.zfill(places)
+
+def concatenate_folio(number, folio_xls, folio_nota):
+    answer = ""    
+    folio_tmp = return_folio_str(number)
+    if folio_xls != "":
+        answer = "{}-{}".format(folio_tmp, folio_xls)
+    else:
+        answer = "{}".format(folio_tmp)
+
+    if folio_nota:
+        answer = "{}-{}".format(answer, folio_nota)
+    return answer
+
+def proveedor_desconocido():
+    return return_profile("DESCONOCIDO", tipo="PROVEEDOR")
+
+def proveedor_normalize(cadena_proveedor):
+    '''
+    recibe una cadena con el nombre del proveedor
+    la convierta en un slug
+    y finalmente la transforma a mayusculas
+    '''
+    proveedor = cadena_proveedor.strip() # quita espacios en blanco
+    proveedor_slug = slugify(proveedor)
+    proveedor_mayus = proveedor_slug.upper()
+    return proveedor_mayus
+
+def devuelve_objeto_proveedor(proveedor_mayus):
+    '''
+    return Profile or False or "NOTA"
+    busca devolver el Profile del proveedor 
+    sino lo encuentra, devuelve False
+    y si es una nota, devulve la cadena NOTA
+    '''
+    #print(proveedor_mayus)
+
+    t, band = Tipo.objects.get_or_create(nombre="PROVEEDOR")
+
+    if "NOTA" in proveedor_mayus:
+        return False
+
+    try:
+        u = User.objects.get(username=proveedor_mayus)
+        p = Profile.objects.get(user=u, tipo=t)
+        return p
+    except Profile.DoesNotExist:
+        return False
+    except User.DoesNotExist:
+        return False
+
+
+def busqueda_en_archivo_diccionario(producto_a_buscar):
+    with open(settings.BASE_DIR + '/load_init/productos_no_encontrados__en_entradas__verify.csv') as csvfile_in:
+        readCSV = csv.reader(csvfile_in, delimiter=';')
+
+        for indice, row in enumerate(readCSV):
+            if indice == 0:
+                nombre_title         = row[0].strip() # ENTRADA SALIDA ## mayusculas
+                numero_parte_title     = row[1].strip() # ENTRADA SALIDA ## mayusculas
+            else: # quit name of column
+
+                producto_original       = row[5].strip() # ENTRADA SALIDA ## mayusculas
+                producto_original      = producto_original.upper() # ENTRADA SALIDA ## mayusculas
+
+                producto_final      = row[6].strip() # ENTRADA SALIDA ## mayusculas
+                producto_final      = producto_final.upper()
+
+                if producto_original != '':
+                    if producto_original == producto_a_buscar:
+                        return producto_final
+
+
+
 
 def compare_with_db(nombre_producto, numero_porcentaje_parecido=.5):
     '''
@@ -74,6 +161,11 @@ def random_string_generator(size=6, chars=string.ascii_lowercase + string.digits
     return ''.join(random.choice(chars) for _ in range(size))
 
 def return_or_create_user(username):
+    '''
+    return user
+    busca encontrar un User
+    sino lo encuentra, simplemente lo crea y lo devuelve
+    '''
     try:
         u = User.objects.get(username=username)
     except User.DoesNotExist:
@@ -102,7 +194,11 @@ def return_permisionario(username):
 
 
 def create_profile(user, tipo="STAFF"):
-
+    '''
+    return Profile
+    busca encontrar un Profile, desde un user
+    sino lo encuentra, simplemente lo crea y lo devuelve
+    '''
     tipo, flag = Tipo.objects.get_or_create(nombre=tipo)
     try:
         p = Profile.objects.get(user=user)
@@ -111,6 +207,11 @@ def create_profile(user, tipo="STAFF"):
     return p
 
 def return_profile(username, tipo="STAFF"):
+    '''
+    return Profile
+    busca encontrar el User usando el username, sino crea el User
+    con ese usar, busca encontrar el Profile, sino lo crea el Profile
+    '''
     u = return_or_create_user(username)
     return create_profile(u, tipo)
 
