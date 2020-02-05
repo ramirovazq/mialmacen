@@ -285,7 +285,7 @@ class NewLlantaForm(forms.Form):
     destino = DestinoBodegaChoiceField(
                 required=True,
                 help_text="* Campo Requerido.",
-                queryset=Profile.objects.filter(Q(tipo__nombre="BODEGA") | Q(tipo__nombre="BODEGA_BASURA")),#( Q(tipo__nombre="BODEGA") | Q(tipo__nombre="ECONOMICO")),#NOECONOMICO
+                queryset=Profile.objects.filter(tipo__nombre="BODEGA"),#( Q(tipo__nombre="BODEGA") | Q(tipo__nombre="ECONOMICO")),#NOECONOMICO
                 widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
     )
 
@@ -567,7 +567,7 @@ class MovimientoSalidaForm(ModelForm):
 
     destino = DestinoChoiceField(
                 required=True,
-                queryset=Profile.objects.filter(Q(tipo__nombre="ECONOMICO") | Q(tipo__nombre="BODEGA_BASURA")),#NOECONOMICO
+                queryset=Profile.objects.filter(tipo__nombre="ECONOMICO"),#NOECONOMICO
                 widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
     )
 
