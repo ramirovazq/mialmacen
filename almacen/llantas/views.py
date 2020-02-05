@@ -577,3 +577,6 @@ def vale_erase(request, vale_id):
     
     return HttpResponseRedirect(reverse('vales')+"?tipo="+obj_vale.tipo_movimiento.nombre)
 
+
+def home_llantas(request):
+    return HttpResponseRedirect(reverse('vales'))
