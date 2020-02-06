@@ -3,7 +3,7 @@ from django.utils.text import slugify
 from django.contrib.auth.models import User
 
 from persona.models import Profile, Tipo
-from llantas.models import Llanta
+from llantas.models import Llanta, LlantaBasura
 from general.models import NumeroParte, Producto
 
 from random import randint
@@ -160,6 +160,29 @@ def devuelve_llanta(marca, medida, posicion, status, dot):
     else:
         llanta = Llanta.objects.create(marca=marca, medida=medida, posicion=posicion, status=status, dot=dot)
     return llanta, llanta_already_exist
+
+
+def devuelve_llanta_basura(marca, medida, posicion, status, dot):
+    llanta_already_exist = False
+    dict_llanta_basura = {}
+    if marca:
+        dict_llanta_basura["marca"] = marca
+    if medida:
+        dict_llanta_basura["medida"] = medida
+    if posicion:
+        dict_llanta_basura["posicion"] = posicion
+    if status:
+        dict_llanta_basura["status"] = status
+    if dot:
+        dict_llanta_basura["dot"] = dot
+
+    llantas = LlantaBasura.objects.filter(**dict_llanta_basura)
+    if len(llantas) > 0:
+        llanta_already_exist = True
+        llanta = llantas[0]
+    else:
+        llanta = LlantaBasura.objects.create(**dict_llanta_basura)
+    return llanta_already_exist, llanta
 
 
 def agrupacion_dots(lista_dots):

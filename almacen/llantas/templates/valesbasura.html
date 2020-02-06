@@ -1,0 +1,97 @@
+{% extends "base_bootstrap.html" %}
+
+{% block title_section %}            
+
+<h1 class="h2">
+{% if action == 'ENTRADA'%}
+  Basura 
+{% else %}
+    Basura
+{% endif %} {{action}}: {{vales_count}}</h1>
+{% endblock %}
+
+{% block extra_title_section %}
+
+  <a class="btn btn-success" href="{% url 'entrada_basura' %}">Nueva Entrada Basura</a>
+
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    {% if vales.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1">&laquo;</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ vales.previous_page_number }}">&lt</a></li>
+    {% endif %}
+        <li class="page-item"><a class="page-link disabled" href="#">{{ vales.number }}/{{ vales.paginator.num_pages }}</a></li>
+    {% if vales.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ vales.next_page_number }}">&gt</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ vales.paginator.num_pages }}">&raquo;</a></li>
+    {% endif %}
+  </ul>
+</nav>
+
+{% endblock %}
+
+
+{% block buttons_section %}
+{% endblock %}
+
+
+{% block section %}
+    {% if vales %}
+          <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Vale Asociado</th>
+                  <th>Tipo Movimiento</th>
+                  <th>Fecha Vale</th>
+                  <th>Procedencia</th>
+                  <th>Creador</th>
+                  <th>Observacion</th>
+                  <th># movimientos</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for vale in vales %} 
+                <tr>
+                  <td>
+                    <a href="{% url 'entrada_basura_add' vale.id %}" class="btn btn-primary">#{{vale.id}}</a> 
+                  </td>
+                  <td>
+                    {% if vale.vale_asociado %}
+                      {% if vale.asociado.tipo_movimiento == 'SALIDA'%}
+                        <a href="{% url 'salida_add' vale.vale_asociado.id %}" class="btn btn-info" target="_blank">#
+                        {{vale.vale_asociado.no_folio }} {{ vale.vale_asociado.tipo_movimiento }}
+                        </a>
+                      {% else %}
+                        <a href="{% url 'entrada_add' vale.vale_asociado.id %}" class="btn btn-info" target="_blank">#
+                        {{vale.vale_asociado.no_folio }} {{ vale.vale_asociado.tipo_movimiento }}
+                        </a>                      
+                      {% endif %}
+                    {% endif %}
+                  </td>
+                  <td>{{vale.tipo_movimiento}}</td>
+                  <td>{{vale.fecha_vale}}</td>
+                  <td>{{vale.persona_asociada.user.username}}</td>
+                  <td>{{vale.creador_vale.user.username}}</td>
+                  <td>{{vale.observaciones_grales}}</td>
+                  <td>{{vale.movimientos.count}}</td>
+                  <td>
+                    <a href="{% url 'vale_erase_basura' vale.id %}" class="btn btn-primary{% if vale.movimientos.count != 0 %} disabled{% endif %}">borrar</a> 
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+    {% else %}
+        Sin vales
+    {% endif %}
+
+{% endblock %}
+
+{% block javascript_bottom %}
+          <script>
+          </script>
+{% endblock %}

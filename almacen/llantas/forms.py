@@ -1,9 +1,10 @@
 from django import forms
 from django.forms import ModelForm, ModelChoiceField
 from django.db.models import Q
-from .models import Movimiento, TipoMovimiento, Marca, Medida, Posicion, Status, Vale, Llanta, ImportacionMovimientos, AdjuntoVale
+from .models import Movimiento, TipoMovimiento, Marca, Medida, Posicion, Status, Vale, ValeBasura
+from .models import Llanta, ImportacionMovimientos, AdjuntoVale, MovimientoBasura
 from persona.models import Profile
-from .utils import agrupacion_dots, devuelve_llanta
+from .utils import agrupacion_dots, devuelve_llanta, devuelve_llanta_basura, return_profile
 
 class FilterForm(forms.Form):
 
@@ -239,6 +240,10 @@ class DestinoBodegaChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
         return "%s" % (obj)
 
+class OrigenBodegaChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "%s" % (obj)
+
 
 class NewLlantaForm(forms.Form):    
 
@@ -377,6 +382,141 @@ class NewLlantaForm(forms.Form):
             movimiento.save()
             l_movimiento.append(movimiento)
         return l_already_exist, l_movimiento
+
+
+
+
+class NewLlantaBasuraForm(forms.Form):    
+
+    marca = MarcaChoiceField(
+                required=True,
+                help_text="* Campo Requerido.",
+                queryset=Marca.objects.all().order_by('nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+    medida = MarcaChoiceField(
+                required=True,
+                help_text="* Campo Requerido.",
+                queryset=Medida.objects.all().order_by('nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+    posicion = MarcaChoiceField(
+                required=False,
+                help_text="",
+                queryset=Posicion.objects.all().order_by('nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+
+    status = MarcaChoiceField(
+                required=False,
+                help_text="",
+                queryset=Status.objects.all().order_by('nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+
+    dot = forms.CharField(
+            required=False,
+            label='Dot', 
+            max_length="100",
+            help_text="Solo pude ingresarse un dot a la vez",
+            widget=forms.TextInput(
+                attrs={
+                'class':'form-control',
+                'placeholder':'Un solo dot, ejemplo: 1234'
+                }
+    ))
+
+    origen = OrigenBodegaChoiceField(
+                required=True,
+                help_text="* Campo Requerido.",
+                queryset=Profile.objects.filter(tipo__nombre="ECONOMICO"),#( Q(tipo__nombre="BODEGA") | Q(tipo__nombre="ECONOMICO")),#NOECONOMICO
+                widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
+    )
+
+
+    destino = DestinoBodegaChoiceField(
+                required=True,
+                help_text="* Campo Requerido.",
+                queryset=Profile.objects.filter(tipo__nombre="BODEGA_BASURA"),#( Q(tipo__nombre="BODEGA") | Q(tipo__nombre="ECONOMICO")),#NOECONOMICO
+                widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
+    )
+
+    permisionario = PermisionarioChoiceField(
+                required=False,
+                queryset=Profile.objects.filter(tipo__nombre="PERMISIONARIO"),#( Q(tipo__nombre="BODEGA") | Q(tipo__nombre="ECONOMICO")),#NOECONOMICO
+                widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
+    )
+
+
+    cantidad  = forms.IntegerField(
+                required=True,
+                help_text="* Campo Requerido.",
+                min_value=1,
+                widget=forms.TextInput(
+                attrs={ 
+                'class':'form-control mb-2 mr-sm-2',
+                'placeholder':'Ejemplo: 1'
+                }
+    ))
+    observacion = forms.CharField(
+                required=False,
+                label='Observacion', 
+                widget=forms.TextInput(
+                attrs={ 
+                'class':'form-control mb-2 mr-sm-2',
+                'placeholder':'Ejemplo: se llevan las llantas a renovacion'
+                }
+    ))
+
+    def save(self, obj, user_crea): # obj is ValeBasura
+
+        creador = return_profile(user_crea)
+
+        ## datos llantaBasura
+        marca = self.cleaned_data['marca'] # obligatorios
+        medida = self.cleaned_data['medida'] # obligatorios
+        posicion = self.cleaned_data['posicion']
+        status = self.cleaned_data['status']
+        dot = self.cleaned_data['dot']
+        ## datos llantaBasura
+
+        origen = self.cleaned_data['origen']
+        destino = self.cleaned_data['destino']
+        permisionario = self.cleaned_data['permisionario']
+        cantidad_form = self.cleaned_data['cantidad']
+        #precio_unitario = self.cleaned_data['precio_unitario']
+        observacion = self.cleaned_data['observacion']        
+        
+
+        dicc_movimiento = {
+            "vale": obj,
+            "tipo_movimiento":obj.tipo_movimiento,
+            "fecha_movimiento": obj.fecha_vale, 
+            "origen":origen,
+            "destino":destino,
+            ## llanta
+            "cantidad": cantidad_form,
+            "creador":creador,
+            "observacion":observacion,
+        }
+
+        if permisionario:
+            dicc_movimiento["permisionario"] = permisionario
+
+
+
+        ya_existia, llanta = devuelve_llanta_basura(marca, medida, posicion, status, dot)    
+        dicc_movimiento['llanta'] = llanta
+
+        movimiento = MovimientoBasura(**dicc_movimiento)    
+        movimiento.save()
+
+        return ya_existia, movimiento
+
 
 
 
@@ -704,6 +844,69 @@ class EntradaForm(ModelForm):
                    'tipo_movimiento', 'fecha_vale', \
                    'persona_asociada', 'creador_vale',\
                    'con_iva']
+
+class ValeAsociadoChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "{}".format(obj.no_folio)
+
+
+class EntradaBasuraForm(ModelForm):
+
+    vale_asociado = ValeAsociadoChoiceField( ## si tiene un vale asociado
+                required=False,
+                queryset=Vale.objects.filter(tipo_movimiento__nombre="SALIDA").order_by('no_folio'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+
+    persona_asociada = ProveedorChoiceField( ## aqui debe venir el origen, que debe ser un tractor o caja
+                required=True,
+                queryset=Profile.objects.filter(tipo__nombre="ECONOMICO").order_by('user__username'),#( Q(tipo__nombre="BODEGA") | Q(tipo__nombre="ECONOMICO")),#NOECONOMICO
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+    fecha_vale = forms.DateField(
+                required=True,
+                label='Fecha de factura', 
+                input_formats=["%d-%m-%Y"],
+                widget=forms.DateInput(
+                    format="%d-%m-%Y",
+                    attrs={ 
+                    'class':'form-control',
+                    'placeholder':'dd-mm-yyyy'
+                    }
+                ))
+
+    observaciones_grales = forms.CharField(
+                required=False,
+                label='Observaciones grales', 
+                widget=forms.Textarea(
+                attrs={ 
+                'class':'form-control',
+                'placeholder':'Ejemplo: se llevan las llantas a renovacion'
+                }
+    ))
+
+    tipo_movimiento = TipoMovimientoChoiceField(
+                required=True,
+                queryset=TipoMovimiento.objects.all().order_by('nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b', 'disabled': ''})
+    )
+
+    creador_vale = ProfileChoiceField(
+                required=True,
+                queryset=Profile.objects.filter(tipo__nombre="STAFF"),
+                widget=forms.Select(attrs={'class':'form-control m-b', 'disabled': ''})
+    )
+
+
+    class Meta: 
+        model = ValeBasura
+        fields = ['vale_asociado', 'observaciones_grales',\
+                   'tipo_movimiento', 'fecha_vale', \
+                   'persona_asociada', 'creador_vale']
+
+
 
 class ImportacioMovimientosForm(ModelForm):
 

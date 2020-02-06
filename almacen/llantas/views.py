@@ -22,7 +22,9 @@ from rest_framework.permissions import IsAuthenticated
 from .utils import *
 from .models import *
 from persona.models import Profile, Tipo
-from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm, AdjuntoValeForm, ProfileSearchForm
+from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm
+from .forms import EntradaForm, NewLlantaForm, ImportacioMovimientosForm, AdjuntoValeForm, ProfileSearchForm
+from .forms import EntradaBasuraForm, NewLlantaBasuraForm
 from .render_to_XLS_util import render_to_xls, render_to_csv, render_to_xls_inventario
 from .serializers import ValeSerializer, LlantaSerializer, ProfileSerializer, MovimientoSerializer
 
@@ -148,6 +150,33 @@ def entrada(request, tipo_movimiento="ENTRADA"):
     context["form"] = form
     return render(request, 'entrada.html', context)
 
+
+@login_required
+def entrada_basura(request, tipo_movimiento="ENTRADA"):
+    context = {}
+
+    hoy = d_utils_now()
+    fecha_hoy = hoy.strftime("%d-%m-%Y")    
+    tm = TipoMovimiento.objects.get(nombre=tipo_movimiento)    
+    profile_asociado = return_profile(request.user.username)
+    initial_data = {'tipo_movimiento': tm, 'fecha_vale': fecha_hoy, 'creador_vale': profile_asociado}
+
+    if request.method == 'POST':
+        vale_instance = ValeBasura(tipo_movimiento=tm, creador_vale=profile_asociado)
+        form = EntradaBasuraForm(request.POST, instance=vale_instance)
+        if form.is_valid():
+            vale = form.save()
+            return HttpResponseRedirect(reverse('entrada_basura_add', args=[vale.id]))
+        else:
+            messages.add_message(request, messages.ERROR, 'Error en formulario')
+    else:
+        form = EntradaBasuraForm(initial=initial_data)
+
+    context["action"] = 'add'    
+    context["form"] = form
+    return render(request, 'entrada_basura.html', context)
+
+
 @login_required
 def entrada_edit(request, vale_id):
     context = {}
@@ -170,6 +199,30 @@ def entrada_edit(request, vale_id):
     context["form"] = form
     context["action"] = 'edit'
     return render(request, 'entrada.html', context)
+
+@login_required
+def entrada_basura_edit(request, vale_id):
+    context = {}
+    obj = get_object_or_404(ValeBasura, pk=vale_id)
+
+    if request.method == 'POST':
+        #vale_instance = Vale(tipo_movimiento=tm, creador_vale=profile_asociado)
+        form = EntradaBasuraForm(request.POST, instance=obj)#, instance=vale_instance)
+        if form.is_valid():
+            vale = form.save()
+            messages.add_message(request, messages.SUCCESS, 'Se guardan los cambios')
+            return HttpResponseRedirect(reverse('entrada_basura_add', args=[vale.id]))
+        else:
+            messages.add_message(request, messages.ERROR, 'Error en formulario')
+
+    else:
+        form = EntradaBasuraForm(instance=obj)
+    
+    context["vale"] = obj
+    context["form"] = form
+    context["action"] = 'edit'
+    return render(request, 'entrada_basura.html', context)
+
 
 
 @login_required
@@ -311,6 +364,35 @@ def entrada_add(request, vale_id):
 
 
 @login_required
+def entrada_basura_add(request, vale_id):
+    context = {}
+    obj = get_object_or_404(ValeBasura, pk=vale_id)
+    context['vale'] = obj
+
+    profile_asociado = return_profile("bodega_basura")
+    initial_data = {'origen': obj.persona_asociada, 'destino': profile_asociado}
+
+    if request.method == 'POST':
+        form = NewLlantaBasuraForm(request.POST)
+
+        if form.is_valid():
+            existia, movimiento = form.save(obj, request.user)
+            if existia:
+                messages.add_message(request, messages.INFO, 'Ya existia una llanta con esas caracteristicas.')
+            else:
+                messages.add_message(request, messages.SUCCESS, 'Se crea una llanta con las nuevas caracteristicas.')
+            messages.add_message(request, messages.SUCCESS, 'Se crea el movimiento a basura {}'.format(movimiento))
+            return HttpResponseRedirect(reverse('entrada_basura_add', args=[obj.id]))    
+    else:
+        form = NewLlantaBasuraForm(initial=initial_data)
+
+    
+    context["form"] = form
+    context["MEDIA_URL"] = settings.MEDIA_URL
+    return render(request, 'entrada_basura_add.html', context)
+
+
+@login_required
 def actual(request):
     context = {}
 
@@ -415,6 +497,27 @@ def vales(request):
     return render(request, 'vales.html', context)    
 
 
+@login_required
+def basura_vales(request):
+    context = {}
+    action = request.GET.get("tipo", "ENTRADA")
+    
+    if action:
+        action = action.upper()
+
+    v = ValeBasura.objects.filter(tipo_movimiento__nombre=action, vale_llantas=True).order_by('-id')
+    context["vales_count"] = v.count()
+
+
+    paginator = Paginator(v, settings.ITEMS_PER_PAGE) # Show 5 profiles per page
+    page = request.GET.get('page')
+    v = paginator.get_page(page)
+
+    context["vales"] = v
+    context["action"] = action
+
+    return render(request, 'valesbasura.html', context)
+
 
 
 @login_required
@@ -490,6 +593,20 @@ def entrada_erase_movimiento(request, vale_id, movimiento_id):
 
     messages.add_message(request, messages.SUCCESS, 'Se borra movimiento')
     return HttpResponseRedirect(reverse('entrada_add', args=[obj_vale.id]))
+
+
+@login_required
+def entrada_erase_movimiento_basura(request, vale_id, movimiento_id):
+    usuario_request = request.user
+    obj_vale = get_object_or_404(ValeBasura, pk=vale_id)
+    obj_movimiento = get_object_or_404(MovimientoBasura, pk=movimiento_id)
+
+    if (obj_movimiento.creador.user == usuario_request) or (usuario_request.is_superuser):
+        obj_movimiento.delete()
+        messages.add_message(request, messages.SUCCESS, 'Se borra movimiento')
+    else:
+        messages.add_message(request, messages.ERROR, 'No es del dueño del movimiento')
+    return HttpResponseRedirect(reverse('entrada_basura_add', args=[obj_vale.id]))
 
 
 @login_required
@@ -577,6 +694,22 @@ def vale_erase(request, vale_id):
     
     return HttpResponseRedirect(reverse('vales')+"?tipo="+obj_vale.tipo_movimiento.nombre)
 
+
+@login_required
+def vale_erase_basura(request, vale_id):
+    usuario_request = request.user
+    redirige_entrada = None
+    obj_vale = get_object_or_404(ValeBasura, pk=vale_id)
+    if len(obj_vale.movimientos()) == 0:
+        if (obj_vale.creador_vale.user == usuario_request) or (usuario_request.is_superuser):
+            obj_vale.delete()
+            messages.add_message(request, messages.SUCCESS, 'Se borró el Vale')
+        else:
+            messages.add_message(request, messages.ERROR, 'No es del dueño del vale')
+    else:
+        messages.add_message(request, messages.WARNING, 'Este vale tiene movimientos, no se puede borrar.')
+    
+    return HttpResponseRedirect(reverse('basura_vales'))
 
 def home_llantas(request):
     return HttpResponseRedirect(reverse('vales'))

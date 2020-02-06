@@ -21,6 +21,12 @@ class TipoMovimientoAdmin(admin.ModelAdmin):
     list_display = ['id', 'nombre']
     search_fields = ['nombre']
 
+class ValeBasuraAdmin(admin.ModelAdmin):
+    list_display = ['id', 'tipo_movimiento', 'fecha_vale', 'fecha_created', 'fecha_edited', 'persona_asociada', 'vale_llantas']
+    list_filter = ['tipo_movimiento', 'vale_llantas']
+    search_fields = ['id']
+
+
 class ValeAdmin(admin.ModelAdmin):
     list_display = ['id', 'no_folio', 'tipo_movimiento', 'fecha_vale', 'con_iva', 'fecha_created', 'fecha_edited', 'persona_asociada', 'vale_llantas']
     list_filter = ['tipo_movimiento', 'vale_llantas']
@@ -37,6 +43,11 @@ class LlantaAdmin(admin.ModelAdmin):
     list_display = ['id', 'marca', 'medida', 'posicion', 'status', 'dot', 'porciento_vida']
     search_fields = ['marca__nombre', 'dot']
 
+class LlantaBasuraAdmin(admin.ModelAdmin):
+    list_display = ['id', 'marca', 'medida', 'posicion', 'status', 'dot', 'porciento_vida']
+    search_fields = ['marca__nombre', 'dot']
+
+
 class ImportacionMovimientosAdmin(admin.ModelAdmin):
     list_display = ['id', 'fecha_created', 'procesado']
 
@@ -49,6 +60,8 @@ admin.site.register(TipoMovimiento, TipoMovimientoAdmin)
 admin.site.register(Movimiento, MovimientoAdmin)
 #admin.site.register(Movimiento)
 admin.site.register(Vale, ValeAdmin)
+admin.site.register(ValeBasura, ValeBasuraAdmin)
 admin.site.register(AdjuntoVale, AdjuntoValeAdmin)
 admin.site.register(Llanta, LlantaAdmin)
+admin.site.register(LlantaBasura, LlantaBasuraAdmin)
 admin.site.register(ImportacionMovimientos, ImportacionMovimientosAdmin)

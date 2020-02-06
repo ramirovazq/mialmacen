@@ -1,0 +1,98 @@
+{% extends "base_bootstrap.html" %}
+
+{% block title_section %}            
+<h1 class="h2">Entrada de basura de llantas</h1>
+{% endblock %}
+
+{% block extra_title_section %}
+{% endblock %}
+
+
+{% block buttons_section %}
+{% if action == 'edit' %}
+<form action="{% url 'entrada_edit' vale.id %}" method="post" id="entrada_basura_form">
+{% else %}
+<form action="{% url 'entrada_basura' %}" method="post" id="entrada_basura_form">
+{% endif %}
+    {% csrf_token %}
+
+    {{ form.errors }}
+
+      <div class="form-group">
+        {{form.vale_asociado.errors}}
+        <label for="{{form.vale_asociado.id_for_label}}">Vale de Salida Relacionado</label>
+        {{form.vale_asociado}}
+      </div>
+
+      <div class="form-group">
+        {{form.persona_asociada.errors}}
+        <label for="{{form.persona_asociada.id_for_label}}">* Procedencia</label>
+        {{form.persona_asociada}}
+      </div>
+
+      <div class="form-row">
+           {{form.fecha_vale.errors}}
+           <label for="{{form.fecha_vale.id_for_label}}">* Fecha :</label>
+           {{form.fecha_vale}}
+      </div>
+
+      <div class="form-group">
+        {{form.observaciones_grales.errors}}
+        <label for="{{form.observaciones_grales.id_for_label}}">Observaciones generales</label>
+        {{form.observaciones_grales}}
+      </div>
+
+      <div class="form-group">
+        {{form.tipo_movimiento.errors}}
+        <label for="{{form.tipo_movimiento.id_for_label}}">Tipo movimiento</label>
+        {{form.tipo_movimiento}}
+      </div>
+
+      <div class="form-group">
+        {{form.creador_vale.errors}}
+        <label for="{{form.creador_vale.id_for_label}}">Usuario actual</label>
+        {{form.creador_vale}}
+      </div>
+
+
+    
+    {% if action == 'edit' %}
+    <input type="submit" value="Guardar Cambios" class="btn btn-primary">
+    {% else %}
+    <input type="submit" value="Crear Vale" class="btn btn-primary">
+    {% endif %}
+    <input type="button" value="Limpiar" class="btn btn-secondary" id="boton_limpiar">
+
+</form>
+  <br><br>
+{% endblock %}
+
+
+{% block section %}
+
+{% endblock %}
+
+{% block javascript_bottom %}
+          <script>
+          $( function() {
+            $( "#id_fecha_vale" ).datepicker({dateFormat: 'dd-mm-yy'});
+
+            $('#entrada_basura_form').submit(function () { 
+              $('#id_tipo_movimiento').removeAttr('disabled'); 
+              $('#id_creador_vale').removeAttr('disabled'); 
+            })
+
+            $( "#boton_limpiar" ).click(function(){
+                $('#salida_form').trigger("reset");
+
+              {% if action == 'edit' %}
+                window.location = "{% url 'entrada_basura_edit' vale.id %}";
+              {% else %}
+                window.location = "{% url 'entrada_basura' %}";
+              {% endif %}
+
+
+            });
+          });
+          </script>
+{% endblock %}

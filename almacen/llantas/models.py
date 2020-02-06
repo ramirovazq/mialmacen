@@ -194,6 +194,58 @@ class Vale(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
     def __str__(self):
         return "{}".format(self.no_folio)
 
+class ValeBasura(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
+    vale_asociado = models.ForeignKey( #puede estar asociado a un vale de salida, por ejemplo
+        Vale,
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        db_index=True)
+
+    observaciones_grales = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    tipo_movimiento = models.ForeignKey( #entrada o salida, normalmente solo entrada
+        TipoMovimiento,
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        db_index=True)
+
+    fecha_vale = models.DateField()
+    fecha_created = models.DateTimeField(auto_now_add=True) # Automatically set the field to now when the object is first created
+    fecha_edited = models.DateTimeField(auto_now=True) # Automatically set the field when the object is edited
+
+    persona_asociada = models.ForeignKey( ## aqui debe venir el origen, que debe ser un tractor o caja
+        Profile,
+        blank=True,
+        null=True,        
+        related_name='tractor_asociado_basura',
+        on_delete=models.PROTECT,
+        db_index=True)
+
+    creador_vale = models.ForeignKey(
+        Profile,
+        blank=True,
+        null=True,        
+        related_name='creador_vale_basura',
+        on_delete=models.PROTECT,
+        db_index=True)
+
+    vale_llantas = models.BooleanField(default=True)
+
+    def movimientos(self):
+        return MovimientoBasura.objects.filter(vale=self)
+
+    class Meta:
+        verbose_name_plural = "Vales de Basura"
+
+    def __str__(self):
+        return "{}".format(self.id)
+
+
 class AdjuntoVale(models.Model):
     upload = models.FileField(upload_to='uploads/%Y/%m/%d/')
     vale = models.ForeignKey(
@@ -209,6 +261,44 @@ class AdjuntoVale(models.Model):
 
     def __str__(self):
         return "{} {}".format(self.id, self.vale)
+
+class LlantaBasura(models.Model):
+    marca = models.ForeignKey(
+        Marca,
+        on_delete=models.PROTECT,
+        db_index=True)
+    medida = models.ForeignKey(
+        Medida,
+        on_delete=models.PROTECT,
+        db_index=True)
+    posicion = models.ForeignKey(
+        Posicion,
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        db_index=True
+    )
+    status = models.ForeignKey(
+        Status,
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        db_index=True)
+    dot = models.CharField( # Una referencia externa del movimiento
+            blank=True,
+            null = True,
+            max_length=100)
+    porciento_vida = models.PositiveSmallIntegerField( # Un porcentaje de vida de la llanta por ejemplot 30%
+            blank=True,
+            null = True,
+            default=100)
+
+    class Meta:
+        verbose_name_plural = "llantas basura"
+
+    def __str__(self):
+        return "{} {} {} {} {} {} {}".format(self.id, self.marca.nombre, self.medida.nombre, self.posicion.nombre, self.status.nombre, self.dot, self.porciento_vida)
+
 
 
 class Llanta(models.Model):
@@ -343,6 +433,72 @@ class Llanta(models.Model):
             #diccionario['sin_permisionario'] = total - total_permisionarios
             localizaciones[bodega.user.username] = lista_interna
         return lista_interna
+
+class MovimientoBasura(models.Model):
+    vale = models.ForeignKey(
+        ValeBasura,
+        related_name='vale_asociado_basura',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        db_index=True)
+    tipo_movimiento = models.ForeignKey( #entrada o salida
+        TipoMovimiento,
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        db_index=True)
+    fecha_movimiento = models.DateField()
+    date_created = models.DateTimeField(auto_now_add=True) # Automatically set the field to now when the object is first created
+    date_edited = models.DateTimeField(auto_now=True) # Automatically set the field when the object is edited
+    origen = models.ForeignKey(
+        Profile,
+        related_name='origen_del_movimiento_basura',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        db_index=True)
+    destino = models.ForeignKey(
+        Profile,
+        blank=True,
+        null=True,        
+        related_name='destino_del_movimiento_basura',
+        on_delete=models.PROTECT,
+        db_index=True)
+
+    llanta = models.ForeignKey(
+        LlantaBasura,
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        db_index=True)
+    cantidad = models.PositiveIntegerField(
+            default=0)
+
+    creador = models.ForeignKey(
+        Profile,
+        blank=True,
+        null=True,        
+        related_name='creadror_del_movimiento_basura',
+        on_delete=models.PROTECT,
+        db_index=True)
+
+    observacion = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    permisionario = models.ForeignKey(
+        Profile,
+        blank=True,
+        null=True,        
+        related_name='permisionario_llanta_basura',
+        on_delete=models.PROTECT)
+
+
+    def __str__(self):
+        return "{}".format(self.id)
+
 
 
 class Movimiento(models.Model):
