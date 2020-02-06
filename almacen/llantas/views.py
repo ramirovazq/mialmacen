@@ -369,7 +369,7 @@ def entrada_basura_add(request, vale_id):
     obj = get_object_or_404(ValeBasura, pk=vale_id)
     context['vale'] = obj
 
-    profile_asociado = return_profile("bodega_basura")
+    profile_asociado = return_profile("ALMACEN_BASURA")
     initial_data = {'origen': obj.persona_asociada, 'destino': profile_asociado}
 
     if request.method == 'POST':
