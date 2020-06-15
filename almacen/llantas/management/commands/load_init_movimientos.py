@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
+from django.core.exceptions import MultipleObjectsReturned
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils import timezone
@@ -15,10 +16,13 @@ class Command(BaseCommand):
         
         pa = return_profile('rvazquez')# valor fijo
 
-        with open(settings.BASE_DIR + '/load_init/j16_j30.csv') as csvfile_in:
+        with open(settings.BASE_DIR + '/load_init/inventario_actualizado_loading.csv') as csvfile_in:
+            index_count = 0
             readCSV = csv.reader(csvfile_in, delimiter=';')
             for indice, row in enumerate(readCSV):
+                index_count += 1
                 if indice != 0: # quit name of column
+                    print("indice {} -- ROW .... {}".format(index_count, row))
 
                     tipo_movimiento  = row[0].strip().upper() # ENTRADA SALIDA ## mayusculas
                     f_movimiento = row[1].strip()
@@ -39,6 +43,12 @@ class Command(BaseCommand):
                     status           = row[11].strip().capitalize() # Solo primera letra mayuscula
                     dot              = row[12].strip() ## es numerico
 
+                    if "(" in dot: # rows with 
+                        dot_observacion = dot 
+                        lista_dot = dot.split("(") # ['4519', '4619)']
+                        dot = lista_dot[0]
+                    else:
+                        dot_observacion = ""
                     
                     precio_unitario  = row[13]
                     if not precio_unitario:
@@ -50,15 +60,12 @@ class Command(BaseCommand):
                         permisionario_obj = return_profile(permisionario, "PERMISIONARIO")
 
                     ## valores del Vale
-                    if origen == "CONTEO_29MARZO":
+                    if origen == "CONTEO_12JUNIO":
                         profile_origen = return_profile(origen, "ABSTRACT")
-                    elif origen == "CHIMAL":
-                        profile_origen = return_profile(origen, "PROVEEDOR")
                     else:
                         profile_origen = return_profile(origen, "BODEGA")
 
-
-                    if destino == "J16" or destino == "J30" :
+                    if destino == "BODEGA_GENERAL":
                         profile_destino = return_profile(destino, "BODEGA")
                     else:
                         profile_destino = return_profile(destino, "ECONOMICO")
@@ -99,13 +106,23 @@ class Command(BaseCommand):
                             porciento_vida=vida
                         )
                     else:
-                        llanta, llanta_flag = Llanta.objects.get_or_create(
-                            marca=m,
-                            medida=me,
-                            posicion=pos,
-                            status=sta,
-                            dot=dot
-                        )
+                        # default 100 por ciento
+                        try:
+                            llanta, llanta_flag = Llanta.objects.get_or_create(
+                                marca=m,
+                                medida=me,
+                                posicion=pos,
+                                status=sta,
+                                dot=dot
+                            )
+                        except MultipleObjectsReturned:
+                            llanta = Llanta.objects.filter(marca=m, 
+                                    medida=me, 
+                                    posicion=pos,
+                                    status=sta,
+                                    dot=dot,
+                                    porciento_vida=100).first()
+
                     if permisionario:
                         movimiento = Movimiento(
                             vale=vale_inicial,
@@ -117,7 +134,8 @@ class Command(BaseCommand):
                             cantidad=cantidad,
                             precio_unitario=precio_unitario,
                             creador=vale_inicial.persona_asociada, 
-                            permisionario=permisionario_obj
+                            permisionario=permisionario_obj,
+                            observacion=dot_observacion
                         )
                     else:
                         movimiento = Movimiento(
@@ -130,6 +148,7 @@ class Command(BaseCommand):
                         cantidad=cantidad,
                         precio_unitario=precio_unitario,
                         creador=vale_inicial.persona_asociada, 
+                        observacion=dot_observacion
                     )
                     movimiento.save()
                     if movimiento.id:

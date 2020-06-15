@@ -1,7 +1,7 @@
 import csv 
 from django.conf import settings
 
-with open(settings.BASE_DIR + '/load_init/all_marcas.csv') as csvfile_in:
+with open(settings.BASE_DIR + '/load_init/all_medidas.csv') as csvfile_in:
     readCSV = csv.reader(csvfile_in, delimiter=';')
     lista_marcas = []
     for indice, row in enumerate(readCSV):
@@ -22,7 +22,7 @@ print(len(unique_marcas), unique_marcas)
 for unique in unique_marcas:
     print(unique)
 
-with open(settings.BASE_DIR + '/load_init/all_marcas_unique.csv', 'w') as csvfile_out:
+with open(settings.BASE_DIR + '/load_init/all_medidas_unique.csv', 'w') as csvfile_out:
     writer = csv.writer(csvfile_out)
     for unique in unique_marcas:
         writer.writerow([unique])
