@@ -159,6 +159,8 @@ def render_to_xls_inventario(queryset, filename):
         new_rows = []
         for row in rows:
             llanta = Llanta.objects.get(id=row[0])
+            uyc = None
+            cadena = ""
             for ubicacion in llanta.total_ubicaciones():
                 uyc = ("ubicacion: "+ ubicacion, "  cantidad: {}".format(llanta.total_ubicaciones()[ubicacion]))
 
@@ -166,7 +168,10 @@ def render_to_xls_inventario(queryset, filename):
                 cadena = "ubicacion: "+ ubicacion
                 cadena = cadena + "  {}".format(llanta.total_ubicaciones_detail()[ubicacion])
 
-            new_rows.append(row + (llanta.cantidad_actual_total(), uyc, cadena))
+            if uyc:
+                new_rows.append(row + (llanta.cantidad_actual_total(), uyc, cadena))
+            else:
+                new_rows.append(row + (llanta.cantidad_actual_total(), "", cadena))
 
     except AttributeError: ## no envia un queryset cantidad, por eso es un codigo diferente
         new_rows = []
