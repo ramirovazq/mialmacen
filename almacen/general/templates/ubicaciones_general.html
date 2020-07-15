@@ -1,0 +1,76 @@
+{% extends "base_bootstrap_general.html" %}
+
+{% block title_section %}            
+<h1 class="h2">Ubicación de Productos, Almacen general</h1>
+{% endblock %}
+
+{% block extra_title_section %}
+
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    {% if productos.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1">&laquo;</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ productos.previous_page_number }}">&lt</a></li>
+    {% endif %}
+        <li class="page-item"><a class="page-link disabled" href="#">{{ productos.number }}/{{ productos.paginator.num_pages }} </a></li>
+    {% if productos.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ productos.next_page_number }}">&gt</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ productos.paginator.num_pages }}">&raquo;</a></li>
+    {% endif %}
+  </ul>
+</nav>
+
+<!--
+  <ul class="pagination">
+    <li class="page-item"><a class="page-link" href="?orden=nombre">Nombre</a></li>
+    <li class="page-item"><a class="page-link" href="?orden=medida">Medida</a></li>
+    <li class="page-item"><a class="page-link" href="?orden=posicion">Posicion</a></li>
+    <li class="page-item"><a class="page-link" href="?orden=dot">Dot</a></li>
+    <li class="page-item"><a class="page-link" href="?orden=status">Status</a></li>
+    <li class="page-item"><a class="page-link" href="?orden=cantidad">Cantidad</a></li>
+    <li class="page-item"><a class="page-link" href="{{ url_export }}"> <span data-feather="download"></span> Descargar</a></li>
+  </ul>
+-->
+{% endblock %}
+
+
+{% block buttons_section %}
+{% endblock %}
+
+
+{% block section %}
+	{% if productos %}
+          <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                    <th>Id </th>
+                    <th>Bodega</th>
+                    <th>Posicion </th>
+                  <th>Productos </th>
+                  <!-- <th>Cantidad </th> -->
+                </tr>
+              </thead>
+              <tbody>
+
+                	{% for producto in productos %} 
+                  <tr>
+                      <td>{{producto.id }}</td>
+                      <td>{{producto.profile.user.username}}</td>
+                      <td>{{producto.position }}</td>
+                      <td>{{producto.producto_exact_profile_positions_what}}</td>
+                      <!-- <td>{producto.producto_exact_profile_positions_quantity}}</td> -->
+                  </tr>
+                  {% endfor %}
+
+              </tbody>
+            </table>
+          </div>
+	{% else %}
+		Sin productos
+	{% endif %}
+
+{% endblock %}
+
+{% block javascript_bottom %}
+{% endblock %}

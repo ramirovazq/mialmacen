@@ -72,3 +72,31 @@ class ProfilePosition(models.Model):
         bodega = "{}>>{}".format(self.profile.user.username, self.position.__str__())
         return bodega
 
+    def producto_exact_profile_positions(self):
+        from general.models import ProductoExactProfilePosition
+        return ProductoExactProfilePosition.objects.filter(exactposition=self)
+
+    def producto_exact_profile_positions_quantity(self):
+        total_entrada = 0
+        total_salida  = 0
+        answer = {}
+
+        lista_product_exact_profile_positions = self.producto_exact_profile_positions()
+        for x in lista_product_exact_profile_positions:
+            if x.movimiento.tipo_movimiento.nombre == 'ENTRADA':
+                total_entrada = total_entrada + (x.movimiento.cantidad*x.movimiento.unidad.ratio)
+            elif x.movimiento.tipo_movimiento.nombre == 'SALIDA':
+                total_salida = total_salida + (x.movimiento.cantidad*x.movimiento.unidad.ratio)
+            answer[x.exactposition] = total_entrada - total_salida
+        return answer
+
+    def producto_exact_profile_positions_what(self):
+        total_entrada = 0
+        total_salida  = 0
+        answer = []
+
+        lista_product_exact_profile_positions = self.producto_exact_profile_positions()
+        for x in lista_product_exact_profile_positions:
+            if x.movimiento.producto.nombre not in answer:
+                answer.append(x.movimiento.producto.nombre)
+        return answer

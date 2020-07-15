@@ -176,6 +176,59 @@ def actual_general(request):
 
     return render(request, 'actual_general.html', context)    
 
+@login_required
+def actual_ubicacion(request):
+    context = {}
+
+    profilepositions = ProfilePosition.objects.all()
+    '''
+    orden = request.GET.get("orden", None)#default marca
+    export = request.GET.get("export", None)#default marca
+
+    full_path = request.get_full_path()
+    if "?" in full_path:
+        url_export = full_path + '&export=True'
+    else:
+        url_export = '?export=True'
+
+    if orden == 'marca':
+        llantas = llantas.order_by('marca__nombre')
+    elif orden == 'medida':
+        llantas = llantas.order_by('medida__nombre')
+    elif orden == 'posicion':
+        llantas = llantas.order_by('posicion__nombre')
+    elif orden == 'dot':
+        llantas = llantas.order_by('dot')
+    elif orden == 'status':
+        llantas = llantas.order_by('status__nombre')
+    elif orden == 'cantidad':
+        l = []
+        for llanta in llantas:
+            l.append((llanta, llanta.cantidad_actual_total()))
+        l = sorted(l, key=lambda x: x[1])
+        l.reverse()
+        llantas = l    
+    else:
+        llantas = llantas.order_by('nombre')
+
+
+    if export:
+        return render_to_xls_inventario(
+                queryset=llantas,
+                filename="export_inventario.xls"
+            )                
+
+    paginator = Paginator(llantas, settings.ITEMS_PER_PAGE) # Show 5 profiles per page
+    page = request.GET.get('page')
+    llantas = paginator.get_page(page)
+
+
+    context['orden'] = orden        
+    context['url_export'] = url_export
+    '''
+    context['productos'] = profilepositions
+    return render(request, 'ubicaciones_general.html', context)    
+
 
 @login_required
 def producto_detalle(request, producto_id):

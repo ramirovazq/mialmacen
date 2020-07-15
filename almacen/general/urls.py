@@ -36,6 +36,7 @@ urlpatterns = [
     #path('detalle/<int:movimiento_id>/', movimiento ,  name='movimiento'),
     
     path('actual/', actual_general, name='actual_general'),
+    path('ubicacion/', actual_ubicacion, name='actual_ubicacion'),
     path('detalle/<int:producto_id>/movimientos/', producto_detalle, name='producto_detalle'),
     path('detalle/<int:producto_id>/agregar/numero/', producto_add_numero, name='producto_add_numero'),
 
