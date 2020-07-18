@@ -142,9 +142,37 @@ def render_to_xls_inventario_ubicacion(queryset, filename, rows_with_products=Tr
         if q.productos_csv() != "":
             i = i+1
             row = sheet.row(i)
-            row_values = [q.id, q.productos_csv(), q.in_code(), q.in_words()]
+            row_values = [q.id, q.productos_csv(), q.in_code()]
             for index, value in enumerate(row_values):
                 row.write(index, value)
+
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    book.save(response)
+    return response
+
+def render_to_xls_inventario_all_ubicacion(queryset, filename, rows_with_products=True):
+    ezxf = xlwt.easyxf
+    book = xlwt.Workbook(encoding="utf-8")
+    sheet = book.add_sheet("etiquetas", cell_overwrite_ok=True)
+
+    font_style = xlwt.XFStyle()
+    font_style.font.bold = True
+    columns = [
+            'Posición',
+            'Posición'
+            'Descripción',
+    ]
+    # columns
+    for col_num in range(len(columns)):
+        sheet.write(0, col_num, columns[col_num], font_style)
+    i = 0
+    for index, q in enumerate(queryset):        
+        i = i+1
+        row = sheet.row(i)
+        row_values = [q.in_code(), q.in_words(), q.productos_csv()]
+        for index, value in enumerate(row_values):
+            row.write(index, value)
 
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
