@@ -136,16 +136,14 @@ def render_to_xls_inventario_ubicacion(queryset, filename, rows_with_products=Tr
     # columns
     for col_num in range(len(columns)):
         sheet.write(0, col_num, columns[col_num], font_style)
- 
+
+    i = 0
     for index, q in enumerate(queryset):
-        row = sheet.row(index+1)
         if q.productos_csv() != "":
+            row = sheet.row(i+1)
             row_values = [q.id, q.productos_csv(), q.in_code(), q.in_words()]
             for index, value in enumerate(row_values):
                 row.write(index, value)
-        else:
-            pass
-
 
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
