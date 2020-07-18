@@ -26,7 +26,7 @@ from llantas.utils import return_profile
 from .forms import ValeAlmacenGeneralForm, SearchSalidaGeneralForm, MovimientoSalidaGeneralForm, FilterMovimientoForm
 from .forms import MovimientoEntradaGeneralForm, EntradaGeneralForm, PositionForm, NumeroParteForm
 #from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm, AdjuntoValeForm, ProfileSearchForm
-#from .render_to_XLS_util import render_to_xls, render_to_csv, render_to_xls_inventario
+from .render_to_XLS_util import render_to_xls_inventario_ubicacion
 from .serializers import ProductoSerializer
 
 class ProductoViewSet(viewsets.ModelViewSet):
@@ -181,6 +181,15 @@ def actual_ubicacion(request):
     context = {}
 
     profilepositions = ProfilePosition.objects.all()
+    export = request.GET.get("export", None)#default marca
+
+    if export:
+        return render_to_xls_inventario_ubicacion(
+                queryset=profilepositions,
+                filename="etiquetas_ubicaciones.xls"
+            )                
+
+
     '''
     orden = request.GET.get("orden", None)#default marca
     export = request.GET.get("export", None)#default marca

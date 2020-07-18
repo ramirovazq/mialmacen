@@ -20,8 +20,9 @@
   </ul>
 </nav>
 
-<!--
+
   <ul class="pagination">
+<!--
     <li class="page-item"><a class="page-link" href="?orden=nombre">Nombre</a></li>
     <li class="page-item"><a class="page-link" href="?orden=medida">Medida</a></li>
     <li class="page-item"><a class="page-link" href="?orden=posicion">Posicion</a></li>
@@ -29,8 +30,9 @@
     <li class="page-item"><a class="page-link" href="?orden=status">Status</a></li>
     <li class="page-item"><a class="page-link" href="?orden=cantidad">Cantidad</a></li>
     <li class="page-item"><a class="page-link" href="{{ url_export }}"> <span data-feather="download"></span> Descargar</a></li>
+    -->
+    <li class="page-item"><a class="page-link" href=".?export=True"> <span data-feather="download"></span> Descargar</a></li>
   </ul>
--->
 {% endblock %}
 
 
@@ -44,32 +46,29 @@
             <table class="table table-striped table-sm">
               <thead>
                 <tr>
+                    {% if request.user.is_superuser %}
                     <th>Id </th>
-                    <th>Bodega</th>
-                    <th>Posicion </th>
+                    {% endif %}
+                    <th>Ubicación</th>
+                    <th>Posición</th>
                   <th>Productos </th>
-                  <!-- <th>Cantidad </th> -->
                 </tr>
               </thead>
               <tbody>
-
                 	{% for producto in productos %} 
                   <tr>
-                      <td>{{producto.id }}</td>
-                      <td>{{producto.profile.user.username}}</td>
-                      <td>{{producto.position }}</td>
-                      <td>{{producto.producto_exact_profile_positions_what}}</td>
-                      <!-- <td>{producto.producto_exact_profile_positions_quantity}}</td> -->
+                      {% if request.user.is_superuser %}<td>{{producto.id }}</td>{% endif %}
+                      <td>{{producto.profile.user.username}}>>{{producto.position }}</td>
+                      <td>{{producto.in_code }}</td>
+                      <td>{{producto.productos_csv}}</td>
                   </tr>
                   {% endfor %}
-
               </tbody>
             </table>
           </div>
 	{% else %}
-		Sin productos
+		Sin ubicaciones
 	{% endif %}
-
 {% endblock %}
 
 {% block javascript_bottom %}

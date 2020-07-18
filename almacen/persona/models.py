@@ -49,6 +49,13 @@ class Position(models.Model):
         else:
             return "{}".format(self.name)
 
+    def code(self):
+        if self.parent:
+            return "{}{}{}".format(self.parent.code(), self.name[0],self.name[-1])
+        else:
+            return "{}{}".format(self.name[0],self.name[-1])
+
+
 class ProfilePosition(models.Model):
     profile = models.ForeignKey( # self.bodega01 = return_profile("ALMACEN_GENERAL", "BODEGA")
         Profile,
@@ -72,6 +79,11 @@ class ProfilePosition(models.Model):
         bodega = "{}>>{}".format(self.profile.user.username, self.position.__str__())
         return bodega
 
+    def in_code(self):
+        bodega = "{}{}".format(self.profile.user.username[0], self.position.code())
+        return bodega
+
+    
     def producto_exact_profile_positions(self):
         from general.models import ProductoExactProfilePosition
         return ProductoExactProfilePosition.objects.filter(exactposition=self)
@@ -100,3 +112,6 @@ class ProfilePosition(models.Model):
             if x.movimiento.producto.nombre not in answer:
                 answer.append(x.movimiento.producto.nombre)
         return answer
+    
+    def productos_csv(self):
+        return ";".join(self.producto_exact_profile_positions_what())
