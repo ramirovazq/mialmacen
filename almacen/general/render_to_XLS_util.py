@@ -140,7 +140,8 @@ def render_to_xls_inventario_ubicacion(queryset, filename, rows_with_products=Tr
     i = 0
     for index, q in enumerate(queryset):
         if q.productos_csv() != "":
-            row = sheet.row(i+1)
+            i = i+1
+            row = sheet.row(i)
             row_values = [q.id, q.productos_csv(), q.in_code(), q.in_words()]
             for index, value in enumerate(row_values):
                 row.write(index, value)
