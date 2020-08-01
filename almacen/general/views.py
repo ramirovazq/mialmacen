@@ -523,3 +523,11 @@ def producto_add_numero(request, producto_id):
     context['producto'] = obj
     context["form"] = form
     return render(request, 'producto_add_numero.html', context)
+
+
+
+def lector(request):
+    context = {}
+
+    return render(request, 'lector.html', context)    
+

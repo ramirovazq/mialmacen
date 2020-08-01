@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="{% static 'jquery-ui-1.12.1.custom/jquery-ui.css' %}">
     <link rel="stylesheet" href="{% static 'Autocomplete/content/styles.css' %}">
     <title>Almacen General</title>
+    {% block javascript_top %}
+    {% endblock %}
+
   </head>
   <body>
    
@@ -58,6 +61,14 @@
                   Salida
                 </a>
               </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'lector' %}">
+                  <span data-feather="file"></span>
+                  Lector
+                </a>
+              </li>
+
 
             </ul>
 
@@ -141,7 +152,7 @@
           </div>
 
             {% block buttons_section %}
-          {% endblock %}
+            {% endblock %}
 
             {% if messages %}
                 {% for message in messages %}
