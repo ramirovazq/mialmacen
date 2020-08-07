@@ -1,10 +1,29 @@
+class SimpleItem extends React.Component {
+  constructor(props) {
+    super(props); 
+    this.removeTrack = this.removeTrack.bind(this);
+  } 
+  removeTrack(){
+    this.props.onRemove(this.props.track);
+  }
+  render() {
+    return (
+      <li key={this.props.number}>
+        <div>{this.props.number} <a className="simple-item" onClick={this.removeTrack}> - </a> </div>
+      </li>
+    );
+  }
+} // NumberCodes
+
+
 class NumberCodes extends React.Component {
   constructor(props) {
     super(props); 
   } 
   render() {
     const numbers = this.props.codes;
-    const listItems = numbers.map((number) => <li key={number}>{number}</li>);
+    // const listItems = numbers.map((number) => <li key={number}>{number}</li>);
+    const listItems = numbers.map((number) => <SimpleItem number={number} />);
     return (
       <div>
         <h2>Registrados:</h2>
@@ -12,7 +31,7 @@ class NumberCodes extends React.Component {
       </div>
     );
   }
-}
+} // NumberCodes
 
 class CodeReader extends React.Component {
   constructor(props) {
@@ -30,9 +49,14 @@ class CodeReader extends React.Component {
   componentDidMount(){
     this.nameInput.focus();
   }
-  handleValueChange(e){
-    const x = e.target.value;
-    this.setState({barcode: x});
+  handleValueChange(event){
+    const valor = event.target.value;
+    this.setState({barcode: valor});
+    if( valor[valor.length - 1] === 'A' ) {
+        // setTimeout(()=> alert('Got A'), 200)
+        this.handleSave(event)
+    }
+
   }//handelValueChange
   handleSave(event){
     let barcode = this.state.barcode;
@@ -71,5 +95,5 @@ class CodeReader extends React.Component {
       </div>
     );
   }
-}
+} // CodeReader
 ReactDOM.render(<CodeReader />, document.getElementById('codecontainer'));
