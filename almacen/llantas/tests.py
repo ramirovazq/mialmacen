@@ -1,10 +1,135 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 
+from decimal import Decimal
 from .models import *
 from .utils import *
+from general.models import *
 
 import datetime
+
+class PositionsInventoryTestCase(TestCase):
+
+    def setUp(self):
+        self.producto = Producto.objects.create(nombre="Filtro de aire")
+
+        self.user01 = return_profile("rosa")
+        self.user02 = return_profile("goyo")
+
+        self.conteo = return_profile("CONTETO", "ABSTRACT")
+        self.bodega01 = return_profile("CAJA01", "BODEGA")
+
+        self.tm_entrada = TipoMovimiento.objects.create(nombre="ENTRADA")
+        self.tm_salida = TipoMovimiento.objects.create(nombre="SALIDA")
+
+        tipo_smaller,   bandera = TipoUnidadMedida.objects.get_or_create(tipo="-1")
+        tipo_reference, bandera = TipoUnidadMedida.objects.get_or_create(tipo="0")
+        tipo_greater,   bandera = TipoUnidadMedida.objects.get_or_create(tipo="1")
+
+        categoria_unidad,   bandera = CategoriaUnidadMedida.objects.get_or_create(nombre="Unidad")
+
+        self.unidad_medida = UnidadMedida.objects.create(
+            nombre="unidad",
+            categoria=categoria_unidad,
+            tipo_unidad=tipo_reference,
+            ratio=1,
+            simbolo="u"
+            )
+
+        self.fourfeb = datetime.datetime.strptime('04/02/2019', "%d/%m/%Y").date()
+        self.vale01 = ValeAlmacenGeneral.objects.create(
+            no_folio="0001",
+            observaciones_grales="nada",
+            tipo_movimiento=self.tm_entrada,
+            fecha_vale=self.fourfeb,
+            persona_asociada=self.user02, # quien entrega
+            creador_vale=self.user01,
+        )
+        self.mov_entrada = MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,
+            origen=self.conteo,
+            destino=self.bodega01,
+            producto=self.producto,
+            unidad=self.unidad_medida,
+            cantidad=10,
+            precio_unitario=1.0,
+            creador=self.user01
+        )
+        # position
+        bodega_position    = return_position("BODEGA_GRAL")
+        self.anaquel_position   = return_position("ANAQUEL", bodega_position)
+
+        # profile
+        #self.bodega01 = return_profile("CAJA01", "BODEGA")
+
+        # profile_position
+        self.profile_position = ProfilePosition.objects.create(
+            profile=self.bodega01, 
+            position=self.anaquel_position
+        )
+
+        # ProductoExactProfilePosition
+        ProductoExactProfilePosition.objects.create(
+            exactposition=self.profile_position,
+            movimiento=self.mov_entrada
+            ) # exactposition = models.ForeignKey(ProfilePosition,
+        
+        self.lista_ubicaciones = ['1','2','3'] # id_ubicaciones
+        self.destino = return_profile("TRACTOR01", "ECONOMICO")# tractor o caja
+
+    def test_simple_position(self):
+        self.assertEqual(self.producto.positions_inventory(),{'CAJA01>>BODEGA_GRAL>>ANAQUEL': 10.0})
+
+    def test_position_two_movements(self):
+
+        self.vale02 = ValeAlmacenGeneral.objects.create(
+            no_folio="0002",
+            observaciones_grales="nada",
+            tipo_movimiento=self.tm_salida,
+            fecha_vale=self.fourfeb,
+            persona_asociada=self.user02, # quien entrega
+            creador_vale=self.user01,
+        )
+        self.mov_salida = MovimientoGeneral.objects.create(
+            vale=self.vale02,
+            tipo_movimiento=self.tm_salida,
+            fecha_movimiento=self.fourfeb,
+            origen=self.bodega01,
+            destino=self.destino,
+            producto=self.producto,
+            unidad=self.unidad_medida,
+            cantidad=7,
+            precio_unitario=1.0,
+            creador=self.user01
+        )
+
+        # ProductoExactProfilePosition
+        ProductoExactProfilePosition.objects.create(
+            exactposition=self.profile_position,
+            movimiento=self.mov_salida
+            ) # exactposition = models.ForeignKey(ProfilePosition,
+
+        decimal_quantity_3, unidad_medida = self.producto.inventory()
+        self.assertEqual(decimal_quantity_3, Decimal('3.0000'))
+        self.assertEqual(unidad_medida, self.unidad_medida)
+        # (Decimal('3.0000'), <UnidadMedida: unidad (Unidad) [Unidad de Medida de referencia para esta categoria ; 1.00]>)
+
+        self.producto.positions()
+        # {<ProfilePosition: CAJA01 [BODEGA] BODEGA_GRAL>>ANAQUEL>}
+        self.assertEqual(self.producto.positions_inventory(),{'CAJA01>>BODEGA_GRAL>>ANAQUEL': 3.0})
+        self.assertEqual(self.producto.what_in_positions_inventory_specific(),{'CAJA01>>BODEGA_GRAL>>ANAQUEL': Decimal('3.0000')})  
+
+
+
+
+
+
+
+
+
+
 
 
 class LlantaMovimientoTestCase(TestCase):
