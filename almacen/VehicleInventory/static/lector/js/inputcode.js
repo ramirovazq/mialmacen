@@ -4,11 +4,15 @@ class SimpleItem extends React.Component {
     this.removeTrack = this.removeTrack.bind(this);
   } 
   removeTrack(){
-    this.props.onRemove(this.props.track);
+    this.props.onRemove(this.props.number);
+    console.log("-----inicio");
+    console.log(this.props.number);
+    console.log("-----fin");
+
   }
   render() {
     return (
-      <li key={this.props.number}>
+      <li>
         <div>{this.props.number} <a className="simple-item" onClick={this.removeTrack}> - </a> </div>
       </li>
     );
@@ -19,11 +23,18 @@ class SimpleItem extends React.Component {
 class NumberCodes extends React.Component {
   constructor(props) {
     super(props); 
-  } 
+    // this.onRemove = this.onRemove.bind(this);
+  }
+  /*
+  onRemove(codigo){
+    console.log("---------- inicio numbercodes");
+    console.log(codigo);
+    console.log("---------- fin numbercodes");
+  } */
   render() {
     const numbers = this.props.codes;
     // const listItems = numbers.map((number) => <li key={number}>{number}</li>);
-    const listItems = numbers.map((number) => <SimpleItem number={number} />);
+    const listItems = numbers.map((number, indice) => <SimpleItem key={indice.toString()} number={number} onRemove={this.onRemove} />);
     return (
       <div>
         <h2>Registrados:</h2>
@@ -44,10 +55,15 @@ class CodeReader extends React.Component {
     this.handleValueChange = this.handleValueChange.bind(this);
     this.handleSave = this.handleSave.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.removeCode = this.removeCode.bind(this);
   }
 
   componentDidMount(){
     this.nameInput.focus();
+  }
+  removeCode(){
+    console.log("---------- VICTORIA");
+    // console.log(codigo);
   }
   handleValueChange(event){
     const valor = event.target.value;
@@ -91,7 +107,7 @@ class CodeReader extends React.Component {
               onKeyDown={this.handleKeyDown} />
           </div>
           <br/>
-        <NumberCodes codes={this.state.codeslist} />
+        <NumberCodes codes={this.state.codeslist} onRemove={this.removeCode} />
       </div>
     );
   }
