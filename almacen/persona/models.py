@@ -80,6 +80,9 @@ class ProfilePosition(models.Model):
         return bodega
 
     def in_code(self):
+        print("ping.....")
+        print(self)
+        print(type(self))
         bodega = "{}{}".format(self.profile.user.username[0], self.position.code())
         return bodega
 
@@ -89,6 +92,10 @@ class ProfilePosition(models.Model):
         return ProductoExactProfilePosition.objects.filter(exactposition=self)
 
     def producto_exact_profile_positions_quantity(self):
+        '''
+        returns how many things exists in specific exact_position
+        important: in exact_position could be more than 1 type of product
+        '''
         total_entrada = 0
         total_salida  = 0
         answer = {}
@@ -103,15 +110,70 @@ class ProfilePosition(models.Model):
         return answer
 
     def producto_exact_profile_positions_what(self):
-        total_entrada = 0
-        total_salida  = 0
         answer = []
-
         lista_product_exact_profile_positions = self.producto_exact_profile_positions()
         for x in lista_product_exact_profile_positions:
             if x.movimiento.producto.nombre not in answer:
                 answer.append(x.movimiento.producto.nombre)
         return answer
-    
+
+    def producto_exact_profile_list_products_with_id(self):
+        '''
+        Returns list of products names plus id of product, example: ACEITE--234
+        id of product helps avoid confusing products with similar names
+        '''
+        answer = []
+        lista_product_exact_profile_positions = self.producto_exact_profile_positions()
+        for x in lista_product_exact_profile_positions:
+            product_name_with_id = x.movimiento.producto.nombre + "--" +str(x.movimiento.producto.id)
+            if product_name_with_id not in answer:
+                answer.append(product_name_with_id)
+        return answer
+
+
+    def producto_exact_profile_list_products_with_only_id(self):
+        '''
+        Returns list of products names plus id of product, example: 234
+        id of product helps avoid confusing products with similar names
+        '''
+        answer = []
+        lista_product_exact_profile_positions = self.producto_exact_profile_positions()
+        for x in lista_product_exact_profile_positions:
+            product_name_with_id = str(x.movimiento.producto.id)
+            if product_name_with_id not in answer:
+                answer.append(product_name_with_id)
+        return answer
+
+    def producto_exact_profile_positions_quantity_by_product_only_id(self):
+        products_list = self.producto_exact_profile_list_products_with_only_id()
+        dicc_products = { product: 0 for product in products_list }
+
+        lista_product_exact_profile_positions = self.producto_exact_profile_positions()
+        for x in lista_product_exact_profile_positions:
+            producto = str(x.movimiento.producto.id)
+            if x.movimiento.tipo_movimiento.nombre == 'ENTRADA':
+                dicc_products[producto] = dicc_products[producto] +  (x.movimiento.cantidad*x.movimiento.unidad.ratio)
+            elif x.movimiento.tipo_movimiento.nombre == 'SALIDA':
+                dicc_products[producto] = dicc_products[producto] -  (x.movimiento.cantidad*x.movimiento.unidad.ratio)
+
+        return dicc_products
+
+
+    def producto_exact_profile_positions_quantity_by_product(self):
+        products_list = self.producto_exact_profile_list_products_with_id()
+        dicc_products = { product: 0 for product in products_list }
+
+        lista_product_exact_profile_positions = self.producto_exact_profile_positions()
+        for x in lista_product_exact_profile_positions:
+            producto = x.movimiento.producto.nombre + "--" + str(x.movimiento.producto.id)
+            if x.movimiento.tipo_movimiento.nombre == 'ENTRADA':
+                dicc_products[producto] = dicc_products[producto] +  (x.movimiento.cantidad*x.movimiento.unidad.ratio)
+            elif x.movimiento.tipo_movimiento.nombre == 'SALIDA':
+                dicc_products[producto] = dicc_products[producto] -  (x.movimiento.cantidad*x.movimiento.unidad.ratio)
+
+        return dicc_products
+
+
+
     def productos_csv(self):
         return ";".join(self.producto_exact_profile_positions_what())
