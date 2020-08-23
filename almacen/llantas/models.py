@@ -141,7 +141,7 @@ class Vale(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
     fecha_created = models.DateTimeField(auto_now_add=True) # Automatically set the field to now when the object is first created
     fecha_edited = models.DateTimeField(auto_now=True) # Automatically set the field when the object is edited
 
-    persona_asociada = models.ForeignKey( ## quien entrega, o Proveedor para un Vale de entrada
+    persona_asociada = models.ForeignKey( ## quien entrega para vale salida, o Proveedor para un Vale de entrada
         Profile,
         blank=True,
         null=True,        

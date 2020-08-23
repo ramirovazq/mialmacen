@@ -2,7 +2,7 @@ from django.conf import settings
 from django.utils.text import slugify
 from django.contrib.auth.models import User
 
-from persona.models import Profile, Tipo
+from persona.models import Profile, Tipo, Position
 from llantas.models import Llanta, LlantaBasura
 from general.models import NumeroParte, Producto
 
@@ -13,6 +13,12 @@ import string
 import random
 import textdistance as textd
 import csv
+
+def return_position(nombre="", padre=None):
+    if not padre:
+        return Position.objects.create(name=nombre)
+    return Position.objects.create(name=nombre, parent=padre)
+
 
 def return_folio_str(number, places=5):
     '''
@@ -213,6 +219,19 @@ def return_or_create_user(username):
         u = User.objects.create_user(username, '{}@fletesexpress.com.mx'.format(username), pass_new)
     return u
 
+def return_existent_user(username):
+    '''
+    return user
+    busca encontrar un User
+    sino lo encuentra, simplemente lo crea y lo devuelve
+    '''
+    try:
+        u = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return False, None
+    return True, u
+
+
 def return_permisionario(username):
     
     try:
@@ -254,6 +273,20 @@ def return_profile(username, tipo="STAFF"):
     '''
     u = return_or_create_user(username)
     return create_profile(u, tipo)
+
+def return_existent_profile(usuario, tipo="STAFF"):
+    # u = return_existent_user(username)
+    try:
+        tipo = Tipo.objects.get(nombre=tipo)
+    except Tipo.DoesNotExist:
+        return False, None
+    try:
+        p = Profile.objects.get(user=usuario)
+    except Profile.DoesNotExist:
+        return False, None
+    return True, p
+
+
 
 def split_list(lista):
     return [(x[0].split("__"), x[1])for x in lista]
