@@ -1,5 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.test import Client
+from rest_framework import status
 
 from decimal import Decimal
 from .models import *
@@ -7,6 +9,248 @@ from .utils import *
 from general.models import *
 
 import datetime
+
+class LectorSendTestCase(TestCase):
+
+    def setUp(self):
+        self.producto = Producto.objects.create(nombre="Filtro de aire")
+
+        self.user01 = return_profile("rosa")
+        self.user01_user = return_or_create_user("rosa")
+        self.user02 = return_profile("goyo")
+
+        self.client = Client()
+        self.client.force_login(user=self.user01_user)
+
+        self.conteo = return_profile("CONTEO", "ABSTRACT")
+        self.bodega01 = return_profile("CAJA01", "BODEGA")
+
+        self.tm_entrada = TipoMovimiento.objects.create(nombre="ENTRADA")
+        self.tm_salida = TipoMovimiento.objects.create(nombre="SALIDA")
+
+        tipo_smaller,   bandera = TipoUnidadMedida.objects.get_or_create(tipo="-1")
+        tipo_reference, bandera = TipoUnidadMedida.objects.get_or_create(tipo="0")
+        tipo_greater,   bandera = TipoUnidadMedida.objects.get_or_create(tipo="1")
+
+        categoria_unidad,   bandera = CategoriaUnidadMedida.objects.get_or_create(nombre="Unidad")
+
+        self.unidad_medida = UnidadMedida.objects.create(
+            nombre="unidad",
+            categoria=categoria_unidad,
+            tipo_unidad=tipo_reference,
+            ratio=1,
+            simbolo="u"
+            )
+
+        self.fourfeb = datetime.datetime.strptime('04/02/2019', "%d/%m/%Y").date()
+        self.vale01 = ValeAlmacenGeneral.objects.create(
+            no_folio="0001",
+            observaciones_grales="nada",
+            tipo_movimiento=self.tm_entrada,
+            fecha_vale=self.fourfeb,
+            persona_asociada=self.user02, # quien entrega
+            creador_vale=self.user01,
+        )
+        self.mov_entrada = MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,
+            origen=self.conteo,
+            destino=self.bodega01,
+            producto=self.producto,
+            unidad=self.unidad_medida,
+            cantidad=10,
+            precio_unitario=1.0,
+            creador=self.user01
+        )
+        # position
+        bodega_position    = return_position("BODEGA_GRAL")
+        self.anaquel_position   = return_position("ANAQUEL", bodega_position)
+        self.anaquel_position_two   = return_position("ANAQUEL2", bodega_position)
+        self.anaquel_position_three   = return_position("ANAQUEL3", bodega_position)
+
+        # profile
+        #self.bodega01 = return_profile("CAJA01", "BODEGA")
+
+        # profile_position
+        self.profile_position = ProfilePosition.objects.create(
+            profile=self.bodega01, 
+            position=self.anaquel_position
+        )
+
+        self.profile_position_two = ProfilePosition.objects.create(
+            profile=self.bodega01, 
+            position=self.anaquel_position_two
+        )
+
+        self.profile_position_three = ProfilePosition.objects.create(
+            profile=self.bodega01, 
+            position=self.anaquel_position_three
+        )
+
+
+        # ProductoExactProfilePosition
+        ProductoExactProfilePosition.objects.create(
+            exactposition=self.profile_position,
+            movimiento=self.mov_entrada
+            ) # exactposition = models.ForeignKey(ProfilePosition,
+        
+        #self.lista_ubicaciones = ['1','2','3'] # id_ubicaciones
+        self.destino = return_profile("TRACTOR01", "ECONOMICO")# tractor o caja
+
+        self.vale02 = ValeAlmacenGeneral.objects.create(
+            no_folio="0002",
+            observaciones_grales="nada",
+            tipo_movimiento=self.tm_salida,
+            fecha_vale=self.fourfeb,
+            persona_asociada=self.user02, # quien entrega
+            creador_vale=self.user01,
+        )
+        self.mov_salida = MovimientoGeneral.objects.create(
+            vale=self.vale02,
+            tipo_movimiento=self.tm_salida,
+            fecha_movimiento=self.fourfeb,
+            origen=self.bodega01,
+            destino=self.destino,
+            producto=self.producto,
+            unidad=self.unidad_medida,
+            cantidad=7,
+            precio_unitario=1.0,
+            creador=self.user01
+        )
+
+        # ProductoExactProfilePosition
+        ProductoExactProfilePosition.objects.create(
+            exactposition=self.profile_position,
+            movimiento=self.mov_salida
+            ) # exactposition = models.ForeignKey(ProfilePosition,
+
+    def test_simple_get_vale(self):
+        self.assertEqual(self.producto.positions_inventory(),{'CAJA01>>BODEGA_GRAL>>ANAQUEL': 3.0})
+        response = self.client.get('/api/v0/vale/')
+        self.assertEqual(len(response.json()), 2)
+
+    def test_post_lector_without_destino(self):
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        first_profile_position = [list_profile_position[0]]
+        list_profile_position =  first_profile_position + list_profile_position
+        # [1, 1, 2, 3]
+        payload_without_destino = {'profile_position_ids': list_profile_position}    
+        response = self.client.post('/api/v0/profileposition/lector/', payload_without_destino)
+        self.assertEqual(response.json(), {'error': 'Missing parameters'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_lector_without_list_profile(self):
+        payload_without_list_profile = {"destino": self.destino.id}
+        response = self.client.post('/api/v0/profileposition/lector/', payload_without_list_profile)
+        self.assertEqual(response.json(), {'error': 'Missing parameters'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+    def test_post_lector_wrong_list_id(self):
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        first_profile_position = [list_profile_position[0]]
+        list_profile_position =  first_profile_position + list_profile_position + [999]
+        # [1, 1, 2, 3, 999]
+        payload = {'profile_position_ids': list_profile_position, "destino": self.destino.id}
+        response = self.client.post('/api/v0/profileposition/lector/', payload)
+        self.assertEqual(response.json(), {'error': 'Wrong list of profileposition ids or destino'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+    def test_post_lector_wrong_destino_id(self):
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        first_profile_position = [list_profile_position[0]]
+        list_profile_position =  first_profile_position + list_profile_position
+        # [1, 1, 2, 3]
+        payload = {'profile_position_ids': list_profile_position, "destino": 999}
+        response = self.client.post('/api/v0/profileposition/lector/', payload)
+        self.assertEqual(response.json(), {'error': 'Wrong list of profileposition ids or destino'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+
+    def test_post_lector_wont_possible(self):
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        first_profile_position = [list_profile_position[0]]
+        last_profile_position = [list_profile_position[-1]]
+        list_profile_position =  first_profile_position + first_profile_position + list_profile_position + last_profile_position
+        # [1, 1, 1, 2, 3, 3]
+        payload = {'profile_position_ids': list_profile_position, "destino": self.destino.id}
+        response = self.client.post('/api/v0/profileposition/lector/', payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_lector_wont_possible_two(self):
+        profile_position = ProfilePosition.objects.get(id=self.profile_position.id)
+        list_profile_position =  [profile_position.id, profile_position.id, 2]
+        # [1, 1, 2]
+        payload = {'profile_position_ids': list_profile_position, "destino": self.destino.id}
+        response = self.client.post('/api/v0/profileposition/lector/', payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+    def test_simple_post_lector(self):
+        profile_position = ProfilePosition.objects.get(id=self.profile_position.id)
+        list_profile_position =  [profile_position.id, profile_position.id]
+        # [1, 1]
+        payload = {'profile_position_ids': list_profile_position, "destino": self.destino.id}
+        response = self.client.post('/api/v0/profileposition/lector/', payload)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+
+
+    def test_verify_quantity(self):
+        from persona.utils import verify_quantity
+        quantity_i_want = 1
+
+        dict_products =  {'Filtro de aire--1': Decimal('3.0000')}
+        # [True] --> 1 True, => True
+        answer = verify_quantity(quantity_i_want, dict_products)
+        self.assertEqual({'ok': 0}, answer)
+
+        quantity_i_want = 1
+        dict_products =  {'Filtro de aire--1': Decimal('3.0000')}
+        # [True] --> 1 True, => True
+        answer = verify_quantity(quantity_i_want, dict_products)
+        self.assertEqual({'ok': 0}, answer)
+
+        quantity_i_want =  3
+        dict_products = {'Filtro de aire--1': Decimal('3.0000')}
+        # [True] --> 1 True, => False
+        answer = verify_quantity(quantity_i_want, dict_products)
+        self.assertEqual({'ok': 0}, answer)
+
+        quantity_i_want = 4
+        dict_products = {'Filtro de aire--1': Decimal('3.0000')}
+        # [False] --> ningun True, => False
+        answer = verify_quantity(quantity_i_want, dict_products)
+        self.assertEqual({'Not enough quantity of products or Want more than existance': 1}, answer)
+
+
+        quantity_i_want =  3
+        dict_products = {'Filtro de aire--1': Decimal('3.0000'), 'Aceite': Decimal('0.0000')}
+        # [True, False] --> 1 True, => True
+        answer = verify_quantity(quantity_i_want, dict_products)
+        self.assertEqual({'ok': 0}, answer)
+
+        quantity_i_want = 1
+        dict_products =  {'Filtro de aire--1': Decimal('0.0000'), 'Aceite': Decimal('0.0000')}
+        # [False, False] --> ningun True, => False
+        answer = verify_quantity(quantity_i_want, dict_products)
+        self.assertEqual({'Not enough quantity of products or Want more than existance': 1}, answer)
+
+        quantity_i_want = 3
+        dict_products = {'Filtro de aire--1': Decimal('3.0000'), 'Aceite': Decimal('3.0000')}
+        # [True, True] --> mas de un True => False
+        answer = verify_quantity(quantity_i_want, dict_products)
+        self.assertEqual({'More than one product in same position': 1}, answer)
+
+        quantity_i_want =  3
+        dict_products = {'Filtro de aire--1': Decimal('3.0000'), 'Aceite': Decimal('0.0000'), 'Motor--1': Decimal('4.0000')}
+        # [True, False, True] --> mas de un True => False
+        answer = verify_quantity(quantity_i_want, dict_products)
+        self.assertEqual({'More than one product in same position': 1}, answer)
+        
 
 class PositionsInventoryTestCase(TestCase):
 
@@ -79,6 +323,43 @@ class PositionsInventoryTestCase(TestCase):
         self.lista_ubicaciones = ['1','2','3'] # id_ubicaciones
         self.destino = return_profile("TRACTOR01", "ECONOMICO")# tractor o caja
 
+    def test_two_products_position(self):
+        producto_dos = Producto.objects.create(nombre="Aceite para camión")
+
+        vale02 = ValeAlmacenGeneral.objects.create(
+            no_folio="0002",
+            observaciones_grales="nada",
+            tipo_movimiento=self.tm_entrada,
+            fecha_vale=self.fourfeb,
+            persona_asociada=self.user02, # quien entrega
+            creador_vale=self.user01,
+        )
+        mov_entrada_dos = MovimientoGeneral.objects.create(
+            vale=vale02,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,
+            origen=self.conteo,
+            destino=self.bodega01,
+            producto=producto_dos,
+            unidad=self.unidad_medida,
+            cantidad=30,
+            precio_unitario=2.0,
+            creador=self.user01
+        )
+
+        ProductoExactProfilePosition.objects.create(
+            exactposition=self.profile_position,
+            movimiento=mov_entrada_dos
+            ) # exactposition = models.ForeignKey(ProfilePosition,
+
+        print(self.producto.positions_inventory())
+        print(producto_dos.positions_inventory())
+        print("#####-----------------------####")
+        print(self.producto.what_in_positions_inventory_specific())
+        print(producto_dos.what_in_positions_inventory_specific())
+        #self.assertEqual(self.producto.positions_inventory(),{'CAJA01>>BODEGA_GRAL>>ANAQUEL': 10.0})
+
+
     def test_simple_position(self):
         self.assertEqual(self.producto.positions_inventory(),{'CAJA01>>BODEGA_GRAL>>ANAQUEL': 10.0})
 
@@ -120,16 +401,6 @@ class PositionsInventoryTestCase(TestCase):
         # {<ProfilePosition: CAJA01 [BODEGA] BODEGA_GRAL>>ANAQUEL>}
         self.assertEqual(self.producto.positions_inventory(),{'CAJA01>>BODEGA_GRAL>>ANAQUEL': 3.0})
         self.assertEqual(self.producto.what_in_positions_inventory_specific(),{'CAJA01>>BODEGA_GRAL>>ANAQUEL': Decimal('3.0000')})  
-
-
-
-
-
-
-
-
-
-
 
 
 class LlantaMovimientoTestCase(TestCase):

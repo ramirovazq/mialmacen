@@ -87,6 +87,59 @@ class ValeAlmacenGeneral(Vale): # catálogo de tipos de movimiento, ENTRADA, SAL
     def total(self):
         return sum([m.precio_total() for m in self.movimientos()])
 
+    @staticmethod
+    def genereate_authomatic(usuario, tipo_movimiento="SALIDA"):
+        from datetime import datetime
+        from llantas.utils import return_existent_profile
+
+        hoy_datetime  = datetime.today()
+        no_folio = hoy_datetime.strftime("%d/%m/%Y-%H%M%S")
+        hoy = hoy_datetime.date()
+        tm = TipoMovimiento.objects.get(nombre=tipo_movimiento)
+        flag, profile_request =  return_existent_profile(usuario)
+        if flag:
+            vale = ValeAlmacenGeneral.objects.create(
+                no_folio = no_folio,
+                observaciones_grales="salida lector",
+                tipo_movimiento= tm,
+                fecha_vale=hoy,
+                persona_asociada=profile_request,
+                creador_vale=profile_request,
+                con_iva=True,
+                vale_llantas=False
+            )
+            return vale
+        return None
+
+
+    def movimientos_authomatic_from_list_ids_profile(self, list_ids_profile_position):
+        from persona.utils import group_profile_positions
+        set_ids_profile_position =  set(list_ids_profile_position)
+
+        dict_ids_profile_position = group_profile_positions(
+            set_ids_profile_position, list_ids_profile_position)
+        
+        for id_profile_position in dict_ids_profile_position:
+            pp = ProfilePosition.objects.get(id=id_profile_position)
+            pp_products = pp.producto_exact_profile_positions_quantity_by_product()
+            i_want = dict_ids_profile_position[id_profile_position]
+
+            '''
+            MovimientoGeneral.objects.create(
+                vale = self,
+                tipo_movimiento = self.tipo_movimiento,
+                fecha_movimiento = self.fecha_vale,
+                #origen=,
+                #destino=,
+                producto=,
+                unidad=,
+                cantidad=,
+                precio_unitario=,
+                creador=self.creador_vale,
+                observacion="movimiento desde lector",
+            )
+            '''
+        return None
 
 
 class Producto(models.Model):
