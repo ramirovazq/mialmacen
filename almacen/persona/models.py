@@ -80,9 +80,6 @@ class ProfilePosition(models.Model):
         return bodega
 
     def in_code(self):
-        print("ping.....")
-        print(self)
-        print(type(self))
         bodega = "{}{}".format(self.profile.user.username[0], self.position.code())
         return bodega
 
