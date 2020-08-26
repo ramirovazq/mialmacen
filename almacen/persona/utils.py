@@ -44,36 +44,43 @@ def verify_quantity(quantity_i_want, dict_products):
     '''
     quantity_i_want: 1
     dict_products: {'Filtro de aire--1': Decimal('3.0000')}
+                    [1]    -->  [1]    
                     [True] --> 1 True, => True
     return {'ok': True}
 
     quantity_i_want: 3
     dict_products: {'Filtro de aire--1': Decimal('3.0000')}
+                    [1]    --> [1]
                     [True] --> 1 True, => False
     return {'ok': True}
 
     quantity_i_want: 4
     dict_products: {'Filtro de aire--1': Decimal('3.0000')}
+                    [1]  --> []
                     [False] --> ningun True, => False
     return {'Want more than existance': False}
 
     quantity_i_want: 3
-    dict_products: {'Filtro de aire--1': Decimal('3.0000'), 'Aceite': Decimal('0.0000')}
+    dict_products: {'Filtro de aire--1': Decimal('3.0000'), 'Aceite--4': Decimal('0.0000')}
+                    [1, 4]  -->[1]
                     [True, False] --> 1 True, => True
     return {'ok': Yes}
 
     quantity_i_want: 1
-    dict_products: {'Filtro de aire--1': Decimal('0.0000'), 'Aceite': Decimal('0.0000')}
+    dict_products: {'Filtro de aire--1': Decimal('0.0000'), 'Aceite--4': Decimal('0.0000')}
+                    [1, 4]  --> []
                     [False, False] --> ningun True, => False
     return {'Not enough quantity in products': False}
 
     quantity_i_want: 3
-    dict_products: {'Filtro de aire--1': Decimal('3.0000'), 'Aceite': Decimal('3.0000')}
+    dict_products: {'Filtro de aire--1': Decimal('3.0000'), 'Aceite--4': Decimal('3.0000')}
+                    [1, 4] --> []
                     [True, True] --> mas de un True => False
     return {'More than one product in same position': False}
 
     quantity_i_want: 3
-    dict_products: {'Filtro de aire--1': Decimal('3.0000'), 'Aceite': Decimal('0.0000'), 'Motor--1': Decimal('4.0000')}
+    dict_products: {'Filtro de aire--1': Decimal('3.0000'), 'Aceite--4': Decimal('0.0000'), 'Motor--5': Decimal('4.0000')}
+                    [1, 4, 5]  --> []
                     [True, False, True] --> mas de un True => False
     return {'More than one product in same position': False}
 
@@ -85,6 +92,7 @@ def verify_quantity(quantity_i_want, dict_products):
     from decimal import Decimal 
 
     answer = {}
+    list_products = []
     quantity = Decimal(quantity_i_want)
 
     if len(dict_products.keys()) <= 0:
@@ -105,6 +113,87 @@ def verify_quantity(quantity_i_want, dict_products):
         answer['More than one product in same position'] = 1
     return answer
 
+
+def return_valid_products_and_quantity(quantity_i_want, dict_products):
+    '''
+    quantity_i_want: 1
+    dict_products: {'Filtro de aire--1': Decimal('3.0000')}
+                          -->  {'Filtro de aire--1': Decimal('3.0000')}
+                    [True] --> 1 True, => True
+    return {'ok': True}
+
+    quantity_i_want: 3
+    dict_products: {'Filtro de aire--1': Decimal('3.0000')}
+                         --> {'Filtro de aire--1': Decimal('3.0000')}
+                    [True] --> 1 True, => False
+    return {'ok': True}
+
+    quantity_i_want: 4
+    dict_products: {'Filtro de aire--1': Decimal('3.0000')}
+                       --> {}
+                    [False] --> ningun True, => False
+    return {'Want more than existance': False}
+
+    quantity_i_want: 3
+    dict_products: {'Filtro de aire--1': Decimal('3.0000'), 'Aceite--4': Decimal('0.0000')}
+                    [1, 4]  --> {'Filtro de aire--1': Decimal('3.0000')}
+                    [True, False] --> 1 True, => True
+    return {'ok': Yes}
+
+    quantity_i_want: 1
+    dict_products: {'Filtro de aire--1': Decimal('0.0000'), 'Aceite--4': Decimal('0.0000')}
+                    [1, 4]  --> {}
+                    [False, False] --> ningun True, => False
+    return {'Not enough quantity in products': False}
+
+    quantity_i_want: 3
+    dict_products: {'Filtro de aire--1': Decimal('3.0000'), 'Aceite--4': Decimal('3.0000')}
+                    [1, 4] --> {}
+                    [True, True] --> mas de un True => False
+    return {'More than one product in same position': False}
+
+    quantity_i_want: 3
+    dict_products: {'Filtro de aire--1': Decimal('3.0000'), 'Aceite--4': Decimal('0.0000'), 'Motor--5': Decimal('4.0000')}
+                    [1, 4, 5]  --> {'Filtro de aire--1': Decimal('3.0000'), 0, 'Motor--5': Decimal('4.0000')} --> {}
+                    [True, False, True] --> mas de un True => False
+    return {'More than one product in same position': False}
+
+
+    quantity_i_want: 1
+    dict_products: {}
+    [1, 4, 5]  --> {}
+    return {"Not enough products": False}
+    '''
+    from decimal import Decimal 
+
+    if len(dict_products.keys()) <= 0:
+        return []
+
+    quantity = Decimal(quantity_i_want)
+    check_list = []
+    list_results = []
+
+    for producto in dict_products:
+        if dict_products[producto] >= quantity:
+            l_producto = producto.split("--")
+            id_producto = l_producto[1]
+            list_results.append({id_producto: quantity})
+            check_list.append(True)
+        else:
+            check_list.append(False)
+
+    quantity_ok = sum(check_list)
+
+    if quantity_ok == 1:
+        return list_results
+    elif quantity_ok == 0:
+        answer = []
+    else:
+        answer = []
+    return answer
+
+
+
 def analysis_results(list_results):
     '''
     list_results = [{'Not enough products': 1}, {'Not enough products': 1}, {'ok': 0}]
@@ -117,9 +206,14 @@ def analysis_results(list_results):
 def verify_profilepositions(list_ids_profile_position):
     '''
     recieve a list of id_profile_positions [1, 1, 2, 3]
-    recieve a set of id_profile_positions (1, 2, 3)
+    generates a set of id_profile_positions {1:2, 2:1, 3:1}
     must check, if in each profile_position are enough stock,
-    of if are more than one product in each position
+    of if is more than one product in each position
+
+    answer: Boolean, true if its posible to post, or false
+    list_results = [{'Not enough products': 1}, {'Not enough products': 1}, {'ok': 0}] 
+    products =  [{'Filtro de aire--1': Decimal('3.0000'), 0, 'Motor--5': Decimal('4.0000')}]
+    list_id_profile_position = [1,2,3]
     '''
     set_ids_profile_position =  set(list_ids_profile_position)
     dict_ids_profile_position = group_profile_positions(
@@ -127,10 +221,19 @@ def verify_profilepositions(list_ids_profile_position):
     answer = False
     results = []
     list_results = []
+    products = []
+    list_id_profile_position =[]
+
     for id_profile_position in dict_ids_profile_position:
         pp = ProfilePosition.objects.get(id=id_profile_position)
         pp_products = pp.producto_exact_profile_positions_quantity_by_product()
         i_want = dict_ids_profile_position[id_profile_position]
         results.append(verify_quantity(i_want, pp_products))
+        products = products + return_valid_products_and_quantity(i_want, pp_products)
+        list_id_profile_position.append(pp)
+
     answer, list_results = analysis_results(results)
-    return answer, list_results
+    if answer:
+        return answer, list_results, products, list_id_profile_position
+    else:
+        return answer, list_results, [], []

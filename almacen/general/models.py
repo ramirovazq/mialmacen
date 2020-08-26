@@ -88,7 +88,7 @@ class ValeAlmacenGeneral(Vale): # catálogo de tipos de movimiento, ENTRADA, SAL
         return sum([m.precio_total() for m in self.movimientos()])
 
     @staticmethod
-    def genereate_authomatic(usuario, tipo_movimiento="SALIDA"):
+    def generate_authomatic(usuario, tipo_movimiento="SALIDA"):
         from datetime import datetime
         from llantas.utils import return_existent_profile
 
@@ -112,33 +112,47 @@ class ValeAlmacenGeneral(Vale): # catálogo de tipos de movimiento, ENTRADA, SAL
         return None
 
 
-    def movimientos_authomatic_from_list_ids_profile(self, list_ids_profile_position):
-        from persona.utils import group_profile_positions
-        set_ids_profile_position =  set(list_ids_profile_position)
+    def movimientos_authomatic_from_list_products(self, list_ids_products, origen_id, destino_id, profile_positions):
+        '''
+        list_ids_products
+        [{'70': Decimal('1.0000')}, 
+         {'23': Decimal('2.0000')}, ...  {'id_producto': Decimal('quantity_i_want')}]
+         profile_position = [<ProfilePosition: CAJA01 [BODEGA] BODEGA_GRAL>>ANAQUEL>,
+                 <ProfilePosition: CAJA01 [BODEGA] BODEGA_GRAL>>ANAQUEL2>]
+        '''
+        o = Profile.objects.get(id=origen_id)
+        d = Profile.objects.get(id=destino_id)
 
-        dict_ids_profile_position = group_profile_positions(
-            set_ids_profile_position, list_ids_profile_position)
-        
-        for id_profile_position in dict_ids_profile_position:
-            pp = ProfilePosition.objects.get(id=id_profile_position)
-            pp_products = pp.producto_exact_profile_positions_quantity_by_product()
-            i_want = dict_ids_profile_position[id_profile_position]
+        for zip_var in zip(list_ids_products, profile_positions):
+            dict_product_i_want = zip_var[0]
+            profile_position    = zip_var[1]
 
-            '''
-            MovimientoGeneral.objects.create(
+            id_producto_ = [int(x) for x in dict_product_i_want.keys()]
+            id_producto = id_producto_[0]
+
+            quantity_producto = dict_product_i_want[str(id_producto)]
+
+            p = Producto.objects.get(id=id_producto)
+            u = p.devuelve_unidad_referencia()
+
+            m = MovimientoGeneral.objects.create(
                 vale = self,
                 tipo_movimiento = self.tipo_movimiento,
                 fecha_movimiento = self.fecha_vale,
-                #origen=,
-                #destino=,
-                producto=,
-                unidad=,
-                cantidad=,
-                precio_unitario=,
+                origen=o,
+                destino=d,
+                producto=p,
+                unidad=u,
+                cantidad=quantity_producto,
+                #precio_unitario=,
                 creador=self.creador_vale,
                 observacion="movimiento desde lector",
             )
-            '''
+            
+            ProductoExactProfilePosition.objects.create(
+                exactposition=profile_position,
+                movimiento=m
+            )
         return None
 
 

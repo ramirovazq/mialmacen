@@ -55,8 +55,8 @@ class LectorSendTestCase(TestCase):
             vale=self.vale01,
             tipo_movimiento=self.tm_entrada,
             fecha_movimiento=self.fourfeb,
-            origen=self.conteo,
-            destino=self.bodega01,
+            origen=self.conteo,   # CONTEO
+            destino=self.bodega01, # CAJA01
             producto=self.producto,
             unidad=self.unidad_medida,
             cantidad=10,
@@ -74,24 +74,24 @@ class LectorSendTestCase(TestCase):
 
         # profile_position
         self.profile_position = ProfilePosition.objects.create(
-            profile=self.bodega01, 
-            position=self.anaquel_position
+            profile=self.bodega01, # CAJA01
+            position=self.anaquel_position # BODEGA_GRAL >> ANAQUEL
         )
 
         self.profile_position_two = ProfilePosition.objects.create(
-            profile=self.bodega01, 
-            position=self.anaquel_position_two
+            profile=self.bodega01, # CAJA01
+            position=self.anaquel_position_two # BODEGA_GRAL >> ANAQUEL2
         )
 
         self.profile_position_three = ProfilePosition.objects.create(
-            profile=self.bodega01, 
-            position=self.anaquel_position_three
+            profile=self.bodega01, # CAJA01
+            position=self.anaquel_position_three # BODEGA_GRAL >> ANAQUE3
         )
 
 
         # ProductoExactProfilePosition
         ProductoExactProfilePosition.objects.create(
-            exactposition=self.profile_position,
+            exactposition=self.profile_position, # CAJA01 >> BODEGA_GRAL >> ANAQUEL
             movimiento=self.mov_entrada
             ) # exactposition = models.ForeignKey(ProfilePosition,
         
@@ -110,8 +110,8 @@ class LectorSendTestCase(TestCase):
             vale=self.vale02,
             tipo_movimiento=self.tm_salida,
             fecha_movimiento=self.fourfeb,
-            origen=self.bodega01,
-            destino=self.destino,
+            origen=self.bodega01, # CAJA01
+            destino=self.destino, # TRACTOR01
             producto=self.producto,
             unidad=self.unidad_medida,
             cantidad=7,
@@ -121,7 +121,7 @@ class LectorSendTestCase(TestCase):
 
         # ProductoExactProfilePosition
         ProductoExactProfilePosition.objects.create(
-            exactposition=self.profile_position,
+            exactposition=self.profile_position, # CAJA01 >> BODEGA_GRAL >> ANAQUEL
             movimiento=self.mov_salida
             ) # exactposition = models.ForeignKey(ProfilePosition,
 
@@ -135,13 +135,14 @@ class LectorSendTestCase(TestCase):
         first_profile_position = [list_profile_position[0]]
         list_profile_position =  first_profile_position + list_profile_position
         # [1, 1, 2, 3]
-        payload_without_destino = {'profile_position_ids': list_profile_position}    
+        payload_without_destino = {'profile_position_ids': list_profile_position,
+            "origen":self.bodega01.id,}    
         response = self.client.post('/api/v0/profileposition/lector/', payload_without_destino)
         self.assertEqual(response.json(), {'error': 'Missing parameters'})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_post_lector_without_list_profile(self):
-        payload_without_list_profile = {"destino": self.destino.id}
+        payload_without_list_profile = {"destino": self.destino.id, "origen":self.bodega01.id}
         response = self.client.post('/api/v0/profileposition/lector/', payload_without_list_profile)
         self.assertEqual(response.json(), {'error': 'Missing parameters'})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -152,7 +153,9 @@ class LectorSendTestCase(TestCase):
         first_profile_position = [list_profile_position[0]]
         list_profile_position =  first_profile_position + list_profile_position + [999]
         # [1, 1, 2, 3, 999]
-        payload = {'profile_position_ids': list_profile_position, "destino": self.destino.id}
+        payload = {'profile_position_ids': list_profile_position, 
+            "origen":self.bodega01.id,
+            "destino": self.destino.id}
         response = self.client.post('/api/v0/profileposition/lector/', payload)
         self.assertEqual(response.json(), {'error': 'Wrong list of profileposition ids or destino'})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -163,7 +166,9 @@ class LectorSendTestCase(TestCase):
         first_profile_position = [list_profile_position[0]]
         list_profile_position =  first_profile_position + list_profile_position
         # [1, 1, 2, 3]
-        payload = {'profile_position_ids': list_profile_position, "destino": 999}
+        payload = {'profile_position_ids': list_profile_position, 
+            "origen":self.bodega01.id,
+            "destino": 999}
         response = self.client.post('/api/v0/profileposition/lector/', payload)
         self.assertEqual(response.json(), {'error': 'Wrong list of profileposition ids or destino'})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -176,7 +181,9 @@ class LectorSendTestCase(TestCase):
         last_profile_position = [list_profile_position[-1]]
         list_profile_position =  first_profile_position + first_profile_position + list_profile_position + last_profile_position
         # [1, 1, 1, 2, 3, 3]
-        payload = {'profile_position_ids': list_profile_position, "destino": self.destino.id}
+        payload = {'profile_position_ids': list_profile_position, 
+            "origen":self.bodega01.id,
+            "destino": self.destino.id}
         response = self.client.post('/api/v0/profileposition/lector/', payload)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -184,18 +191,62 @@ class LectorSendTestCase(TestCase):
         profile_position = ProfilePosition.objects.get(id=self.profile_position.id)
         list_profile_position =  [profile_position.id, profile_position.id, 2]
         # [1, 1, 2]
-        payload = {'profile_position_ids': list_profile_position, "destino": self.destino.id}
+        payload = {'profile_position_ids': list_profile_position, 
+            "origen":self.bodega01.id,
+            "destino": self.destino.id}
         response = self.client.post('/api/v0/profileposition/lector/', payload)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
     def test_simple_post_lector(self):
+        self.assertEqual(self.producto.what_in_positions_inventory_specific(), 
+            {'CAJA01>>BODEGA_GRAL>>ANAQUEL': Decimal('3.0000')})
         profile_position = ProfilePosition.objects.get(id=self.profile_position.id)
         list_profile_position =  [profile_position.id, profile_position.id]
         # [1, 1]
-        payload = {'profile_position_ids': list_profile_position, "destino": self.destino.id}
+        payload = {'profile_position_ids': list_profile_position,
+            "origen":self.bodega01.id, 
+            "destino": self.destino.id}
         response = self.client.post('/api/v0/profileposition/lector/', payload)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(ValeAlmacenGeneral.objects.all()), 3)
+        self.assertEqual(len(MovimientoGeneral.objects.all()), 3) 
+        self.assertEqual(self.producto.what_in_positions_inventory_specific(), 
+            {'CAJA01>>BODEGA_GRAL>>ANAQUEL': Decimal('1.0000')})
+
+
+    def test_simple_post_lector_exact_limit(self):
+        self.assertEqual(self.producto.what_in_positions_inventory_specific(), 
+            {'CAJA01>>BODEGA_GRAL>>ANAQUEL': Decimal('3.0000')})
+        profile_position = ProfilePosition.objects.get(id=self.profile_position.id)
+        list_profile_position =  [profile_position.id, profile_position.id, profile_position.id]
+        # [1, 1, 1]
+        payload = {'profile_position_ids': list_profile_position,
+            "origen":self.bodega01.id, 
+            "destino": self.destino.id}
+        response = self.client.post('/api/v0/profileposition/lector/', payload)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(ValeAlmacenGeneral.objects.all()), 3)
+        self.assertEqual(len(MovimientoGeneral.objects.all()), 3) 
+        self.assertEqual(self.producto.what_in_positions_inventory_specific(), 
+            {'CAJA01>>BODEGA_GRAL>>ANAQUEL': Decimal('0.0000')})
+
+
+    def test_simple_post_lector_more_than_limit(self):
+        self.assertEqual(self.producto.what_in_positions_inventory_specific(), 
+            {'CAJA01>>BODEGA_GRAL>>ANAQUEL': Decimal('3.0000')})
+        profile_position = ProfilePosition.objects.get(id=self.profile_position.id)
+        list_profile_position =  [profile_position.id, profile_position.id, profile_position.id, profile_position.id]
+        # [1, 1, 1, 1]
+        payload = {'profile_position_ids': list_profile_position,
+            "origen":self.bodega01.id, 
+            "destino": self.destino.id}
+        response = self.client.post('/api/v0/profileposition/lector/', payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(len(ValeAlmacenGeneral.objects.all()), 2)
+        self.assertEqual(len(MovimientoGeneral.objects.all()), 2) 
+        self.assertEqual(self.producto.what_in_positions_inventory_specific(), 
+            {'CAJA01>>BODEGA_GRAL>>ANAQUEL': Decimal('3.0000')})
 
 
 
@@ -251,6 +302,75 @@ class LectorSendTestCase(TestCase):
         answer = verify_quantity(quantity_i_want, dict_products)
         self.assertEqual({'More than one product in same position': 1}, answer)
         
+
+    def test_valid_products_and_quantity(self):
+        from persona.utils import return_valid_products_and_quantity
+
+        quantity_i_want = 1
+        dict_products =  {'Filtro de aire--23': Decimal('3.0000')}
+        # [True] --> 1 True, => True
+        answer = return_valid_products_and_quantity(quantity_i_want, dict_products)
+        self.assertEqual([{'23': Decimal('1.0000')}], answer)
+
+        quantity_i_want = 4
+        dict_products =  {'Filtro de aire--23': Decimal('3.0000')}
+        # [False] --> 1 False, => False
+        answer = return_valid_products_and_quantity(quantity_i_want, dict_products)
+        self.assertEqual([], answer)
+
+        quantity_i_want =  3
+        dict_products = {'Filtro de aire--23': Decimal('3.0000')}
+        # [True] --> 1 True, => False
+        answer = return_valid_products_and_quantity(quantity_i_want, dict_products)
+        self.assertEqual([{'23': Decimal('3.0000')}], answer)
+
+        quantity_i_want =  3
+        dict_products = {'Filtro de aire--23': Decimal('3.0000'), 'Aceite--25': Decimal('0.0000')}
+        # [True, False] --> 1 True, => True
+        answer = return_valid_products_and_quantity(quantity_i_want, dict_products)
+        self.assertEqual([{'23': Decimal('3.0000')}], answer)
+
+        quantity_i_want = 2
+        dict_products =  {'Filtro de aire--23': Decimal('0.0000'), 'Aceite--25': Decimal('4.0000')}
+        # [False, True] --> 1 True, => True
+        answer = return_valid_products_and_quantity(quantity_i_want, dict_products)
+        self.assertEqual([{'25': Decimal('2.0000')}], answer)
+
+        quantity_i_want = 5
+        dict_products =  {'Filtro de aire--23': Decimal('0.0000'), 'Aceite--25': Decimal('4.0000')}
+        # [False, False] --> 1 False, => False
+        answer = return_valid_products_and_quantity(quantity_i_want, dict_products)
+        self.assertEqual([], answer)
+
+
+        quantity_i_want = 1
+        dict_products =  {'Filtro de aire--23': Decimal('0.0000'), 'Aceite--25': Decimal('0.0000'), 'Goma--70': Decimal('2.0000')}
+        # [False, False, True] --> 1 True, => True
+        answer = return_valid_products_and_quantity(quantity_i_want, dict_products)
+        self.assertEqual([{'70': Decimal('1.0000')}], answer)
+
+
+        quantity_i_want = 1
+        dict_products =  {'Filtro de aire--23': Decimal('0.0000'), 'Aceite--25': Decimal('0.0000')}
+        # [False, False] --> ningun True, => False
+        answer = return_valid_products_and_quantity(quantity_i_want, dict_products)
+        self.assertEqual([], answer)
+
+
+        quantity_i_want = 3
+        dict_products = {'Filtro de aire--23': Decimal('3.0000'), 'Aceite--25': Decimal('3.0000')}
+        # [True, True] --> mas de un True => False
+        answer = return_valid_products_and_quantity(quantity_i_want, dict_products)
+        self.assertEqual([], answer)
+
+        quantity_i_want =  3
+        dict_products = {'Filtro de aire--23': Decimal('3.0000'), 'Aceite--25': Decimal('0.0000'), 'Motor--15': Decimal('4.0000')}
+        # [True, False, True] --> mas de un True => False
+        answer = return_valid_products_and_quantity(quantity_i_want, dict_products)
+        self.assertEqual([], answer)
+        
+
+
 
 class PositionsInventoryTestCase(TestCase):
 
@@ -351,12 +471,13 @@ class PositionsInventoryTestCase(TestCase):
             exactposition=self.profile_position,
             movimiento=mov_entrada_dos
             ) # exactposition = models.ForeignKey(ProfilePosition,
-
+        '''
         print(self.producto.positions_inventory())
         print(producto_dos.positions_inventory())
         print("#####-----------------------####")
         print(self.producto.what_in_positions_inventory_specific())
         print(producto_dos.what_in_positions_inventory_specific())
+        '''
         #self.assertEqual(self.producto.positions_inventory(),{'CAJA01>>BODEGA_GRAL>>ANAQUEL': 10.0})
 
 
