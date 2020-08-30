@@ -22,10 +22,12 @@ class ProfilePositionViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['post'])
     def lector(self, request):
+        print("request.data ...........")
+        print(request.data)
         if ('profile_position_ids' in request.data.keys()) \
             and ('destino'  in request.data.keys()) \
             and ('origen'  in request.data.keys()): # parameters: # parameters
-            list_ids_profile_position = request.data.getlist('profile_position_ids')
+            list_ids_profile_position = request.data.get('profile_position_ids')
             destino_id = request.data.get('destino')
             origen_id  = request.data.get('origen')            
             if len(list_ids_profile_position) > 0 and destino_id: # is not empty the list

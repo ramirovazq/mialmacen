@@ -2,12 +2,14 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.models import Group, User
 from django.core.paginator import Paginator
 from django.urls import reverse
 from django.conf import settings
 from django.http import HttpResponse
 from django.utils.timezone import now as d_utils_now
 from django.db.models import Q
+from rest_framework.authtoken.models import Token
 
 from datetime import datetime
 
@@ -488,6 +490,27 @@ def producto_add_numero(request, producto_id):
 
 def lector(request):
     context = {}
+
+    user = request.user
+    user_bodega  = User.objects.get(username="BODEGA_GENERAL")
+    tipo_economico = Tipo.objects.get(nombre="ECONOMICO")
+
+    #profile = Profile.objects.get(user__id=user.id)
+
+    profile_origen  = Profile.objects.get(user__id=user_bodega.id)
+    profiles_destino = [[str(p.id), p.user.username] for p in Profile.objects.filter(tipo=tipo_economico)]
+    profiles_destino = sorted(profiles_destino, key=lambda x: x[1])
+
+    token_api = request.session.get('token_api', '?')
+
+    if token_api == "?":
+        token_api, flag_created = Token.objects.get_or_create(user=user)
+        request.session['token_api'] = token_api.key
+
+    context['token'] = token_api
+    context['profile_origen'] = profile_origen
+    context['profiles_destino'] = profiles_destino
+    #context['profile'] = profile
 
     return render(request, 'lector.html', context)    
 

@@ -1,3 +1,117 @@
+class Economico extends React.Component {
+  constructor(props) {
+    super(props); 
+  } 
+  render() {
+    return (
+      <option value={this.props.economico[0]}>{this.props.economico[1]}</option>
+    );
+  }
+} // Economico
+
+
+class EconomicoForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+        value: '-1'
+    };
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(event) {
+    this.setState({value: event.target.value});
+    
+  }
+
+  render() {
+    const economicos = this.props.economicos;
+    // const economicos = "[['9', 'T16'], ['10', 'T14'], ['14', 'T27'], ['20', 'J32']]";
+    let economicos_replace = economicos.replace(/\'/g, '"');
+    let economicos_obj =  JSON.parse(economicos_replace);
+
+    const economicosOptions = economicos_obj.map(
+      (economico) => <Economico economico={economico}/>);
+    return (
+      <div>
+        <label>
+        <h2>Económico: {this.state.value} </h2>
+          <select value={this.state.value} onChange={this.handleChange}>
+          {economicosOptions}
+          </select>
+        </label>
+        </div>
+    );
+  }
+}
+
+
+class RequestButton extends React.Component {
+  constructor(props) {
+    super(props); 
+    this.state = {
+      token: this.props.token,
+      error: "",
+      isLoaded: false,
+    };  
+    this.sendData = this.sendData.bind(this);
+  } 
+  sendData(){
+    /*
+    console.log("send data ....WITH TOKEN");
+    console.log(this.state.token);
+    console.log(this.props.codeslist);
+    console.log(this.props.origen);
+    */
+    const requestOptions = {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${this.state.token}`},
+      body: JSON.stringify({'profile_position_ids': this.props.codeslist,
+      "origen": this.props.origen, 
+      "destino": 2})
+    };
+
+    fetch("/api/v0/profileposition/lector/", requestOptions)
+      .then(response => response.json())
+      .then(
+        (data) => {
+          if ('error' in data) {
+            this.setState({
+              error: JSON.stringify(data.error),
+            });
+          console.log("DATA");
+          console.log(data);
+          }
+
+
+        },
+        // Nota: es importante manejar errores aquí y no en 
+        // un bloque catch() para que no interceptemos errores
+        // de errores reales en los componentes.
+        (error) => {
+          console.log("ERROR!!");
+          console.log(error);
+          this.setState({
+            isLoaded: true,
+            error: "Error en post"
+          });
+        } // error
+      )
+  }
+  render() {
+    return (
+      <div>
+        <button onClick={this.sendData} type="button" className="btn btn-primary btn-lg"
+          type='button'>Enviar</button>
+        <p> {this.state.error} </p>
+      </div>
+    );
+  }
+} // RequestButton
+
+
 class SimpleItem extends React.Component {
   constructor(props) {
     super(props); 
@@ -17,20 +131,21 @@ class SimpleItem extends React.Component {
       </li>
     );
   }
-} // NumberCodes
+}
 
 
 class NumberCodes extends React.Component {
   constructor(props) {
     super(props); 
-    // this.onRemove = this.onRemove.bind(this);
+    this.onRemove = this.onRemove.bind(this);
   }
-  /*
+  
   onRemove(codigo){
     console.log("---------- inicio numbercodes");
     console.log(codigo);
+    this.props.onRemove(codigo);
     console.log("---------- fin numbercodes");
-  } */
+  } 
   render() {
     const numbers = this.props.codes;
     // const listItems = numbers.map((number) => <li key={number}>{number}</li>);
@@ -61,9 +176,11 @@ class CodeReader extends React.Component {
   componentDidMount(){
     this.nameInput.focus();
   }
-  removeCode(){
-    console.log("---------- VICTORIA");
-    // console.log(codigo);
+  removeCode(codigo){
+    console.log("---------- VICTORIA inicio");
+    console.log("algo");
+    console.log(codigo);
+    console.log("---------- VICTORIA fin");
   }
   handleValueChange(event){
     const valor = event.target.value;
@@ -108,8 +225,10 @@ class CodeReader extends React.Component {
           </div>
           <br/>
         <NumberCodes codes={this.state.codeslist} onRemove={this.removeCode} />
+        <EconomicoForm economicos={this.props.profiles_destino} />
+        <RequestButton token={this.props.token} codeslist={this.state.codeslist} 
+          origen={this.props.origen}  />
       </div>
     );
   }
 } // CodeReader
-ReactDOM.render(<CodeReader />, document.getElementById('codecontainer'));
