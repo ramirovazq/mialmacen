@@ -10,24 +10,20 @@ class Economico extends React.Component {
 } // Economico
 
 
-class EconomicoForm extends React.Component {
+class EconomicoSelect extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-        value: '-1'
-    };
     this.handleChange = this.handleChange.bind(this);
   }
 
   handleChange(event) {
-    this.setState({value: event.target.value});
-    
+    this.props.changeEconomico(event.target.value);
   }
 
   render() {
     const economicos = this.props.economicos;
     // const economicos = "[['9', 'T16'], ['10', 'T14'], ['14', 'T27'], ['20', 'J32']]";
-    let economicos_replace = economicos.replace(/\'/g, '"');
+    let economicos_replace = economicos.replace(/\'/g, '"'); // replace simple ' by "
     let economicos_obj =  JSON.parse(economicos_replace);
 
     const economicosOptions = economicos_obj.map(
@@ -35,8 +31,7 @@ class EconomicoForm extends React.Component {
     return (
       <div>
         <label>
-        <h2>Económico: {this.state.value} </h2>
-          <select value={this.state.value} onChange={this.handleChange}>
+          <select onChange={this.handleChange}>
           {economicosOptions}
           </select>
         </label>
@@ -70,7 +65,7 @@ class RequestButton extends React.Component {
         'Authorization': `Token ${this.state.token}`},
       body: JSON.stringify({'profile_position_ids': this.props.codeslist,
       "origen": this.props.origen, 
-      "destino": 2})
+      "destino": this.props.economico})
     };
 
     fetch("/api/v0/profileposition/lector/", requestOptions)
@@ -165,28 +160,29 @@ class CodeReader extends React.Component {
     this.myRef = React.createRef();
     this.state = { 
       barcode: "",
-      codeslist: [] 
+      codeslist: [],
+      economico: "?"
     };
     this.handleValueChange = this.handleValueChange.bind(this);
     this.handleSave = this.handleSave.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.removeCode = this.removeCode.bind(this);
+    this.changeEconomico = this.changeEconomico.bind(this);
   }
 
   componentDidMount(){
     this.nameInput.focus();
   }
   removeCode(codigo){
-    console.log("---------- VICTORIA inicio");
-    console.log("algo");
     console.log(codigo);
-    console.log("---------- VICTORIA fin");
+  }
+  changeEconomico(idEconomico){
+    this.setState({economico: idEconomico});
   }
   handleValueChange(event){
     const valor = event.target.value;
     this.setState({barcode: valor});
     if( valor[valor.length - 1] === 'A' ) {
-        // setTimeout(()=> alert('Got A'), 200)
         this.handleSave(event)
     }
 
@@ -200,11 +196,9 @@ class CodeReader extends React.Component {
       codeslist: arraycodes
     });
     event.preventDefault();
-    console.log(this.state.codeslist);
   } //handlesave
   handleKeyDown(event) {
     if (event.key === 'Enter') {
-      console.log('do validate');
       this.handleSave(event)
     } else {
       console.log('otro');
@@ -224,9 +218,14 @@ class CodeReader extends React.Component {
               onKeyDown={this.handleKeyDown} />
           </div>
           <br/>
-        <NumberCodes codes={this.state.codeslist} onRemove={this.removeCode} />
-        <EconomicoForm economicos={this.props.profiles_destino} />
-        <RequestButton token={this.props.token} codeslist={this.state.codeslist} 
+        <NumberCodes codes={this.state.codeslist} 
+          onRemove={this.removeCode} />
+        <h2>Económico: {this.state.economico}</h2>
+        <EconomicoSelect economicos={this.props.profiles_destino} 
+          changeEconomico={this.changeEconomico} />
+        <RequestButton token={this.props.token} 
+          codeslist={this.state.codeslist} 
+          economico={this.state.economico}
           origen={this.props.origen}  />
       </div>
     );
