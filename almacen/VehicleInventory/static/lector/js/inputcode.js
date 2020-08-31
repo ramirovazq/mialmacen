@@ -125,16 +125,12 @@ class ListItem extends React.Component {
     this.removeTrack = this.removeTrack.bind(this);
   } 
   removeTrack(){
-    this.props.onRemove(this.props.number);
-    console.log("-----inicio");
-    console.log(this.props.number);
-    console.log("-----fin");
-
+    this.props.onRemove(this.props.listId);
   }
   render() {
     return (
       <li>
-        <div>{this.props.number} <a className="simple-item" onClick={this.removeTrack}> - </a> </div>
+        <div>{this.props.number} <a className="simple-item" onClick={this.removeTrack}> X </a> </div>
       </li>
     );
   }
@@ -147,15 +143,12 @@ class NumberCodes extends React.Component {
     this.onRemove = this.onRemove.bind(this);
   }
   
-  onRemove(codigo){
-    console.log("---------- inicio numbercodes");
-    console.log(codigo);
-    this.props.onRemove(codigo);
-    console.log("---------- fin numbercodes");
+  onRemove(listId){
+    this.props.onRemove(listId);
   } 
   render() {
     const numbers = this.props.codes;
-    const listItems = numbers.map((number, indice) => <ListItem key={indice.toString()} number={number} onRemove={this.onRemove} />);
+    const listItems = numbers.map((number, indice) => <ListItem listId={indice} key={indice.toString()} number={number} onRemove={this.onRemove} />);
     return (
       <div>
         <h2>Registrados:</h2>
@@ -173,7 +166,6 @@ class CodeReader extends React.Component {
       barcode: "",
       codeslist: [],
       economico: "?",
-      renderAction: false,
       msg: "",
       msg_error: "",
     };
@@ -189,8 +181,11 @@ class CodeReader extends React.Component {
   componentDidMount(){
     this.nameInput.focus();
   }
-  removeCode(codigo){
-    console.log(codigo);
+  removeCode(listId){
+    let codeslist = this.state.codeslist;
+    let removed = codeslist.splice(listId, 1);
+    this.setState({codeslist: codeslist});
+
   }
   changeEconomico(idEconomico){
     this.setState({economico: idEconomico});
@@ -212,13 +207,6 @@ class CodeReader extends React.Component {
       codeslist: arraycodes
     });
     event.preventDefault();
-    if (this.state.codeslist.length > 0) {
-      console.log("SHOW");
-      this.setState({renderAction: true});
-    } else {
-      console.log("HIDDEN");
-      this.setState({renderAction: false});
-    }
   } //handlesave
   handleKeyDown(event) {
     if (event.key === 'Enter') {
@@ -232,7 +220,6 @@ class CodeReader extends React.Component {
       barcode: "",
       codeslist: [],
       economico: "?",
-      renderAction: false,
       msg:"Enviado exitósamente"
     });
   }
@@ -242,7 +229,7 @@ class CodeReader extends React.Component {
     });
   }
   render() {
-    const renderAction = this.state.renderAction;
+    const renderAction = this.state.codeslist.length > 0;
     return (
         <div class="container">
           <div className="row">
