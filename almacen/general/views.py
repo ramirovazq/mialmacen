@@ -346,9 +346,6 @@ def entrada_general_add_movimiento_position(request, vale_id):
             messages.add_message(request, messages.SUCCESS, 'Se asocia una posicion para el producto de forma exitosa')
         else:
             messages.add_message(request, messages.ERROR, 'No se pudo asociar un producto a una posicion')
-    print("...............obj")
-    print(obj)
-    print(obj.id)
     return HttpResponseRedirect(reverse('entrada_general_add', kwargs={"vale_id": obj.id}))
 
 

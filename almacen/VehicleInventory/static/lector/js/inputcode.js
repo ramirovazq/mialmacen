@@ -9,7 +9,6 @@ class Economico extends React.Component {
   }
 } // Economico
 
-
 class EconomicoSelect extends React.Component {
   constructor(props) {
     super(props);
@@ -47,17 +46,12 @@ class RequestButton extends React.Component {
     this.state = {
       token: this.props.token,
       error: "",
+      msg: "",
       isLoaded: false,
     };  
     this.sendData = this.sendData.bind(this);
   } 
   sendData(){
-    /*
-    console.log("send data ....WITH TOKEN");
-    console.log(this.state.token);
-    console.log(this.props.codeslist);
-    console.log(this.props.origen);
-    */
     const requestOptions = {
       method: 'POST',
       headers: { 
@@ -75,10 +69,23 @@ class RequestButton extends React.Component {
           if ('error' in data) {
             this.setState({
               error: JSON.stringify(data.error),
+              msg: ""
             });
-          console.log("DATA");
+          console.log("ERROR");
           console.log(data);
+          this.props.sendError(JSON.stringify(data.error));
           }
+
+          if ('exito' in data) {
+            this.setState({
+              error: "",
+              msg: "Éxito"
+            });
+            this.props.clearData();
+          }
+
+          console.log("MSG");
+          console.log(data);
 
 
         },
@@ -96,18 +103,23 @@ class RequestButton extends React.Component {
       )
   }
   render() {
+    const economico = this.props.economico;
     return (
       <div>
-        <button onClick={this.sendData} type="button" className="btn btn-primary btn-lg"
-          type='button'>Enviar</button>
-        <p> {this.state.error} </p>
-      </div>
+      { economico === "?" || this.state.error ?
+        <button onClick={this.sendData} type="button" className="btn btn-secondary btn-lg"
+          type='button' disabled>Enviar</button>
+      :
+      <button onClick={this.sendData} type="button" className="btn btn-primary btn-lg"
+        type='button'>Enviar</button>
+      }
+    </div>
     );
   }
 } // RequestButton
 
 
-class SimpleItem extends React.Component {
+class ListItem extends React.Component {
   constructor(props) {
     super(props); 
     this.removeTrack = this.removeTrack.bind(this);
@@ -143,8 +155,7 @@ class NumberCodes extends React.Component {
   } 
   render() {
     const numbers = this.props.codes;
-    // const listItems = numbers.map((number) => <li key={number}>{number}</li>);
-    const listItems = numbers.map((number, indice) => <SimpleItem key={indice.toString()} number={number} onRemove={this.onRemove} />);
+    const listItems = numbers.map((number, indice) => <ListItem key={indice.toString()} number={number} onRemove={this.onRemove} />);
     return (
       <div>
         <h2>Registrados:</h2>
@@ -161,13 +172,18 @@ class CodeReader extends React.Component {
     this.state = { 
       barcode: "",
       codeslist: [],
-      economico: "?"
+      economico: "?",
+      renderAction: false,
+      msg: "",
+      msg_error: "",
     };
     this.handleValueChange = this.handleValueChange.bind(this);
     this.handleSave = this.handleSave.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.removeCode = this.removeCode.bind(this);
     this.changeEconomico = this.changeEconomico.bind(this);
+    this.clearData = this.clearData.bind(this);
+    this.sendError = this.sendError.bind(this);
   }
 
   componentDidMount(){
@@ -196,6 +212,13 @@ class CodeReader extends React.Component {
       codeslist: arraycodes
     });
     event.preventDefault();
+    if (this.state.codeslist.length > 0) {
+      console.log("SHOW");
+      this.setState({renderAction: true});
+    } else {
+      console.log("HIDDEN");
+      this.setState({renderAction: false});
+    }
   } //handlesave
   handleKeyDown(event) {
     if (event.key === 'Enter') {
@@ -204,30 +227,81 @@ class CodeReader extends React.Component {
       console.log('otro');
     }
   }//handelKeyDown
-
+  clearData() {
+    this.setState({
+      barcode: "",
+      codeslist: [],
+      economico: "?",
+      renderAction: false,
+      msg:"Enviado exitósamente"
+    });
+  }
+  sendError(cadena) {
+    this.setState({
+      msg_error: cadena
+    });
+  }
   render() {
+    const renderAction = this.state.renderAction;
     return (
-      <div className="InputCodes">
-        <h1>{this.state.barcode}</h1>
-          <div>
-            <input type="text" 
-              ref={(input) => { this.nameInput = input; }} 
-              value={this.state.barcode} 
-              placeholder="Teclea el codigo + Enter" 
-              onChange={this.handleValueChange} 
-              onKeyDown={this.handleKeyDown} />
+        <div class="container">
+          <div className="row">
+            <div className="col">
+                <h1>{this.state.barcode}</h1>
+                {
+                  this.state.msg ? (
+                    <div class="alert alert-success" role="alert">
+                      {this.state.msg}
+                    </div>
+                    ) : (<div></div>)
+                }
+                {
+                  this.state.msg_error ? (
+                    <div class="alert alert-danger" role="alert">
+                      {this.state.msg_error}
+                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    ) : (<div></div>)
+                }
+
+                  <div>
+                    <input type="text" 
+                      ref={(input) => { this.nameInput = input; }} 
+                      value={this.state.barcode} 
+                      placeholder="Teclea el codigo + Enter" 
+                      onChange={this.handleValueChange} 
+                      onKeyDown={this.handleKeyDown} />
+                  </div>
+            </div>
+            <div className="col">
+              <NumberCodes codes={this.state.codeslist} 
+                    onRemove={this.removeCode} />
+            </div>
           </div>
-          <br/>
-        <NumberCodes codes={this.state.codeslist} 
-          onRemove={this.removeCode} />
-        <h2>Económico: {this.state.economico}</h2>
-        <EconomicoSelect economicos={this.props.profiles_destino} 
-          changeEconomico={this.changeEconomico} />
-        <RequestButton token={this.props.token} 
-          codeslist={this.state.codeslist} 
-          economico={this.state.economico}
-          origen={this.props.origen}  />
-      </div>
+          <div className="row">
+            <div className="col">
+            </div>
+            <div className="col">
+            {renderAction ? (
+              <div>
+              <h2>Económico:</h2>
+                  <EconomicoSelect economicos={this.props.profiles_destino} 
+                    changeEconomico={this.changeEconomico} />
+                  <RequestButton token={this.props.token} 
+                    codeslist={this.state.codeslist} 
+                    economico={this.state.economico}
+                    origen={this.props.origen}  
+                    clearData={this.clearData} 
+                    sendError={this.sendError}
+                    />
+              </div>
+             ): (<div> </div> ) }
+
+            </div>
+          </div>
+        </div>
     );
   }
 } // CodeReader
