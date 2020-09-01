@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from django.http import QueryDict
 from .models import ProfilePosition
 from general.models import ValeAlmacenGeneral
 from .serializers import ProfilePositionSerializer
@@ -22,12 +23,13 @@ class ProfilePositionViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['post'])
     def lector(self, request):
-        print("request.data ...........")
-        print(request.data)
         if ('profile_position_ids' in request.data.keys()) \
             and ('destino'  in request.data.keys()) \
             and ('origen'  in request.data.keys()): # parameters: # parameters
-            list_ids_profile_position = request.data.get('profile_position_ids')
+            if isinstance(request.data, QueryDict): # this is for tests
+                list_ids_profile_position = request.data.getlist('profile_position_ids')
+            else: # simple dict
+                list_ids_profile_position = request.data.get('profile_position_ids')
             destino_id = request.data.get('destino')
             origen_id  = request.data.get('origen')            
             if len(list_ids_profile_position) > 0 and destino_id: # is not empty the list
