@@ -10,6 +10,351 @@ from general.models import *
 
 import datetime
 
+class InitPositionProductsTestCase(TestCase):
+
+    def setUp(self):
+        self.producto = Producto.objects.create(nombre="Filtro de aire")
+        self.producto01 = Producto.objects.create(nombre="Aceite")
+        self.producto02 = Producto.objects.create(nombre="Trapo")
+
+        self.user01 = return_profile("rosa")
+        self.user01_user = return_or_create_user("rosa")
+        self.user02 = return_profile("goyo")
+
+        self.client = Client()
+        self.client.force_login(user=self.user01_user)
+
+        #self.conteo = return_profile("CONTEO", "ABSTRACT")
+        #self.bodega01 = return_profile("CAJA01", "BODEGA")
+
+        self.origen = return_profile("CONTEO_INICIAL", "ABSTRACT")
+        self.destino = return_profile("BODEGA_GENERAL", "BODEGA")
+
+
+        self.tm_entrada = TipoMovimiento.objects.create(nombre="ENTRADA")
+        self.tm_salida = TipoMovimiento.objects.create(nombre="SALIDA")
+
+        tipo_smaller,   bandera = TipoUnidadMedida.objects.get_or_create(tipo="-1")
+        tipo_reference, bandera = TipoUnidadMedida.objects.get_or_create(tipo="0")
+        tipo_greater,   bandera = TipoUnidadMedida.objects.get_or_create(tipo="1")
+
+        categoria_unidad,   bandera = CategoriaUnidadMedida.objects.get_or_create(nombre="Unidad")
+
+        self.unidad_medida = UnidadMedida.objects.create(
+            nombre="unidad",
+            categoria=categoria_unidad,
+            tipo_unidad=tipo_reference,
+            ratio=1,
+            simbolo="u"
+            )
+
+        self.fourfeb = datetime.datetime.strptime('04/02/2019', "%d/%m/%Y").date()
+        # position
+        bodega_position    = return_position("BODEGA_GRAL")
+        self.anaquel_position   = return_position("ANAQUEL", bodega_position)
+        self.anaquel_position_two   = return_position("ANAQUEL2", bodega_position)
+        self.anaquel_position_three   = return_position("ANAQUEL3", bodega_position)
+
+        # profile
+        #self.bodega01 = return_profile("CAJA01", "BODEGA")
+
+        # profile_position
+        self.profile_position = ProfilePosition.objects.create(
+            profile=self.destino, # CAJA01
+            position=self.anaquel_position # BODEGA_GRAL >> ANAQUEL
+        )
+
+        self.profile_position_two = ProfilePosition.objects.create(
+            profile=self.destino, # CAJA01
+            position=self.anaquel_position_two # BODEGA_GRAL >> ANAQUEL2
+        )
+
+        self.profile_position_three = ProfilePosition.objects.create(
+            profile=self.destino, # CAJA01
+            position=self.anaquel_position_three # BODEGA_GRAL >> ANAQUE3
+        )
+
+
+        # ProductoExactProfilePosition
+        #ProductoExactProfilePosition.objects.create(
+         #   exactposition=self.profile_position, # CAJA01 >> BODEGA_GRAL >> ANAQUEL
+          #  movimiento=self.mov_entrada
+           # ) # exactposition = models.ForeignKey(ProfilePosition,
+        
+        #self.lista_ubicaciones = ['1','2','3'] # id_ubicaciones
+
+
+
+    def test_post_init_empty(self):
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        list_product = [p.id for p in Producto.objects.all()]
+        payload = {
+            #"profileposition": list_profile_position[0],
+            #"producto":list_product[0],
+            #"quantity": 0
+        }    
+        response = self.client.post('/api/v0/profileposition/init/', payload)
+        self.assertEqual(response.json(), {'error': 'Missing parameters'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_init_profileposition_empty(self):
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        list_product = [p.id for p in Producto.objects.all()]
+        payload = {
+            #"profileposition": list_profile_position[0],
+            "product":list_product[0],
+            "quantity": 0,
+            "origen": self.origen.id,
+            "destino": self.destino.id,
+            "unidad": self.unidad_medida.id
+        }    
+        response = self.client.post('/api/v0/profileposition/init/', payload)
+        self.assertEqual(response.json(), {'error': 'Missing parameters'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_init_producto_empty(self):
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        list_product = [p.id for p in Producto.objects.all()]
+        payload = {
+            "profileposition": list_profile_position[0],
+            #"producto":list_product[0],
+            "quantity": 0,
+            "origen": self.origen.id,
+            "destino": self.destino.id,
+            "unidad": self.unidad_medida.id
+
+        }    
+        response = self.client.post('/api/v0/profileposition/init/', payload)
+        self.assertEqual(response.json(), {'error': 'Missing parameters'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+    def test_post_init_quantity_empty(self):
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        list_product = [p.id for p in Producto.objects.all()]
+        payload = {
+            "profileposition": list_profile_position[0],
+            "product":list_product[0],
+            #"quantity": 0
+            "origen": self.origen.id,
+            "destino": self.destino.id,
+            "unidad": self.unidad_medida.id
+
+        }    
+        response = self.client.post('/api/v0/profileposition/init/', payload)
+        self.assertEqual(response.json(), {'error': 'Missing parameters'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_init_wrong_quantity(self):
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        list_product = [p.id for p in Producto.objects.all()]
+        payload = {
+            "profileposition": list_profile_position[0],
+            "product":list_product[0],
+            "quantity": 2.5,
+            "origen": self.origen.id,
+            "destino": self.destino.id,
+            "unidad": self.unidad_medida.id
+
+        }    
+        response = self.client.post('/api/v0/profileposition/init/', payload)
+        self.assertEqual(response.json(), {'error': 'Wrong profileposition or product or quantity'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_init_wrong_quantity_two(self):
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        list_product = [p.id for p in Producto.objects.all()]
+        payload = {
+            "profileposition": list_profile_position[0],
+            "product":list_product[0],
+            "quantity": "a",
+            "origen": self.origen.id,
+            "destino": self.destino.id,
+            "unidad": self.unidad_medida.id
+
+        }    
+        response = self.client.post('/api/v0/profileposition/init/', payload)
+        self.assertEqual(response.json(), {'error': 'Wrong profileposition or product or quantity'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_init_wrong_quantity_three(self):
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        list_product = [p.id for p in Producto.objects.all()]
+        payload = {
+            "profileposition": list_profile_position[0],
+            "product":list_product[0],
+            "quantity": "",
+            "origen": self.origen.id,
+            "destino": self.destino.id,
+            "unidad": self.unidad_medida.id
+
+        }    
+        response = self.client.post('/api/v0/profileposition/init/', payload)
+        self.assertEqual(response.json(), {'error': 'Empty value'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_init_wrong_quantity_four(self):
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        list_product = [p.id for p in Producto.objects.all()]
+        payload = {
+            "profileposition": list_profile_position[0],
+            "product":list_product[0],
+            "quantity": None,
+            "origen": self.origen.id,
+            "destino": self.destino.id,
+            "unidad": self.unidad_medida.id
+
+        }    
+        response = self.client.post('/api/v0/profileposition/init/', payload)
+        self.assertEqual(response.json(), {'error': 'Wrong profileposition or product or quantity'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_init_wrong_profileposition_five(self):
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        list_product = [p.id for p in Producto.objects.all()]
+        payload = {
+            "profileposition": None,
+            "product":list_product[0],
+            "quantity": 1,
+            "origen": self.origen.id,
+            "destino": self.destino.id,
+            "unidad": self.unidad_medida.id
+
+        }    
+        response = self.client.post('/api/v0/profileposition/init/', payload)
+        self.assertEqual(response.json(), {'error': 'Wrong profileposition or product or quantity'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_init_notexistant_profileposition(self):
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        list_product = [p.id for p in Producto.objects.all()]
+        payload = {
+            "profileposition": 1000,
+            "product":list_product[0],
+            "quantity": 1,
+            "origen": self.origen.id,
+            "destino": self.destino.id,
+            "unidad": self.unidad_medida.id
+        }    
+        response = self.client.post('/api/v0/profileposition/init/', payload)
+        self.assertEqual(response.json(), {'error': 'Wrong profileposition or product or quantity'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_init_notexistant_product(self):
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        list_product = [p.id for p in Producto.objects.all()]
+        payload = {
+            "profileposition": list_profile_position[0],
+            "product":1000,
+            "quantity": 1,
+            "origen": self.origen.id,
+            "destino": self.destino.id,
+            "unidad": self.unidad_medida.id
+
+        }    
+        response = self.client.post('/api/v0/profileposition/init/', payload)
+        self.assertEqual(response.json(), {'error': 'Wrong profileposition or product or quantity'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+    def test_post_init_bad_quantity(self):
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        list_product = [p.id for p in Producto.objects.all()]
+        payload = {
+            "profileposition": list_profile_position[0],
+            "product":list_product[0],
+            "quantity": -1,
+            "origen": self.origen.id,
+            "destino": self.destino.id,
+            "unidad": self.unidad_medida.id
+
+        }    
+        response = self.client.post('/api/v0/profileposition/init/', payload)
+        self.assertEqual(response.json(), {'error': 'Wrong profileposition or product or quantity'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_init_bad_quantity_two(self):
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        list_product = [p.id for p in Producto.objects.all()]
+        payload = {
+            "profileposition": list_profile_position[0],
+            "product":list_product[0],
+            "quantity": 0,
+            "origen": self.origen.id,
+            "destino": self.destino.id,
+            "unidad": self.unidad_medida.id
+
+        }    
+        response = self.client.post('/api/v0/profileposition/init/', payload)
+        self.assertEqual(response.json(), {'error': 'Wrong profileposition or product or quantity'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_post_init_alreadyaproduct(self):
+
+        self.vale01 = ValeAlmacenGeneral.objects.create(
+            no_folio="0001",
+            observaciones_grales="nada",
+            tipo_movimiento=self.tm_entrada,
+            fecha_vale=self.fourfeb,
+            persona_asociada=self.user02, # quien entrega
+            creador_vale=self.user01,
+        )
+        self.mov_entrada = MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,
+            origen=self.origen,   # CONTEO
+            destino=self.destino, # CAJA01
+            producto=self.producto,
+            unidad=self.unidad_medida,
+            cantidad=10,
+            precio_unitario=1.0,
+            creador=self.user01
+        )
+        ProductoExactProfilePosition.objects.create(
+            exactposition=self.profile_position, # CAJA01 >> BODEGA_GRAL >> ANAQUEL
+            movimiento=self.mov_entrada
+            ) # exactposition = models.ForeignKey(ProfilePosition,
+
+
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        list_product = [p.id for p in Producto.objects.all()]
+        payload = {
+            "profileposition": list_profile_position[0],
+            "product":list_product[0],
+            "quantity": 1,
+            "origen": self.origen.id,
+            "destino": self.destino.id,
+            "unidad": self.unidad_medida.id
+        }    
+        response = self.client.post('/api/v0/profileposition/init/', payload)
+        self.assertEqual(response.json(), {'error': ["Already a product in position"]})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+
+    def test_post_init_ok(self):
+        print(self.producto.what_in_positions_inventory_specific())
+        list_profile_position = [pp.id for pp in ProfilePosition.objects.all()]
+        list_product = [p.id for p in Producto.objects.all()]
+        payload = {
+            "profileposition": list_profile_position[0],
+            "product":list_product[0],
+            "quantity": 7,
+            "origen": self.origen.id,
+            "destino": self.destino.id,
+            "unidad": self.unidad_medida.id
+        }    
+        response = self.client.post('/api/v0/profileposition/init/', payload)
+        self.assertEqual(response.json(), {'exito': 'insertado'})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(ValeAlmacenGeneral.objects.all()), 1)
+        self.assertEqual(len(MovimientoGeneral.objects.all()), 1) 
+        self.assertEqual(self.producto.what_in_positions_inventory_specific(),
+            {'BODEGA_GENERAL>>BODEGA_GRAL>>ANAQUEL': Decimal('7.0000')})
+
+
+
 class LectorSendTestCase(TestCase):
 
     def setUp(self):

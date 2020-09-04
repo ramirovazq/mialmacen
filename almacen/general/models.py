@@ -100,7 +100,7 @@ class ValeAlmacenGeneral(Vale): # catálogo de tipos de movimiento, ENTRADA, SAL
         if flag:
             vale = ValeAlmacenGeneral.objects.create(
                 no_folio = no_folio,
-                observaciones_grales="salida lector",
+                observaciones_grales="{} lector".format(tipo_movimiento),
                 tipo_movimiento= tm,
                 fecha_vale=hoy,
                 persona_asociada=profile_request,
@@ -112,7 +112,7 @@ class ValeAlmacenGeneral(Vale): # catálogo de tipos de movimiento, ENTRADA, SAL
         return None
 
 
-    def movimientos_authomatic_from_list_products(self, list_ids_products, origen_id, destino_id, profile_positions):
+    def movimientos_authomatic_from_list_products(self, list_ids_products, origen_id, destino_id, profile_positions, unidad_id=None):
         '''
         list_ids_products
         [{'70': Decimal('1.0000')}, 
@@ -133,7 +133,13 @@ class ValeAlmacenGeneral(Vale): # catálogo de tipos de movimiento, ENTRADA, SAL
             quantity_producto = dict_product_i_want[str(id_producto)]
 
             p = Producto.objects.get(id=id_producto)
-            u = p.devuelve_unidad_referencia()
+            if unidad_id:
+                unidad = UnidadMedida.objects.get(
+                    id=unidad_id
+                )
+                u = unidad
+            else:
+                u = p.devuelve_unidad_referencia()
 
             m = MovimientoGeneral.objects.create(
                 vale = self,

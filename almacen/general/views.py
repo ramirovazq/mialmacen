@@ -157,52 +157,6 @@ def actual_ubicacion(request):
                 filename="ubicaciones.xls"
             )                
 
-
-    '''
-    orden = request.GET.get("orden", None)#default marca
-    export = request.GET.get("export", None)#default marca
-
-    full_path = request.get_full_path()
-    if "?" in full_path:
-        url_export = full_path + '&export=True'
-    else:
-        url_export = '?export=True'
-
-    if orden == 'marca':
-        llantas = llantas.order_by('marca__nombre')
-    elif orden == 'medida':
-        llantas = llantas.order_by('medida__nombre')
-    elif orden == 'posicion':
-        llantas = llantas.order_by('posicion__nombre')
-    elif orden == 'dot':
-        llantas = llantas.order_by('dot')
-    elif orden == 'status':
-        llantas = llantas.order_by('status__nombre')
-    elif orden == 'cantidad':
-        l = []
-        for llanta in llantas:
-            l.append((llanta, llanta.cantidad_actual_total()))
-        l = sorted(l, key=lambda x: x[1])
-        l.reverse()
-        llantas = l    
-    else:
-        llantas = llantas.order_by('nombre')
-
-
-    if export:
-        return render_to_xls_inventario(
-                queryset=llantas,
-                filename="export_inventario.xls"
-            )                
-
-    paginator = Paginator(llantas, settings.ITEMS_PER_PAGE) # Show 5 profiles per page
-    page = request.GET.get('page')
-    llantas = paginator.get_page(page)
-
-
-    context['orden'] = orden        
-    context['url_export'] = url_export
-    '''
     context['productos'] = profilepositions
     return render(request, 'ubicaciones_general.html', context)    
 
@@ -510,4 +464,51 @@ def lector(request):
     #context['profile'] = profile
 
     return render(request, 'lector.html', context)    
+
+
+
+def conteo(request):
+    context = {}
+
+
+    tipo_reference, bandera = TipoUnidadMedida.objects.get_or_create(tipo="0")
+    categoria_unidad,   bandera = CategoriaUnidadMedida.objects.get_or_create(nombre="Unidad")
+    unidad_medida = UnidadMedida.objects.get(
+        nombre="Unidad",
+        categoria=categoria_unidad,
+        tipo_unidad=tipo_reference,
+    )
+
+    user = request.user
+    bodega_actual = request.GET.get("destino", "BODEGA_GENERAL")
+    user_bodega  = User.objects.get(username=bodega_actual)
+    profile_destino  = Profile.objects.get(user__id=user_bodega.id)
+    profile_origen = return_profile("CONTEO_INICIAL", "ABSTRACT")
+
+    profilepositions = ProfilePosition.objects.filter(profile=profile_destino)
+    pepp = ProductoExactProfilePosition.objects.all().values_list('exactposition')
+    profilepositions = profilepositions.exclude(id__in=pepp)
+
+    profilepositions = [[str(p.id), p.in_words()] for p in profilepositions]
+    #profiles_destino = sorted(profiles_destino, key=lambda x: x[1])
+
+    productos = Producto.objects.all().order_by('nombre')
+    productos = productos.exclude(id__in=ProductoExactProfilePosition.objects.all().values_list('movimiento__producto__id'))
+    def quit_quote(cadena):
+        return cadena.replace('\"',"")
+    productos = [[str(pr.id), quit_quote(pr.nombre)] for pr in productos]
+    
+    token_api = request.session.get('token_api', '?')
+
+    if token_api == "?":
+        token_api, flag_created = Token.objects.get_or_create(user=user)
+        request.session['token_api'] = token_api.key
+
+    context['token'] = token_api
+    context['productos'] = productos
+    context['profilepositions'] = profilepositions
+    context['profile_destino'] = profile_destino
+    context['profile_origen'] = profile_origen
+    context['unidad_medida'] = unidad_medida
+    return render(request, 'conteo.html', context)    
 

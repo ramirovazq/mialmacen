@@ -3,8 +3,46 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from .models import ProfilePosition, Profile
 from general.models import ProductoExactProfilePosition, Producto, ValeAlmacenGeneral
+from persona.models import ProfilePosition
 from llantas.models import TipoMovimiento
 from llantas.utils import return_existent_profile
+from decimal import Decimal
+
+def verify_profileposition(profileposition_id):
+    try:
+        ProfilePosition.objects.get(id=profileposition_id)
+    except ProfilePosition.DoesNotExist:
+        return False
+    except ValueError:
+        return False
+    except:
+        return False
+    return True
+
+def verify_product(product_id):
+    try:
+        Producto.objects.get(id=product_id)
+    except Producto.DoesNotExist:
+        return False
+    except ValueError:
+        return False
+    except:
+        return False
+    return True
+
+def verify_int_quantity(quantity):
+    try:
+        quantity = int(quantity)
+    except ValueError:
+        return False
+    except:
+        return False
+    esinstancia = isinstance(quantity, int)
+    if esinstancia:
+        return quantity > 0
+    return False
+
+
 
 def group_required(*group_names):
    def in_groups(user):
@@ -88,8 +126,7 @@ def verify_quantity(quantity_i_want, dict_products):
     quantity_i_want: 1
     dict_products: {}
     return {"Not enough products": False}
-    '''
-    from decimal import Decimal 
+    ''' 
 
     answer = {}
     list_products = []
@@ -164,7 +201,6 @@ def return_valid_products_and_quantity(quantity_i_want, dict_products):
     [1, 4, 5]  --> {}
     return {"Not enough products": False}
     '''
-    from decimal import Decimal 
 
     if len(dict_products.keys()) <= 0:
         return []
@@ -202,6 +238,21 @@ def analysis_results(list_results):
     for dicc_result in list_results:
         ok = ok + sum(dicc_result.values())
     return ok == 0, list_results
+
+
+def verify_profileposition_insert(profileposition_id, product_id, quantity):
+    pp = ProfilePosition.objects.get(id=profileposition_id)
+    if len(ProductoExactProfilePosition.objects.filter(exactposition=pp)) > 0:
+        return False, ["Already a product in position"]
+    producto = Producto.objects.get(id=product_id)
+    if len(producto.movimientos(tipo="ENTRADA")) > 0:
+        return False, ["Product with movements"]
+    return True, []
+
+def prepare_data_for_movimientos(product_id, quantity, profileposition_id):
+    producto = Producto.objects.get(id=product_id)
+    pp = ProfilePosition.objects.get(id=profileposition_id)
+    return  [{f'{producto.id}': Decimal(quantity)}], [pp]
 
 def verify_profilepositions(list_ids_profile_position):
     '''
