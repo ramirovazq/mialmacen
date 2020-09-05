@@ -10,9 +10,11 @@ class TipoAdmin(admin.ModelAdmin):
 	list_display = ['id', 'nombre']
 
 class PositionAdmin(admin.ModelAdmin):
+	search_fields = ['name']
 	list_display = ['id', 'name', 'parent']
 
 class ProfilePositionAdmin(admin.ModelAdmin):
+	search_fields = ['profile']
 	list_display = ['id', 'profile', 'position']
 
 
