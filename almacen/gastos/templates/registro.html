@@ -1,0 +1,76 @@
+{% extends "base_bootstrap.html" %}
+
+{% block title_section %}            
+<h1 class="h2">Registro de gastos</h1>
+{% endblock %}
+
+{% block extra_title_section %}
+{% endblock %}
+
+
+{% block buttons_section %}
+<form action="{% url 'registro' %}" method="post" id="registro_form">
+
+    {% csrf_token %}
+
+      <div class="form-group">
+        <label for="{{form.concepto.id_for_label}}">* Concepto</label>
+        {{form.concepto}}
+        {{form.concepto.errors}}
+      </div>
+
+      <div class="form-group">
+        <label for="{{form.monto.id_for_label}}">* Monto</label>
+        {{form.monto}}
+        {{form.monto.errors}}
+      </div>
+
+      <div class="form-row">
+           <label for="{{form.fecha.id_for_label}}"> Fecha :</label>
+           {{form.fecha}}
+           {{form.fecha.errors}}
+          </div>
+
+      <div class="form-group">
+        <label for="{{form.categoria.id_for_label}}">Categoria</label>
+        {{form.categoria}}
+        {{form.categoria.errors}}
+      </div>
+
+
+      <div class="form-group">
+        <label for="{{form.user.id_for_label}}">Usuario</label>
+        {{form.user}}
+        {{form.user.errors}}
+      </div>
+
+
+    <input type="submit" value="Enviar" class="btn btn-primary">
+    <input type="button" value="Limpiar" class="btn btn-secondary" id="boton_limpiar">
+
+</form>
+  <br><br>
+{% endblock %}
+
+
+{% block section %}
+
+{% endblock %}
+
+{% block javascript_bottom %}
+          <script>
+          $( function() {
+            $( "#id_fecha" ).datepicker({dateFormat: 'dd-mm-yy'});
+
+            $('#registro_form').submit(function () { 
+              $('#id_user').removeAttr('disabled'); 
+            })
+
+            $( "#boton_limpiar" ).click(function(){
+                $('#registro_form').trigger("reset");
+                window.location = "{% url 'registro' %}";
+
+            });
+          });
+          </script>
+{% endblock %}

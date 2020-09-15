@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'llantas',
     'general', # almacen general
     'VehicleInventory',
+    'gastos',
     'shared',
     'rest_framework',
     'rest_framework.authtoken',
