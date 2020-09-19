@@ -8,7 +8,9 @@ def gastos_filter(request, registros):
     fecha_gasto_fin = request.POST.get('fecha_gasto_fin', '')
 
     categoria = request.POST.get('categoria', False)
+    
     perdida = request.POST.get('perdida', False)
+    ganancia = request.POST.get('ganancia', False)
 
 
     if concepto:
@@ -25,5 +27,10 @@ def gastos_filter(request, registros):
     perdida_true = perdida in ["on"]
     if perdida_true:
         registros = registros.filter(perdida=False)
+
+    ganancia_true = ganancia in ["on"]
+    if ganancia_true:
+        registros = registros.filter(perdida=True)
+
 
     return registros

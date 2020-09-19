@@ -117,7 +117,12 @@ class FilterGastoForm(forms.Form):
         widget=forms.Select(attrs={'class':'form-control mb-2 mr-sm-2'})
     )
 
-    perdida = forms.BooleanField(
+    ganancia = forms.BooleanField(
                 required=False,
                 label='Ganancia', 
+    )
+
+    perdida = forms.BooleanField(
+                required=False,
+                label='Perdida', 
     )
