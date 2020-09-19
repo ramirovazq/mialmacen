@@ -40,6 +40,10 @@ class Gasto(models.Model):
         on_delete=models.PROTECT,
         db_index=True)
 
+    perdida = models.BooleanField(
+        default=True
+        )
+
     def __str__(self):
         return f"{self.id} {self.concepto} {self.monto} {self.user.username}"
 

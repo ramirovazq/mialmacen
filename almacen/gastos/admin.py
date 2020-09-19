@@ -7,7 +7,8 @@ class CategoriaGastosAdmin(admin.ModelAdmin):
     search_fields = ['categoria']
 
 class GastoAdmin(admin.ModelAdmin):
-    list_display = ['id', 'concepto', 'monto', 'fecha_created', 'fecha']
+    list_display = ['id', 'concepto', 'monto', 'fecha_created', 'fecha', 'perdida']
+    list_filter = ['perdida']
     search_fields = ['concepto']
 
 

@@ -1,0 +1,132 @@
+{% extends "base_bootstrap.html" %}
+{% load humanize %}
+
+{% block title_section %}            
+<h1 class="h2">Registro gastos {{registros_count}}</h1>
+{% endblock %}
+
+{% block extra_title_section %}
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    {% if registros.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1">&laquo;</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ registros.previous_page_number }}">&lt</a></li>
+    {% endif %}
+        <li class="page-item"><a class="page-link disabled" href="#">{{ registros.number }}/{{ registros.paginator.num_pages }}</a></li>
+    {% if registros.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ registros.next_page_number }}">&gt</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ registros.paginator.num_pages }}">&raquo;</a></li>
+    {% endif %}
+  </ul>
+</nav>
+
+{% endblock %}
+
+
+{% block buttons_section %}
+
+<form action="{% url 'registros' %}" method="post" id="filter_form">
+    {% csrf_token %}
+
+    {{ form.errors }}
+
+      <div class="form-group">
+        {{form.concepto.errors}}
+        <label for="{{form.concepto.id_for_label}}">Concepto</label>
+        {{form.concepto}}
+      </div>
+
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+           {{form.fecha_gasto_inicio.errors}}
+           <label for="{{form.fecha_gasto_inicio.id_for_label}}">Fecha gasto inicio:</label>
+           {{form.fecha_gasto_inicio}}
+        </div>
+        <div class="form-group col-md-6">
+           {{form.fecha_gasto_fin.errors}}
+           <label for="{{form.fecha_gasto_fin.id_for_label}}">Fecha gasto fin:</label>
+           {{form.fecha_gasto_fin}}
+        </div>
+      </div>
+
+
+
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+           {{form.categoria.errors}}
+           <label for="{{form.categoria.id_for_label}}">Categoria:</label>
+           {{form.categoria}}
+        </div>
+      </div>
+
+
+
+
+
+
+      <div class="form-group">
+        <div class="form-check">
+          {{ form.perdida }}
+          <label class="form-check-label" for="{{form.perdida.id_for_label}}">
+            Ganancia
+          </label>
+        </div>
+      </div>
+
+    <input type="submit" value="Filtrar" class="btn btn-primary">
+    <input type="button" value="Limpiar" class="btn btn-secondary" id="boton_limpiar">
+
+</form>
+  <br><br>
+{% endblock %}
+
+
+{% block section %}
+	{% if registros %}
+          <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Concepto</th>
+                  <th>Monto</th>
+                  <th>Categoria</th>
+                  <th>Pérdida</th>
+                  <th>User</th>
+                </tr>
+              </thead>
+              <tbody>
+              	{% for movimiento in registros %} 
+                <tr>
+                  <!-- <td><a href="{% url 'movimiento' movimiento.id %}" class="btn btn-primary">{{movimiento.sku}}</a> </td> -->
+                  <td>{{movimiento.fecha}}</td>
+                  <td>{{movimiento.concepto}}</td>
+                  <td>{{movimiento.monto|intcomma}}</td>
+                  <td>{{movimiento.categoria}}</td>
+                  <td>{{movimiento.perdida}}</td>
+                  <td>{{movimiento.user}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+	{% else %}
+		Sin registros
+	{% endif %}
+
+{% endblock %}
+
+{% block javascript_bottom %}
+          <script>
+          $( function() {
+            $( "#id_fecha_gasto_inicio" ).datepicker({dateFormat: 'dd-mm-yy'});
+            $( "#id_fecha_gasto_fin" ).datepicker({dateFormat: 'dd-mm-yy'});
+            $( "#boton_limpiar" ).click(function(){
+                $('#filter_form').trigger("reset");
+                window.location = "{% url 'registros' %}";
+            });
+          });
+          </script>
+{% endblock %}
