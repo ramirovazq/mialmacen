@@ -53,6 +53,8 @@ def registros(request):
     else:
         form = FilterGastoForm()
     
+    context['total']= sum([g.monto for g in m])
+
     context["form"] = form
     context["movimientos_count"] = m.count()
     paginator = Paginator(m, settings.ITEMS_PER_PAGE) # Show 5 profiles per page
