@@ -192,7 +192,7 @@ class Vale(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
 
 
     def __str__(self):
-        return "{}".format(self.no_folio)
+        return "id {}, {}".format(self.id, self.no_folio)
 
 class ValeBasura(models.Model): # catálogo de tipos de movimiento, ENTRADA, SALIDA
     vale_asociado = models.ForeignKey( #puede estar asociado a un vale de salida, por ejemplo
@@ -328,7 +328,8 @@ class Llanta(models.Model):
             default=100)
 
     def __str__(self):
-        return "{} {} {} {} {} {} {}".format(self.id, self.marca.nombre, self.medida.nombre, self.posicion.nombre, self.status.nombre, self.dot, self.porciento_vida)
+        #return "{} {} {} {} {} {} {}".format(self.id, self.marca.nombre, self.medida.nombre, self.posicion.nombre, self.status.nombre, self.dot, self.porciento_vida)
+        return "{}".format(self.id)
 
 
     def movimientos_entrada(self):

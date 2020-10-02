@@ -267,6 +267,7 @@ def salida_add(request, vale_id):
         form = SearchSalidaForm()
         form_profile = ProfileSearchForm()
 
+    context["adjuntosarchivos"] = AdjuntoVale.objects.filter(vale=obj).order_by('-fecha_created')
     context["form_profile"] = form_profile
     context["form"] = form
     context['form_salida'] = MovimientoSalidaForm()
