@@ -272,6 +272,7 @@ def salida_add(request, vale_id):
     context["form"] = form
     context['form_salida'] = MovimientoSalidaForm()
     context['llantas'] = search 
+    context["MEDIA_URL"] = settings.MEDIA_URL
     return render(request, 'salida_add.html', context)
 
 
