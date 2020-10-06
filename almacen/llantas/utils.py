@@ -157,14 +157,14 @@ def crea_producto(producto, msg=""):
     return obj, msg
 
 
-def devuelve_llanta(marca, medida, posicion, status, dot):
+def devuelve_llanta(marca, medida, posicion, status, dot, porciento_vida):
     llanta_already_exist = False
-    llantas = Llanta.objects.filter(marca=marca, medida=medida, posicion=posicion, status=status, dot=dot)
+    llantas = Llanta.objects.filter(marca=marca, medida=medida, posicion=posicion, status=status, dot=dot, porciento_vida=porciento_vida)
     if len(llantas) > 0:
         llanta_already_exist = True
         llanta = llantas[0]
     else:
-        llanta = Llanta.objects.create(marca=marca, medida=medida, posicion=posicion, status=status, dot=dot)
+        llanta = Llanta.objects.create(marca=marca, medida=medida, posicion=posicion, status=status, dot=dot, porciento_vida=porciento_vida)
     return llanta, llanta_already_exist
 
 

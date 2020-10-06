@@ -312,6 +312,18 @@ class NewLlantaForm(forms.Form):
                 }
     ))
     
+    porcentaje  = forms.IntegerField(
+                required=True,
+                help_text="* Campo Requerido.",
+                min_value=0,
+                max_value=100,
+                widget=forms.TextInput(
+                attrs={ 
+                'class':'form-control mb-2 mr-sm-2',
+                'placeholder':'Ejemplo: 100'
+                }
+    ))
+
     precio_unitario  = forms.FloatField(
                 required=True,
                 help_text="* Campo Requerido.",
@@ -339,6 +351,7 @@ class NewLlantaForm(forms.Form):
         posicion = self.cleaned_data['posicion']
         status = self.cleaned_data['status']
         dot = self.cleaned_data['dot']
+        porcentaje = self.cleaned_data['porcentaje']
 
         dot_list = [x.strip() for x in dot.split(",")] 
         cantidad_enviada = False
@@ -369,7 +382,7 @@ class NewLlantaForm(forms.Form):
         l_already_exist = []
 
         for dot, cantidad in dot_diccionario.items():
-            llanta, ya_existia = devuelve_llanta(marca, medida, posicion, status, dot)
+            llanta, ya_existia = devuelve_llanta(marca, medida, posicion, status, dot, porcentaje)
             l_already_exist.append(ya_existia)
             dicc_movimiento['llanta'] = llanta
 

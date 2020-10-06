@@ -281,6 +281,7 @@ def entrada_add(request, vale_id):
     context = {}
     obj = get_object_or_404(Vale, pk=vale_id)
     context['vale'] = obj
+    initial_data = {'porcentaje': 100}
 
     if request.method == 'POST':
         form = NewLlantaForm(request.POST)
@@ -294,7 +295,7 @@ def entrada_add(request, vale_id):
             messages.add_message(request, messages.SUCCESS, 'Se adiciona el movimiento de entrada {}'.format(movimiento))
             return HttpResponseRedirect(reverse('entrada_add', args=[obj.id]))    
     else:
-        form = NewLlantaForm()
+        form = NewLlantaForm(initial=initial_data)
 
     context["adjuntosarchivos"] = AdjuntoVale.objects.filter(vale=obj).order_by('-fecha_created')
     context["form"] = form
