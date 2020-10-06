@@ -34,6 +34,7 @@
                   <th>Medida </th>
                   <th>Posición </th>
                   <th>Dot </th>
+                  <th> % vida </th>
                   <th>Status </th>
                   <th>Cantidad </th>
                   <th>Ubicación </th>
@@ -49,6 +50,7 @@
                     <td>{{llanta.0.medida.nombre}} </td>
                     <td>{{llanta.0.posicion.nombre}} </td>
                     <td>{{llanta.0.dot}} </td>
+                    <td>{{llanta.0.porciento_vida}} </td>
                     <td>{{llanta.0.status.nombre}} </td>
                     <td>{{llanta.1}} </td>
                     <td>{% for ubicacion, cantidad in llanta.0.total_ubicaciones.items %} {{ubicacion}}{% endfor %}</td>
@@ -73,6 +75,7 @@
                     <td>{{llanta.medida.nombre}} </td>
                     <td>{{llanta.posicion.nombre}} </td>
                     <td>{{llanta.dot}} </td>
+                    <td>{{llanta.porciento_vida}} </td>
                     <td>{{llanta.status.nombre}} </td>
                     <td>{{llanta.cantidad_actual_total}} </td>
                     <td>{% for ubicacion, cantidad in llanta.total_ubicaciones.items %} {{ubicacion}}{% endfor %}</td>
