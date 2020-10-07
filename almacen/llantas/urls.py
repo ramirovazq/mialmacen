@@ -31,6 +31,7 @@ urlpatterns = [
 
     path('entrada/basura/<int:vale_id>/', entrada_basura_add, name='entrada_basura_add'),
 
+    path('salida/<int:vale_id>/adjuntar/', salida_adjuntar, name='salida_adjuntar'),
     path('entrada/<int:vale_id>/adjuntar/', entrada_adjuntar, name='entrada_adjuntar'),
     path('salida/<int:vale_id>/impresion/', salida_impresion, name='salida_impresion'),
     path('salida/<int:vale_id>/movimiento/', salida_add_movimiento, name='salida_add_movimiento'),

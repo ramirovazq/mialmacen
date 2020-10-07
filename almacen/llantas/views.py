@@ -608,6 +608,31 @@ def entrada_adjuntar(request, vale_id):
     context["vale"] = obj_vale
     return render(request, 'adjuntar.html', context)
 
+@login_required
+def salida_adjuntar(request, vale_id):
+    context = {}
+
+    obj_vale = get_object_or_404(Vale, pk=vale_id)
+    av = AdjuntoVale(vale=obj_vale)
+
+    if request.method == 'POST':
+
+        form = AdjuntoValeForm(request.POST, request.FILES)
+        if form.is_valid():
+            vale = form.save()
+            messages.add_message(request, messages.SUCCESS, 'Se subió con éxito el archivo')
+            return HttpResponseRedirect(reverse('salida_add', args=[obj_vale.id])) #, args=[vale.id]
+        else:
+            messages.add_message(request, messages.ERROR, 'Error en formulario')
+    else:
+
+        form = AdjuntoValeForm(instance=av)
+
+    context["adjuntosarchivos"] = AdjuntoVale.objects.filter(vale=obj_vale).order_by('-fecha_created')
+    context["form"] = form
+    context["vale"] = obj_vale
+    return render(request, 'adjuntar_salida.html', context)
+
 
 @login_required
 def llanta_detalle(request, llanta_id):
