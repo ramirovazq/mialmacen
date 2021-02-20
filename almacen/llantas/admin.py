@@ -2,15 +2,15 @@ from django.contrib import admin
 from .models import *
 
 class MarcaAdmin(admin.ModelAdmin):
-    list_display = ['id', 'nombre', 'codigo']
+    list_display = ['id', 'nombre']
     search_fields = ['nombre']
 
 class MedidaAdmin(admin.ModelAdmin):
-    list_display = ['id', 'nombre', 'codigo']
+    list_display = ['id', 'nombre']
     search_fields = ['nombre']
 
 class PosicionAdmin(admin.ModelAdmin):
-    list_display = ['id', 'nombre', 'codigo']
+    list_display = ['id', 'nombre']
     search_fields = ['nombre']
 
 class StatusAdmin(admin.ModelAdmin):
@@ -36,6 +36,11 @@ class MovimientoAdmin(admin.ModelAdmin):
     list_display = ['id', 'vale', 'fecha_movimiento', 'origen', 'destino', 'cantidad', 'creador', 'permisionario']
     list_filter = ['permisionario']
 
+class MovimientoBasuraAdmin(admin.ModelAdmin):
+    list_display = ['id', 'vale', 'fecha_movimiento', 'origen', 'destino', 'cantidad', 'creador', 'permisionario']
+    list_filter = ['permisionario']
+
+
 class AdjuntoValeAdmin(admin.ModelAdmin):
     list_display = ['id', 'vale']
 
@@ -57,6 +62,7 @@ admin.site.register(Medida, MedidaAdmin)
 admin.site.register(Posicion, PosicionAdmin)
 admin.site.register(Status, StatusAdmin)
 admin.site.register(TipoMovimiento, TipoMovimientoAdmin)
+admin.site.register(MovimientoBasura, MovimientoBasuraAdmin)
 admin.site.register(Movimiento, MovimientoAdmin)
 #admin.site.register(Movimiento)
 admin.site.register(Vale, ValeAdmin)

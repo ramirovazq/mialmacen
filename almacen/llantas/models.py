@@ -6,95 +6,49 @@ class Marca(models.Model):
     nombre = models.CharField( # AmerSteel, Dunlop, Michellin, etc
             blank=True,
             null = True,
-            max_length=100
-    )
-
-    codigo = models.CharField( #11,12,13, etc
-            max_length=30,
+            max_length=100,
             unique=True
     )
 
-    MARCA_CODIGO_INIT = "11"
-
-    @staticmethod
-    def siguiente_codigo():
-        marcas = Marca.objects.all().order_by('-codigo')
-        if len(marcas) > 0:
-            ultima = marcas[0]
-            return "{}".format(int(ultima.codigo) + 1)
-        else:
-            return Marca.MARCA_CODIGO_INIT
-
     def __str__(self):
-        return "{} [{}]".format(self.nombre, self.codigo)
+        return "{} {}".format(self.id, self.nombre)
 
 class Medida(models.Model): 
     nombre = models.CharField( # 11R225, 11R245, 15R225
             blank=True,
             null = True,
-            max_length=100
-    )
-
-    codigo = models.CharField( #21, 22, 23 etc
-            max_length=30,
+            max_length=100,
             unique=True
     )
-
-    MEDIDA_CODIGO_INIT = "21"
 
     class Meta:
         verbose_name_plural = "medidas"
 
-    @staticmethod
-    def siguiente_codigo():
-        medidas = Medida.objects.all().order_by('-codigo')
-        if len(medidas) > 0:
-            ultima = medidas[0]
-            return "{}".format(int(ultima.codigo) + 1)
-        else:
-            return Medida.MEDIDA_CODIGO_INIT
-
-
     def __str__(self):
-        return "{} [{}]".format(self.nombre, self.codigo)
+        return "{} {}".format(self.id, self.nombre)
 
 
 class Posicion(models.Model): 
     nombre = models.CharField( # T.P, Tracción
             blank=True,
             null = True,
-            max_length=100
-    )
-
-    codigo = models.CharField( #31, 32, etc
-            max_length=30,
+            max_length=100,
             unique=True
     )
-
-    POSICION_CODIGO_INIT = "31"
 
     class Meta:
         verbose_name_plural = "posiciones"
 
-    @staticmethod
-    def siguiente_codigo():
-        posiciones = Posicion.objects.all().order_by('-codigo')
-        if len(posiciones) > 0:
-            ultima = posiciones[0]
-            return "{}".format(int(ultima.codigo) + 1)
-        else:
-            return Posicion.POSICION_CODIGO_INIT
-
-
     def __str__(self):
-        return "{} [{}]".format(self.nombre, self.codigo)
+        return "{} {}".format(self.id, self.nombre)
 
 
 class Status(models.Model): 
     nombre = models.CharField( # Nueva, Renovada, Rodar
             blank=True,
             null = True,
-            max_length=100
+            max_length=100,
+            unique=True
     )
 
     class Meta:
@@ -108,7 +62,8 @@ class TipoMovimiento(models.Model): # catálogo de tipos de movimiento, ENTRADA,
     nombre = models.CharField(
             blank=True,
             null = True,
-            max_length=100
+            max_length=100,
+            unique=True
     )
 
     class Meta:
@@ -297,7 +252,8 @@ class LlantaBasura(models.Model):
         verbose_name_plural = "llantas basura"
 
     def __str__(self):
-        return "{} {} {} {} {} {} {}".format(self.id, self.marca.nombre, self.medida.nombre, self.posicion.nombre, self.status.nombre, self.dot, self.porciento_vida)
+        return "{}".format(self.id)
+        #return "{} {} {} {} {} {} {}".format(self.id, self.marca.nombre, self.medida.nombre, self.posicion.nombre, self.status.nombre, self.dot, self.porciento_vida)
 
 
 
@@ -328,8 +284,8 @@ class Llanta(models.Model):
             default=100)
 
     def __str__(self):
-        #return "{} {} {} {} {} {} {}".format(self.id, self.marca.nombre, self.medida.nombre, self.posicion.nombre, self.status.nombre, self.dot, self.porciento_vida)
-        return "{}".format(self.id)
+        return "{} {} {} {} {} {} {}".format(self.id, self.marca.nombre, self.medida.nombre, self.posicion.nombre, self.status.nombre, self.dot, self.porciento_vida)
+        #return "{}".format(self.id)
 
 
     def movimientos_entrada(self):
@@ -574,7 +530,7 @@ class Movimiento(models.Model):
         return self.cantidad * self.precio_unitario
 
     def sku(self):
-        return "{}{}{}".format(self.llanta.marca.codigo,self.llanta.medida.codigo, self.llanta.posicion.codigo)
+        return "{}{}{}".format(self.llanta.marca,self.llanta.medida, self.llanta.posicion)
 
     def __str__(self):
         return "{}".format(self.id)
