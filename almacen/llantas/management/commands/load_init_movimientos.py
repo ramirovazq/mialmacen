@@ -16,7 +16,7 @@ class Command(BaseCommand):
         
         pa = return_profile('rvazquez')# valor fijo
 
-        with open(settings.BASE_DIR + '/load_init/inventario_actualizado_loading.csv') as csvfile_in:
+        with open(settings.BASE_DIR + '/load_init/ENTRADAS.csv') as csvfile_in:
             index_count = 0
             readCSV = csv.reader(csvfile_in, delimiter=';')
             for indice, row in enumerate(readCSV):
@@ -155,10 +155,3 @@ class Command(BaseCommand):
                         self.stdout.write(self.style.SUCCESS('Movimiento creado {}'.format(movimiento.id)))
                     else:
                         self.stdout.write(self.style.ERROR('Movimiento NO creado'))
-                    '''
-                    obj, bandera = Marca.objects.get_or_create(nombre=nombre, codigo=codigo)
-                    if bandera:
-                        self.stdout.write(self.style.SUCCESS('Marca creada: {} [{}]'.format(obj.nombre, obj.codigo)))
-                    else:
-                        self.stdout.write(self.style.ERROR('Marca ya existia: {} [{}]'.format(obj.nombre, obj.codigo)))
-                    '''
