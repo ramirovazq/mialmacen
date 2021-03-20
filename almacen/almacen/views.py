@@ -24,6 +24,9 @@ from django.core.files.storage import default_storage
 import mimetypes
 
 
+def index(request):
+    context = {}
+    return render(request, 'index_fletes.html', context)
 
 
 class SwaggerSchemaView(APIView):

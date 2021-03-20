@@ -18,6 +18,7 @@ from . import views
 
 
 urlpatterns = [
+    path('', views.index, name='index'),
     url(r'^api/v0/login/$', login_recover_views.Login.as_view(), name='api_login'),
 	path('api/v0/', include(llantas_api_urls)),
 	#path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),    

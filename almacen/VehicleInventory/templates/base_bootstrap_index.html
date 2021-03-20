@@ -1,0 +1,81 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="RBVS">
+    <title>Almacen Fletes Express: Refacciones / Llantas </title>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="{% static 'bootstrap/4.3.1/css/bootstrap.min.css' %}" >
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+      .ancho-img {
+        width:400px;
+      }
+    </style>
+
+  </head>
+  <body>
+
+<main role="main">
+
+  <!-- Main jumbotron for a primary marketing message or call to action -->
+  <div class="jumbotron">
+    <div class="container">
+      <h1 class="display-3">Almacen Fletes Express</h1>
+    </div>
+  </div>
+
+  <div class="container">
+
+
+ <!-- Three columns of text below the carousel -->
+ <div class="row">
+
+    <div class="col-lg-6">
+        <a href="/general/" >
+            <img src="{% static 'index_fletes/refacciones.png' %}" alt="almacen refacciones" class="img-thumbnail border border-primary">
+        </a>
+        <h2>Refacciones</h2>
+      <p>Encuentra filtros, abracaderas, aceite, amortiguadores, etc. Registra las salidas mediante codigo de barras, y registra las entradas.</p>
+      <p><a class="btn btn-primary" href="/general/" role="button">Ir a las refacciones &raquo;</a></p>
+    </div><!-- /.col-lg-6 -->
+
+    <div class="col-lg-6">
+        <a href="/llantas/">
+            <img src="{% static 'index_fletes/llantas.jpg' %}" alt="almacen llantas" class="img-thumbnail border border-dark ancho-img">
+        </a>
+      <h2>Llantas</h2>
+      <p>Registra la entrada y salida de llantas de las diferentes bodegas.</p>
+      <p><a class="btn btn-secondary" href="/llantas/" role="button">Ir a las llantas &raquo;</a></p>
+    </div><!-- /.col-lg-6 -->
+
+  </div><!-- /.row -->
+
+
+    <hr>
+
+  </div> <!-- /container -->
+
+</main>
+
+<footer class="container">
+  <p>&copy; Fletes Express 2021</p>
+</footer>
+</html>
+
