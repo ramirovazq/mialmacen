@@ -20,7 +20,7 @@ from llantas.utils import return_profile
 from .forms import ValeAlmacenGeneralForm, SearchSalidaGeneralForm, MovimientoSalidaGeneralForm, FilterMovimientoForm
 from .forms import MovimientoEntradaGeneralForm, EntradaGeneralForm, PositionForm, NumeroParteForm
 #from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm, AdjuntoValeForm, ProfileSearchForm
-from .render_to_XLS_util import render_to_xls_inventario_ubicacion, render_to_xls_inventario_all_ubicacion
+from .render_to_XLS_util import render_to_xls_inventario_ubicacion, render_to_xls_inventario_all_ubicacion, render_to_xls_productos
 from .serializers import ProductoSerializer
 
 
@@ -122,7 +122,7 @@ def actual_general(request):
 
 
     if export:
-        return render_to_xls_inventario(
+        return render_to_xls_productos(
                 queryset=llantas,
                 filename="export_inventario.xls"
             )                
