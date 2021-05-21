@@ -178,3 +178,35 @@ def render_to_xls_inventario_all_ubicacion(queryset, filename, rows_with_product
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
     book.save(response)
     return response
+
+
+def render_to_xls_productos(queryset, filename, rows_with_products=True):
+    ezxf = xlwt.easyxf
+    book = xlwt.Workbook(encoding="utf-8")
+    sheet = book.add_sheet("productos", cell_overwrite_ok=True)
+
+    font_style = xlwt.XFStyle()
+    font_style.font.bold = True
+    columns = [
+            'Artículo',
+            'Cantidad',
+            'Unidad',
+            'Lugar',
+    ]
+    # columns
+    for col_num in range(len(columns)):
+        sheet.write(0, col_num, columns[col_num], font_style)
+
+    i = 0
+    for index, product in enumerate(queryset):        
+        i = i+1
+        row = sheet.row(i)
+        row_values = [product.nombre, product.inventory()[0], str(product.inventory()[1]), str(product.positions_inventory())]
+        for index, value in enumerate(row_values):
+            row.write(index, value)
+
+
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    book.save(response)
+    return response
