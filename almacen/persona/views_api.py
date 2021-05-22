@@ -81,7 +81,7 @@ class ProfilePositionViewSet(viewsets.ModelViewSet):
                 and destino_id: # is not empty the list
                 # verify if all ids are real Profile Position
                 # verify if destino_id existe
-                if verify_int_quantity(quantity) and verify_product(product_id) \
+                if verify_product(product_id) \
                     and verify_profileposition(profileposition_id) \
                     and verify_destino(origen_id) \
                     and verify_destino(destino_id):
