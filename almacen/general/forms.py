@@ -212,14 +212,14 @@ class MovimientoEntradaGeneralForm(ModelForm):
 
     )
 
-    cantidad  = forms.IntegerField(
+    cantidad  = forms.DecimalField(
                 required=True,
                 help_text="* Campo Requerido.",
                 min_value=1,
                 widget=forms.TextInput(
                 attrs={ 
                 'class':'form-control mb-2 mr-sm-2',
-                'placeholder':'Ejemplo: 2'
+                'placeholder':'Ejemplo: 2.0'
                 }
     ))
 
