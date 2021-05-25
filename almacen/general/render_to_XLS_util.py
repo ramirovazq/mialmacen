@@ -191,7 +191,7 @@ def render_to_xls_productos(queryset, filename, rows_with_products=True):
             'Artículo',
             'Cantidad',
             'Unidad',
-            #'Lugar',
+            'Lugar',
     ]
     # columns
     for col_num in range(len(columns)):
@@ -201,7 +201,7 @@ def render_to_xls_productos(queryset, filename, rows_with_products=True):
     for index, product in enumerate(queryset):        
         i = i+1
         row = sheet.row(i)
-        row_values = [product.nombre, product.inventory()[0], str(product.inventory()[1])]#, str(product.positions_inventory())]
+        row_values = [product.nombre, product.inventory()[0], str(product.inventory()[1]), str(product.positions_inventory())]
         for index, value in enumerate(row_values):
             row.write(index, value)
 
