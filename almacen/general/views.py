@@ -507,3 +507,23 @@ def salida_general_edit(request, vale_id):
     context["form"] = form
     context["action"] = 'edit'
     return render(request, 'salida_general.html', context)
+
+
+@login_required
+def entrada_general_edit(request, vale_id):
+    context = {}
+    obj = get_object_or_404(ValeAlmacenGeneral, pk=vale_id)
+
+    if request.method == 'POST':
+        form = EntradaGeneralForm(request.POST, instance=obj)
+        if form.is_valid():
+            vale = form.save()
+            messages.add_message(request, messages.SUCCESS, 'Se guardaron los cambios')
+            return HttpResponseRedirect(reverse('entrada_general_add', args=[vale.id]))
+    else:
+        form = EntradaGeneralForm(instance=obj)
+    
+    context["vale"] = obj
+    context["form"] = form
+    context["action"] = 'edit'
+    return render(request, 'entrada_general.html', context)
