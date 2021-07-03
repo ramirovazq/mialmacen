@@ -59,8 +59,8 @@ class EconomicoViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
 
-    obj_tipo, bandera = Tipo.objects.get_or_create(nombre="ECONOMICO")
-    queryset = Profile.objects.filter(tipo=obj_tipo)
-    serializer_class = ProfileSerializer
+    #obj_tipo, bandera = Tipo.objects.get_or_create(nombre="ECONOMICO")
+    #queryset = Profile.objects.filter(tipo=obj_tipo)
+    #serializer_class = ProfileSerializer
 
 
