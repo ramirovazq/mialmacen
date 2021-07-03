@@ -13,13 +13,13 @@
 <nav aria-label="Page navigation example">
   <ul class="pagination">
     {% if vales.has_previous %}
-        <li class="page-item"><a class="page-link" href="?page=1">&laquo;</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ vales.previous_page_number }}">&lt</a></li>
+        <li class="page-item"><a class="page-link" href="?page=1&tipo={{action}}">&laquo;</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ vales.previous_page_number }}&tipo={{action}}">&lt</a></li>
     {% endif %}
         <li class="page-item"><a class="page-link disabled" href="#">{{ vales.number }}/{{ vales.paginator.num_pages }}</a></li>
     {% if vales.has_next %}
-        <li class="page-item"><a class="page-link" href="?page={{ vales.next_page_number }}">&gt</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ vales.paginator.num_pages }}">&raquo;</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ vales.next_page_number }}&tipo={{action}}">&gt</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ vales.paginator.num_pages }}&tipo={{action}}">&raquo;</a></li>
     {% endif %}
   </ul>
 </nav>
