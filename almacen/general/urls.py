@@ -18,7 +18,7 @@ urlpatterns = [
     path('salida/', salida_general, name='salida_general'),
     path('entrada/', entrada_general, name='entrada_general'),
 
-    #path('salida/<int:vale_id>/edit/', salida_edit, name='salida_edit'),
+    path('salida/<int:vale_id>/edit/', salida_general_edit, name='salida_general_edit'),
     #path('entrada/<int:vale_id>/edit/', entrada_edit, name='entrada_edit'),
     path('salida/<int:vale_id>/', salida_general_add, name='salida_general_add'),
     path('entrada/<int:vale_id>/add/', entrada_general_add, name='entrada_general_add'),

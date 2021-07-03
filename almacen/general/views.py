@@ -89,9 +89,8 @@ def vales_general(request):
 def actual_general(request):
     context = {}
 
-    llantas = Producto.objects.all()
+    productos = Producto.objects.all()
 
-    orden = request.GET.get("orden", None)#default marca
     export = request.GET.get("export", None)#default marca
 
     full_path = request.get_full_path()
@@ -100,40 +99,17 @@ def actual_general(request):
     else:
         url_export = '?export=True'
 
-    if orden == 'marca':
-        llantas = llantas.order_by('marca__nombre')
-    elif orden == 'medida':
-        llantas = llantas.order_by('medida__nombre')
-    elif orden == 'posicion':
-        llantas = llantas.order_by('posicion__nombre')
-    elif orden == 'dot':
-        llantas = llantas.order_by('dot')
-    elif orden == 'status':
-        llantas = llantas.order_by('status__nombre')
-    elif orden == 'cantidad':
-        l = []
-        for llanta in llantas:
-            l.append((llanta, llanta.cantidad_actual_total()))
-        l = sorted(l, key=lambda x: x[1])
-        l.reverse()
-        llantas = l    
-    else:
-        llantas = llantas.order_by('nombre')
-
-
     if export:
         return render_to_xls_productos(
-                queryset=llantas,
+                queryset=productos,
                 filename="export_inventario.xls"
             )                
 
-    paginator = Paginator(llantas, settings.ITEMS_PER_PAGE) # Show 5 profiles per page
+    paginator = Paginator(productos, settings.ITEMS_PER_PAGE) # Show 5 profiles per page
     page = request.GET.get('page')
-    llantas = paginator.get_page(page)
-
-
-    context['orden'] = orden        
-    context['productos'] = llantas
+    productos = paginator.get_page(page)
+        
+    context['productos'] = productos
     context['url_export'] = url_export
 
     return render(request, 'actual_general.html', context)    
@@ -512,3 +488,22 @@ def conteo(request):
     context['unidad_medida'] = unidad_medida
     return render(request, 'conteo.html', context)    
 
+
+@login_required
+def salida_general_edit(request, vale_id):
+    context = {}
+    obj = get_object_or_404(ValeAlmacenGeneral, pk=vale_id)
+
+    if request.method == 'POST':
+        form = ValeAlmacenGeneralForm(request.POST, instance=obj)
+        if form.is_valid():
+            vale = form.save()
+            messages.add_message(request, messages.SUCCESS, 'Se guardaron los cambios')
+            return HttpResponseRedirect(reverse('salida_general_add', args=[vale.id]))
+    else:
+        form = ValeAlmacenGeneralForm(instance=obj)
+    
+    context["vale"] = obj
+    context["form"] = form
+    context["action"] = 'edit'
+    return render(request, 'salida_general.html', context)

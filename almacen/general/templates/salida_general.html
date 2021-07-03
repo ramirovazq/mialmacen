@@ -10,7 +10,7 @@
 
 {% block buttons_section %}
 {% if action == 'edit' %}
-<form action="{% url 'salida_edit' vale.id %}" method="post" id="salida_form">
+<form action="{% url 'salida_general_edit' vale.id %}" method="post" id="salida_form">
 {% else %}
 <form action="{% url 'salida_general' %}" method="post" id="salida_form">
 {% endif %}
