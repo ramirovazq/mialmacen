@@ -16,7 +16,7 @@ class Command(BaseCommand):
         
         pa = return_profile('rvazquez')# valor fijo
 
-        with open(settings.BASE_DIR + '/load_init/ENTRADAS.csv') as csvfile_in:
+        with open(settings.BASE_DIR + '/load_init/ENTRADAS_ORIGINAL_3julio2021.csv') as csvfile_in:
             index_count = 0
             readCSV = csv.reader(csvfile_in, delimiter=';')
             for indice, row in enumerate(readCSV):
@@ -60,7 +60,7 @@ class Command(BaseCommand):
                         permisionario_obj = return_profile(permisionario, "PERMISIONARIO")
 
                     ## valores del Vale
-                    if origen == "CONTEO_12JUNIO":
+                    if origen == "RECONTEO_JUNIO_2021":
                         profile_origen = return_profile(origen, "ABSTRACT")
                     else:
                         profile_origen = return_profile(origen, "BODEGA")

@@ -16,12 +16,13 @@
      <div class="row">
         <div class="col">No. folio: {{vale.no_folio}}</div>
         <div class="col">Tipo movimiento: {{vale.tipo_movimiento.nombre}}</div>
-        <div class="col"><a class="page-link" href="{% url 'salida_edit' vale.id %}">editar</a></div>
+        <div class="col"><a class="page-link" href="{% url 'salida_general_edit' vale.id %}">editar</a></div>
 
       </div>
      <div class="row">
-        <div class="col">Fecha: {{vale.fecha_vale}}</div>
+        <div class="col">Fecha vale: {{vale.fecha_vale}}</div>
         <div class="col">Quien entrega: {{vale.persona_asociada}}</div>
+        <div class="col">Observaciones generales: {{vale.observaciones_grales}}</div>
       </div>
       <br/><br/>
 
