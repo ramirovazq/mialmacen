@@ -43,7 +43,8 @@
 
       </div>
      <div class="row">
-        <div class="col">Fecha: {{vale.fecha_vale}}</div>
+        <div class="col">Fecha Vale: {{vale.fecha_vale|date:"D d/M/Y"}}</div>
+        <div class="col">Fecha captura: {{vale.fecha_created|date:"D d/M/y H:i"}}</div>
         <div class="col">Quien entrega: {{vale.persona_asociada}}</div>
       </div>
       <div class="row">

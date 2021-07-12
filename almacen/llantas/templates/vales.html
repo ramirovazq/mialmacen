@@ -40,6 +40,7 @@
                   <th>No Folio</th>
                   <th>Tipo Movimiento</th>
                   <th>Fecha Vale</th>
+                  <th>Fecha Captura</th>
                   <th>Quien entrega</th>
                   <th>Creador</th>
                   <th>Observacion</th>
@@ -59,7 +60,8 @@
                     {% endif %}
                   </td>
                   <td>{{vale.tipo_movimiento}}</td>
-                  <td>{{vale.fecha_vale}}</td>
+                  <td>{{vale.fecha_vale|date:"D d/M/y"}}</td>
+                  <td>{{vale.fecha_created|date:"D d/M/y H:i"}}</td>
                   <td>{{vale.persona_asociada.user.username}}</td>
                   <td>{{vale.creador_vale.user.username}}</td>
                   <td>{{vale.observaciones_grales}}</td>
