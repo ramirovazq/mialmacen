@@ -83,9 +83,22 @@ class FilterMovimientoForm(ModelForm):
 
     origen = OrigenDestinoChoiceField(
                 required=False,
-                queryset=TipoMovimiento.objects.all().order_by('nombre'),
+                queryset=Profile.objects.filter(tipo__nombre="BODEGA"),
                 widget=forms.Select(attrs={'class':'form-control m-b'})
     )
+
+    destino = OrigenDestinoChoiceField(
+                required=False,
+                queryset=Profile.objects.filter(tipo__nombre="ECONOMICO"),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
+    creador = ProfileChoiceField(
+                required=False,
+                queryset=Profile.objects.filter(tipo__nombre="STAFF"),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
+
 
     class Meta: 
         model = MovimientoGeneral

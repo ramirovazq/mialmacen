@@ -210,3 +210,53 @@ def render_to_xls_productos(queryset, filename, rows_with_products=True):
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
     book.save(response)
     return response
+
+
+def render_to_xls_movimientos(queryset, filename):
+
+    ezxf = xlwt.easyxf
+    book = xlwt.Workbook(encoding="utf-8")
+    sheet = book.add_sheet("movimientos")
+
+    font_style = xlwt.XFStyle()
+    font_style.font.bold = True
+    row_num = 0
+
+    columns = [
+            'Id',
+            'Tipo de movimiento',
+            'Fecha de movimiento',
+            'Fecha de creación',
+            'No folio', 
+            'Origen',
+            'Destino',
+            'Producto', 
+            'Cantidad',
+            'Precio unitario',
+            'Creador'
+            ]
+
+    for col_num in range(len(columns)):
+        sheet.write(row_num, col_num, columns[col_num], font_style)
+
+    rows = queryset.values_list('id', 'tipo_movimiento__nombre', 'fecha_movimiento','date_created', \
+                'vale__no_folio', 'origen__user__username', 'destino__user__username', 'producto__nombre', 'cantidad',\
+                'precio_unitario', 'creador__user__username'
+        )
+
+    for row in rows:
+        row_num += 1
+        for col_num in range(len(row)):
+            if isinstance(row[col_num], datetime_datetime):
+                fecha_row = row[col_num].astimezone(timezone(settings.TIME_ZONE)).strftime("%d-%m-%Y %H:%M")
+                sheet.write(row_num, col_num, fecha_row)    
+            elif isinstance(row[col_num], datetime_date):
+                fecha_row = row[col_num].strftime("%d-%m-%Y")#.astimezone(timezone(settings.TIME_ZONE)).strftime("%d-%m-%Y %H:%M")
+                sheet.write(row_num, col_num, fecha_row)    
+            else:                
+                sheet.write(row_num, col_num, row[col_num])
+        
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    book.save(response)
+    return response

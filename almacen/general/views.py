@@ -21,7 +21,9 @@ from .forms import ValeAlmacenGeneralForm, SearchSalidaGeneralForm, MovimientoSa
 from .forms import MovimientoEntradaGeneralForm, EntradaGeneralForm, PositionForm, NumeroParteForm
 #from .forms import FilterForm, FilterMovimientoForm, ValeForm, SearchSalidaForm, MovimientoSalidaForm, EntradaForm, NewLlantaForm, ImportacioMovimientosForm, AdjuntoValeForm, ProfileSearchForm
 from .render_to_XLS_util import render_to_xls_inventario_ubicacion, render_to_xls_inventario_all_ubicacion, render_to_xls_productos
+from .render_to_XLS_util import render_to_xls_movimientos
 from .serializers import ProductoSerializer
+from .utils import post_filter
 
 
 @login_required
@@ -44,7 +46,7 @@ def movimientos_general(request):
     exporta_xls = request.POST.get('exporta_xls', False)
 
     if exporta_xls == 'on':
-        return render_to_xls(
+        return render_to_xls_movimientos(
             queryset=m,
             filename="export.xls"
         )                

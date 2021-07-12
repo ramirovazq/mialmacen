@@ -140,7 +140,7 @@ class TipoMovimientoChoiceField(ModelChoiceField):
 
 class OrigenDestinoChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
-        return "%s" % (obj.nombre)
+        return "%s" % (obj)
 
 class ProfileChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
