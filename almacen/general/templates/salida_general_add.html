@@ -33,7 +33,9 @@
               <thead>
                 <tr>
                   <th> id </th>
-                  <th> Fecha </th>
+                  <th> Fecha vale</th>
+                  <th> Fecha captura</th>
+                  <th> Fecha editada</th>
                   <th> Producto </th>
                   <th> Unidad </th>
                   <th> Cantidad </th>
@@ -49,7 +51,9 @@
                 {% for movimiento in vale.movimientos %}
                 <tr>
                   <td>{{movimiento.id}} </td>
-                  <td>{{movimiento.fecha_movimiento}}</td>
+                  <td>{{movimiento.fecha_movimiento|date:"d/m/y"}}</td>
+                  <td>{{movimiento.date_created|date:"d/m/y H:i"}}</td>
+                  <td>{{movimiento.date_edited|date:"d/m/y H:i"}}</td>
                   <td>{{movimiento.producto.nombre}}</td>
                   <td>{{movimiento.unidad.simbolo}} </td>
                   <td>{{movimiento.cantidad}} </td>
