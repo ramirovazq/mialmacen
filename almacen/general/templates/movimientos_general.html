@@ -38,26 +38,26 @@
 
       <div class="form-row">
         <div class="form-group col-md-6">
-           {{form.fecha_movimiento_inicio.errors}}
-           <label for="{{form.fecha_movimiento_inicio.id_for_label}}">Fecha movimiento inicio:</label>
-           {{form.fecha_movimiento_inicio}}
+           {{form.fecha_vale_inicio.errors}}
+           <label for="{{form.fecha_vale_inicio.id_for_label}}">Fecha vale inicio:</label>
+           {{form.fecha_vale_inicio}}
         </div>
         <div class="form-group col-md-6">
-           {{form.fecha_movimiento_fin.errors}}
-           <label for="{{form.fecha_movimiento_fin.id_for_label}}">Fecha movimiento fin:</label>
-           {{form.fecha_movimiento_fin}}
+           {{form.fecha_vale_fin.errors}}
+           <label for="{{form.fecha_vale_fin.id_for_label}}">Fecha vale fin:</label>
+           {{form.fecha_vale_fin}}
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group col-md-6">
            {{form.date_created_inicio.errors}}
-           <label for="{{form.date_created_inicio.id_for_label}}">Fecha creación inicio:</label>
+           <label for="{{form.date_created_inicio.id_for_label}}">Fecha captura movimiento inicio:</label>
            {{form.date_created_inicio}}
         </div>
         <div class="form-group col-md-6">
            {{form.date_created_fin.errors}}
-           <label for="{{form.date_created_fin.id_for_label}}">Fecha creación fin:</label>
+           <label for="{{form.date_created_fin.id_for_label}}">Fecha captura movimiento fin:</label>
            {{form.date_created_fin}}
         </div>
       </div>
@@ -86,6 +86,9 @@
 
       <div class="form-row">
         <div class="form-group col-md-6">
+          {{form.producto.errors}}
+          <label for="{{form.producto.id_for_label}}">Producto</label>
+          {{form.producto}}
         </div>
         <div class="form-group col-md-6">
             {{form.creador.errors}}
@@ -133,11 +136,11 @@
             <table class="table table-striped table-sm">
               <thead>
                 <tr>
+                  <th>Folio Vale</th>
+                  <th>Fecha Vale</th>
                   <th>Id</th>
                   <th>Movimiento</th>
-                  <th>Fecha movimiento</th>
-                  <th>Fecha creacion</th>
-                  <th>No folio</th>
+                  <th>Fecha captura movimiento</th>
                   <th>Origen</th>
                   <th>Destino</th>
 
@@ -155,11 +158,11 @@
               <tbody>
               	{% for movimiento in movimientos %} 
                 <tr>
+                  <td>#{{movimiento.vale.no_folio }}</td>
+                  <td>{{movimiento.vale.fecha_vale|date:"d/m/y" }}</td>
                   <td>{{movimiento.id}} </td>
                   <td>{{movimiento.tipo_movimiento.nombre}}</td>
-                  <td>{{movimiento.fecha_movimiento}}</td>
-                  <td>{{movimiento.date_created}}</td>
-                  <td>{{movimiento.vale.no_folio}}</td>
+                  <td>{{movimiento.date_created|date:"d/m/y H:i"}}</td>
                   <td>{{movimiento.origen.user.username}}</td>
                   <td>{{movimiento.destino.user.username}}</td>
 
@@ -186,15 +189,13 @@
 {% block javascript_bottom %}
           <script>
           $( function() {
-            $( "#id_fecha_movimiento_inicio" ).datepicker({dateFormat: 'dd-mm-yy'});
-            $( "#id_fecha_movimiento_fin" ).datepicker({dateFormat: 'dd-mm-yy'});
+
+            $( "#id_fecha_vale_inicio" ).datepicker({dateFormat: 'dd-mm-yy'});
+            $( "#id_fecha_vale_fin" ).datepicker({dateFormat: 'dd-mm-yy'});
+
             $( "#id_date_created_inicio" ).datepicker({dateFormat: 'dd-mm-yy'});
             $( "#id_date_created_fin" ).datepicker({dateFormat: 'dd-mm-yy'});
 
-            $( "#id_ultima_actualizacion_inicio" ).datepicker({dateFormat: 'dd-mm-yy'});
-            $( "#id_ultima_actualizacion_fin" ).datepicker({dateFormat: 'dd-mm-yy'});
-            $( "#id_fecha_programada_inicio" ).datepicker({dateFormat: 'dd-mm-yy'});
-            $( "#id_fecha_programada_fin" ).datepicker({dateFormat: 'dd-mm-yy'});
             $( "#boton_limpiar" ).click(function(){
                 $('#filter_form').trigger("reset");
                 window.location = "{% url 'movimientos_general' %}";

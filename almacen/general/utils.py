@@ -5,9 +5,10 @@ def post_filter(request, movimientos):
 
     tipo_movimiento = request.POST.get('tipo_movimiento', False)
 
-    fecha_movimiento_inicio = request.POST.get('fecha_movimiento_inicio', '')
-    fecha_movimiento_fin = request.POST.get('fecha_movimiento_fin', '')
+    fecha_vale_inicio = request.POST.get('fecha_vale_inicio', '')
+    fecha_vale_fin = request.POST.get('fecha_vale_fin', '')
 
+    producto = request.POST.get('producto', '')
 
     no_folio = request.POST.get('no_folio', False)
 
@@ -31,16 +32,18 @@ def post_filter(request, movimientos):
     if tipo_movimiento:
       movimientos = movimientos.filter(vale__tipo_movimiento=tipo_movimiento)
 
-    if fecha_movimiento_inicio:
-        movimientos = movimientos.filter(fecha_movimiento__gte=datetime.strptime(fecha_movimiento_inicio+'00:00:00', '%d-%m-%Y%H:%M:%S'))
-    if fecha_movimiento_fin:
-        movimientos = movimientos.filter(fecha_movimiento__lte=datetime.strptime(fecha_movimiento_fin+'23:59:59', '%d-%m-%Y%H:%M:%S'))
+    if fecha_vale_inicio:
+        movimientos = movimientos.filter(vale__fecha_vale__gte=datetime.strptime(fecha_vale_inicio+'00:00:00', '%d-%m-%Y%H:%M:%S'))
+    if fecha_vale_fin:
+        movimientos = movimientos.filter(vale__fecha_vale__lte=datetime.strptime(fecha_vale_fin+'23:59:59', '%d-%m-%Y%H:%M:%S'))
+
+    if producto:
+        movimientos = movimientos.filter(producto__id=producto)
+
 
     if fecha_creacion_inicio:
-        print("uno")
         movimientos = movimientos.filter(date_created__gte=datetime.strptime(fecha_creacion_inicio+'00:00:00', '%d-%m-%Y%H:%M:%S'))
     if fecha_creacion_fin:
-        print("dos ....")
         movimientos = movimientos.filter(date_created__lte=datetime.strptime(fecha_creacion_fin+'23:59:59', '%d-%m-%Y%H:%M:%S'))
     if no_folio:
         movimientos = movimientos.filter(vale__no_folio__icontains=no_folio)

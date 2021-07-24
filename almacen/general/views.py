@@ -56,7 +56,7 @@ def movimientos_general(request):
             filename="export.csv")
     ### export FIN
 
-    paginator = Paginator(m, settings.ITEMS_PER_PAGE) # Show 5 profiles per page
+    paginator = Paginator(m, 300) # Show 5 profiles per page
     page = request.GET.get('page')
     m = paginator.get_page(page)
 

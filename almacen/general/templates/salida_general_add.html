@@ -33,9 +33,6 @@
               <thead>
                 <tr>
                   <th> id </th>
-                  <th> Fecha vale</th>
-                  <th> Fecha captura</th>
-                  <th> Fecha editada</th>
                   <th> Producto </th>
                   <th> Unidad </th>
                   <th> Cantidad </th>
@@ -44,6 +41,7 @@
                   <th> Origen Specifico</th>
                   <th> No. Económico </th>
                   <th> Observaciones </th>
+                  <th> Fecha captura mov</th>
                   <th>  </th>
                 </tr>
               </thead>
@@ -51,9 +49,6 @@
                 {% for movimiento in vale.movimientos %}
                 <tr>
                   <td>{{movimiento.id}} </td>
-                  <td>{{movimiento.fecha_movimiento|date:"d/m/y"}}</td>
-                  <td>{{movimiento.date_created|date:"d/m/y H:i"}}</td>
-                  <td>{{movimiento.date_edited|date:"d/m/y H:i"}}</td>
                   <td>{{movimiento.producto.nombre}}</td>
                   <td>{{movimiento.unidad.simbolo}} </td>
                   <td>{{movimiento.cantidad}} </td>
@@ -62,6 +57,7 @@
                   <td>{% for x in movimiento.list_exact_positions %}{{x}}{% endfor %}</td>
                   <td>{{movimiento.destino}} </td>
                   <td>{{movimiento.observacion}} </td>
+                  <td>{{movimiento.date_created|date:"d/m/y H:i"}}</td>
                   <td><a class="page-link" href="{% url 'salida_general_erase_movimiento' vale.id  movimiento.id %}">borrar</a></td>
                   
                 </tr>

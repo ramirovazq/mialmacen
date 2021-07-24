@@ -6,6 +6,18 @@ from persona.models import Profile
 from llantas.utils import agrupacion_dots, devuelve_llanta
 from llantas.forms import TipoMovimientoChoiceField, OrigenChoiceField, DestinoChoiceField, OrigenDestinoChoiceField, ProfileChoiceField, ValeForm, EntradaForm
 
+class ProductoChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        cadena = "{}".format(obj.nombre)
+        return cadena
+
+
+class ProductoSearchChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        cadena = "{}".format(obj.nombre)
+        for x in obj.numeros_de_parte_format():
+            cadena = cadena + " {}".format(x)
+        return cadena
 
 class FilterMovimientoForm(ModelForm):
     
@@ -14,10 +26,10 @@ class FilterMovimientoForm(ModelForm):
                 queryset=TipoMovimiento.objects.all().order_by('nombre'),
                 widget=forms.Select(attrs={'class':'form-control m-b'})
     )
-    
-    fecha_movimiento_inicio = forms.DateField(
+
+    fecha_vale_inicio = forms.DateField(
                 required=False,
-                label='Fecha movimiento inicio', 
+                label='Fecha vale inicio', 
                 input_formats=["%d-%m-%Y"],
                 widget=forms.TextInput(
                 attrs={ 
@@ -25,9 +37,10 @@ class FilterMovimientoForm(ModelForm):
                 'placeholder':'dd-mm-yyyy'
                 }
     ))
-    fecha_movimiento_fin = forms.DateField(
+
+    fecha_vale_fin = forms.DateField(
                 required=False,
-                label='Fecha movimiento fin',
+                label='Fecha vale fin',
                 input_formats=["%d-%m-%Y"],
                 widget=forms.TextInput(
                 attrs={ 
@@ -99,10 +112,16 @@ class FilterMovimientoForm(ModelForm):
                 widget=forms.Select(attrs={'class':'form-control m-b'})
     )
 
+    producto = ProductoChoiceField(
+                required=False,
+                label='Producto', 
+                queryset=Producto.objects.all().order_by('nombre'),
+                widget=forms.Select(attrs={'class':'form-control m-b'})
+    )
 
     class Meta: 
         model = MovimientoGeneral
-        fields = ['tipo_movimiento', 'fecha_movimiento_inicio', 'fecha_movimiento_fin',\
+        fields = ['tipo_movimiento', 'producto',\
                    'date_created_inicio', 'date_created_fin',\
                    'no_folio', 'origen', 'destino', \
                    'creador', 'exporta_xls', 'exporta']
@@ -115,14 +134,6 @@ class ValeAlmacenGeneralForm(ValeForm):
         model = ValeAlmacenGeneral
         fields = ['no_folio', 'observaciones_grales',\
                    'tipo_movimiento', 'fecha_vale', 'persona_asociada', 'creador_vale']
-
-
-class ProductoSearchChoiceField(ModelChoiceField):
-    def label_from_instance(self, obj):
-        cadena = "{}".format(obj.nombre)
-        for x in obj.numeros_de_parte_format():
-            cadena = cadena + " {}".format(x)
-        return cadena
 
 
 class SearchSalidaGeneralForm(ModelForm):

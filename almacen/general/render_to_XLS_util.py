@@ -223,11 +223,11 @@ def render_to_xls_movimientos(queryset, filename):
     row_num = 0
 
     columns = [
+            'Folio Vale',
+            'Fecha Vale',
             'Id',
             'Tipo de movimiento',
-            'Fecha de movimiento',
-            'Fecha de creación',
-            'No folio', 
+            'Fecha captura movimiento',
             'Origen',
             'Destino',
             'Producto', 
@@ -239,8 +239,8 @@ def render_to_xls_movimientos(queryset, filename):
     for col_num in range(len(columns)):
         sheet.write(row_num, col_num, columns[col_num], font_style)
 
-    rows = queryset.values_list('id', 'tipo_movimiento__nombre', 'fecha_movimiento','date_created', \
-                'vale__no_folio', 'origen__user__username', 'destino__user__username', 'producto__nombre', 'cantidad',\
+    rows = queryset.values_list('vale__no_folio', 'vale__fecha_vale', 'id', 'tipo_movimiento__nombre', 'date_created', \
+                'origen__user__username', 'destino__user__username', 'producto__nombre', 'cantidad',\
                 'precio_unitario', 'creador__user__username'
         )
 
