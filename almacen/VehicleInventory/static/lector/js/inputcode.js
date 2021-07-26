@@ -209,9 +209,13 @@ class CodeReader extends React.Component {
     event.preventDefault();
   } //handlesave
   handleKeyDown(event) {
+    const TABKEY = 9;
     if (event.key === 'Enter') {
       this.handleSave(event)
-    } else {
+    } else if(event.keyCode === TABKEY) {
+      console.log('tabkey ....');
+      this.handleSave(event)
+    }else {
       console.log('otro');
     }
   }//handelKeyDown
