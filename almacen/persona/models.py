@@ -50,10 +50,11 @@ class Position(models.Model):
             return "{}".format(self.name)
 
     def code(self):
+        string_number = "".join([character for character in self.name if character in "0123456789"])
         if self.parent:
-            return "{}{}{}".format(self.parent.code(), self.name[0],self.name[-1])
+            return "{}{}{}".format(self.parent.code(),self.name[0],string_number)
         else:
-            return "{}{}".format(self.name[0],self.name[-1])
+            return "{}{}".format(self.name[0],string_number)
 
 
 class ProfilePosition(models.Model):
