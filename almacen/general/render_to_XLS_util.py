@@ -188,6 +188,7 @@ def render_to_xls_productos(queryset, filename, rows_with_products=True):
     font_style = xlwt.XFStyle()
     font_style.font.bold = True
     columns = [
+            'Id artículo'
             'Artículo',
             'Cantidad',
             'Unidad',
@@ -212,7 +213,7 @@ def render_to_xls_productos(queryset, filename, rows_with_products=True):
             str_alarm_minimum = "Encendido"
         if product.alarm_maximum():
             str_alarm_maximum = "Encendido"
-        row_values = [product.nombre, actual_quantity, str(uni), str(product.positions_inventory()), product.minimum, product.maximum, str_alarm_minimum, str_alarm_maximum]
+        row_values = [product.id, product.nombre, actual_quantity, str(uni), str(product.positions_inventory()), product.minimum, product.maximum, str_alarm_minimum, str_alarm_maximum]
         for index, value in enumerate(row_values):
             row.write(index, value)
 
