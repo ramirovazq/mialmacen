@@ -192,6 +192,10 @@ def render_to_xls_productos(queryset, filename, rows_with_products=True):
             'Cantidad',
             'Unidad',
             'Lugar',
+            'Mínimo',
+            'Máximo',
+            "Alarma de mínimo",
+            "Alarma de máximo"
     ]
     # columns
     for col_num in range(len(columns)):
@@ -201,7 +205,14 @@ def render_to_xls_productos(queryset, filename, rows_with_products=True):
     for index, product in enumerate(queryset):        
         i = i+1
         row = sheet.row(i)
-        row_values = [product.nombre, product.inventory()[0], str(product.inventory()[1]), str(product.positions_inventory())]
+        actual_quantity, uni = product.inventory()
+        str_alarm_minimum = "Apagado"
+        str_alarm_maximum = "Apagado"
+        if product.alarm_minimum():
+            str_alarm_minimum = "Encendido"
+        if product.alarm_maximum():
+            str_alarm_maximum = "Encendido"
+        row_values = [product.nombre, actual_quantity, str(uni), str(product.positions_inventory()), product.minimum, product.maximum, str_alarm_minimum, str_alarm_maximum]
         for index, value in enumerate(row_values):
             row.write(index, value)
 

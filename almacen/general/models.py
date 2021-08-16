@@ -168,10 +168,28 @@ class Producto(models.Model):
             null = True,
             max_length=250
     )
+    maximum = models.PositiveIntegerField(
+            default=0
+    )
+    minimum = models.PositiveIntegerField(
+            default=0
+    )
 
     class Meta:
         unique_together = (('nombre',
         ))
+
+    def alarm_maximum_and_minimum(self):
+        actual_quantity = self.inventory()[0]
+        return not(self.minimum < actual_quantity <= self.maximum)
+
+    def alarm_minimum(self):
+        actual_quantity = self.inventory()[0]
+        return not(self.minimum < actual_quantity)
+
+    def alarm_maximum(self):
+        actual_quantity = self.inventory()[0]
+        return not(actual_quantity < self.maximum)
 
 
     def numeros_de_parte(self):

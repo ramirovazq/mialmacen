@@ -68,6 +68,109 @@ class ProductosMovimientoTestCase(TestCase):
 
         self.cable_cuatro = Producto.objects.create(nombre="Cable #4")
 
+        self.cable_cuatro.maximum = 5
+        self.cable_cuatro.minimum = 1
+
+    def test_minimum_less_than_limit(self):
+        self.assertEqual(self.cable_cuatro.alarm_minimum(), True) 
+        # 0 inventario actual -- minimo 1 y maximo 5 aunque está en el limito no hay alarma
+
+    def test_minimum_equal_limit(self):
+        MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.conteo,            
+            destino=self.bodega01,            
+            producto=self.cable_cuatro,
+            unidad=self.metro,
+            cantidad=1, # s metros
+            precio_unitario=120.5,
+            creador=self.user01,
+            observacion="1er movimiento"
+        )
+        self.assertEqual(self.cable_cuatro.alarm_minimum(), True) 
+        # 1 inventario actual -- minimo 1 y maximo 5 aunque está en el limito no hay alarma
+
+    def test_minimum_mayor_than_limit(self):
+        MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.conteo,            
+            destino=self.bodega01,            
+            producto=self.cable_cuatro,
+            unidad=self.metro,
+            cantidad=2, # s metros
+            precio_unitario=120.5,
+            creador=self.user01,
+            observacion="1er movimiento"
+        )
+        self.assertEqual(self.cable_cuatro.alarm_minimum(), False) 
+        # 1 inventario actual -- minimo 1 y maximo 5 aunque está en el limito no hay alarma
+
+
+
+    def test_maximum_at_limit_not_alarm(self):
+
+        primer_mov_entrada = MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.conteo,            
+            destino=self.bodega01,            
+            producto=self.cable_cuatro,
+            unidad=self.metro,
+            cantidad=5, # s metros
+            precio_unitario=120.5,
+            creador=self.user01,
+            observacion="1er movimiento"
+        )
+        self.assertEqual(self.cable_cuatro.alarm_maximum_and_minimum(), False) 
+        # 5 inventario actual -- minimo 1 y maximo 5 aunque está en el limito no hay alarma
+
+    def test_maximum_beyond_limit_alarm(self):
+
+        primer_mov_entrada = MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.conteo,            
+            destino=self.bodega01,            
+            producto=self.cable_cuatro,
+            unidad=self.metro,
+            cantidad=7, # s metros
+            precio_unitario=120.5,
+            creador=self.user01,
+            observacion="1er movimiento"
+        )
+        self.assertEqual(self.cable_cuatro.alarm_maximum_and_minimum(), True) 
+        # 7 inventario actual -- minimo 1 y maximo 5 aunque está en el limito no hay alarma
+
+    def test_minimum_exact_limit_alarm(self):
+        primer_mov_entrada = MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.conteo,            
+            destino=self.bodega01,            
+            producto=self.cable_cuatro,
+            unidad=self.metro,
+            cantidad=1, # s metros
+            precio_unitario=120.5,
+            creador=self.user01,
+            observacion="1er movimiento"
+        )
+        self.assertEqual(self.cable_cuatro.alarm_maximum_and_minimum(), True) 
+        # 1 inventario actual -- minimo 1 y maximo 5 aunque está en el limite no hay alarma
+
+    def test_minimum_with_zero(self):
+        self.assertEqual(self.cable_cuatro.alarm_maximum_and_minimum(), True) 
+        # 0 inventario actual -- minimo 1 y maximo 5 si hay alarma
+        self.assertEqual(self.cable_cuatro.alarm_maximum_and_minimum(), True) 
+
+
+
     def test_three_entries_one_warehouse(self):
 
         primer_mov_entrada = MovimientoGeneral.objects.create(

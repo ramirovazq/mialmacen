@@ -91,15 +91,24 @@ def vales_general(request):
 def actual_general(request):
     context = {}
 
-    productos = Producto.objects.all()
+    todo = request.GET.get("todo", None)
+    if todo:
+        return render_to_xls_productos(
+                queryset=Producto.objects.all(),
+                filename="export_inventario.xls"
+            )
 
-    export = request.GET.get("export", None)#default marca
-
+    productos = Producto.objects.all().order_by('-id')
+    export = request.GET.get("export", None)
     full_path = request.get_full_path()
     if "?" in full_path:
         url_export = full_path + '&export=True'
     else:
         url_export = '?export=True'
+
+    paginator = Paginator(productos, settings.ITEMS_PER_PAGE) # Show 5 profiles per page
+    page = request.GET.get('page')
+    productos = paginator.get_page(page)
 
     if export:
         return render_to_xls_productos(
@@ -107,10 +116,7 @@ def actual_general(request):
                 filename="export_inventario.xls"
             )                
 
-    paginator = Paginator(productos, settings.ITEMS_PER_PAGE) # Show 5 profiles per page
-    page = request.GET.get('page')
-    productos = paginator.get_page(page)
-        
+
     context['productos'] = productos
     context['url_export'] = url_export
 
