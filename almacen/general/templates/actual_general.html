@@ -17,7 +17,8 @@
         <li class="page-item"><a class="page-link" href="?page={{ productos.next_page_number }}">&gt</a></li>
         <li class="page-item"><a class="page-link" href="?page={{ productos.paginator.num_pages }}">&raquo;</a></li>
     {% endif %}
-    <li class="page-item"><a class="page-link" href="{{ url_export }}"> <span data-feather="download"></span> Descargar</a></li>
+    <li class="page-item"><a class="page-link" href="{{ url_export }}"> <span data-feather="download"></span> Descargar pagina</a></li>
+    <li class="page-item"><a class="page-link" href="?todo=True"> <span data-feather="download"></span> Descargar todo</a></li>
   </ul>
 </nav>
 
@@ -50,6 +51,9 @@
                   <th>Unidad </th>
                   <th>Lugar </th>
                   <th> </th>
+                  <th>Mínimo </th>
+                  <th>Máximo </th>
+                  <th>Alarma de Mínimo </th>                  
                 </tr>
               </thead>
               <tbody>
@@ -61,6 +65,9 @@
                       <td>{{producto.inventory.1.simbolo }}</td>
                       <td>{% for x,y in producto.positions_inventory.items %}{{x}} {% endfor %}</td>
                     <td><a href="{% url 'producto_detalle' producto.id %}" class="btn btn-primary btn-sm" role="button">detalle</a> </td>
+                    <td>{{producto.minimum }}</td>
+                    <td>{{producto.maximum }}</td>
+                    <td>{{producto.alarm_minimum|yesno:"encendida,apagada,?" }}</td>
                   </tr>
                   {% endfor %}
 
