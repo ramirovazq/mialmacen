@@ -6,9 +6,9 @@ from rest_framework import status
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.http import QueryDict
-from .models import ProfilePosition
+from .models import ProfilePosition, Profile, Tipo
 from general.models import ValeAlmacenGeneral
-from .serializers import ProfilePositionSerializer
+from .serializers import ProfilePositionSerializer, ProfileSerializer
 from .utils import verify_product, verify_profileposition, verify_int_quantity
 from .utils import verify_profileposition_insert, prepare_data_for_movimientos
 from .utils import verify_list_profileposition, verify_destino
@@ -102,3 +102,26 @@ class ProfilePositionViewSet(viewsets.ModelViewSet):
                 return Response({"error":"Wrong profileposition or product or quantity"}, status=status.HTTP_400_BAD_REQUEST)
             return Response({"error":"Empty value"}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"error":"Missing parameters"}, status=status.HTTP_400_BAD_REQUEST)
+
+class ProfileBodegaViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    #permission_classes = (IsAuthenticated,)
+
+    tipo_bodega = Tipo.objects.get(nombre="BODEGA")
+    queryset = Profile.objects.filter(tipo=tipo_bodega).order_by('user__username')
+    serializer_class = ProfileSerializer
+
+
+class ProfileEconomicoViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
+    #permission_classes = (IsAuthenticated,)
+
+    tipo_economico = Tipo.objects.get(nombre="ECONOMICO")
+    queryset = Profile.objects.filter(tipo=tipo_economico).order_by('user__username')
+    serializer_class = ProfileSerializer
