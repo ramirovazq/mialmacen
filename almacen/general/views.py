@@ -141,6 +141,11 @@ def actual_ubicacion(request):
                 filename="ubicaciones.xls"
             )                
 
+    paginator = Paginator(profilepositions, settings.ITEMS_PER_PAGE) # Show 5 profiles per page
+    page = request.GET.get('page')
+    profilepositions = paginator.get_page(page)
+
+
     context['productos'] = profilepositions
     return render(request, 'ubicaciones_general.html', context)    
 
