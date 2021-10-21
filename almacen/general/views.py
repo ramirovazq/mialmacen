@@ -324,6 +324,7 @@ def salida_general_add_movimiento(request, vale_id):
             id_origen = request.POST['id_origen']
             id_profileposition = request.POST['id_profileposition']
             producto  = get_object_or_404(Producto, pk=id_producto)
+            last_price_not_zero = producto.last_not_zero_purchase_price()
             origen = get_object_or_404(Profile, pk=id_origen)
             profileposition = get_object_or_404(ProfilePosition, pk=id_profileposition)
             unidadmedida_referencia  = get_object_or_404(UnidadMedida, pk=id_unidadmedida_referencia)
@@ -331,14 +332,14 @@ def salida_general_add_movimiento(request, vale_id):
 
             creador  = return_profile(request.user.username, "STAFF")
 
+
             dicc_movimiento = {
                     "vale":obj, 
                     "tipo_movimiento":obj.tipo_movimiento,
                     "fecha_movimiento":obj.fecha_vale,                
-
                     "origen":origen,
                     "producto":producto,                    
-
+                    "precio_unitario": last_price_not_zero,
                     "unidad": form.cleaned_data['unidad'],
                     "cantidad":cantidad,
                     "observacion":form.cleaned_data['observacion'],

@@ -6,6 +6,257 @@ from persona.models import Position, ProfilePosition
 from llantas.utils import *
 
 import datetime
+import time
+
+class LastPriceSalidasMovimientoTestCase(TestCase):
+
+    def setUp(self):
+
+        self.user01 = return_profile("rosa")
+        self.user02 = return_profile("goyo")
+
+        self.conteo = return_profile("CONTETO", "ABSTRACT")
+        self.bodega01 = return_profile("ALMACEN_GENERAL", "BODEGA")
+        self.tractor01 = return_profile("TRACTOR01", "ECONOMICO")
+
+        self.tm_entrada = TipoMovimiento.objects.create(nombre="ENTRADA")
+        self.tm_salida  = TipoMovimiento.objects.create(nombre="SALIDA")
+
+        tipo_reference, bandera = TipoUnidadMedida.objects.get_or_create(tipo="0")
+        categoria_unidad,   bandera = CategoriaUnidadMedida.objects.get_or_create(nombre="Unidad")
+        self.fourfeb = datetime.datetime.strptime('04/02/2019', "%d/%m/%Y").date()
+
+        self.unidad = UnidadMedida.objects.create(
+            nombre="unidades",
+            categoria=categoria_unidad,
+            tipo_unidad=tipo_reference,
+            ratio=1,
+            simbolo="u"
+            )
+
+        self.vale01 = ValeAlmacenGeneral.objects.create(
+                no_folio="0001",
+                observaciones_grales="nada",
+                tipo_movimiento=self.tm_entrada,
+                fecha_vale=self.fourfeb,
+                persona_asociada=self.user02, # quien entrega
+                creador_vale=self.user01,
+            )
+
+        self.filtro = Producto.objects.create(nombre="Filtro")
+
+        self.filtro.maximum = 10
+        self.filtro.minimum = 2
+
+
+    def test_get_last_price_value(self):
+
+        MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.conteo,            
+            destino=self.bodega01,            
+            producto=self.filtro,
+            unidad=self.unidad,
+            cantidad=5, 
+            precio_unitario=120.5,
+            creador=self.user01,
+            observacion="1er movimiento please"
+        )
+        time.sleep(1.0)
+        MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.conteo,            
+            destino=self.bodega01,            
+            producto=self.filtro,
+            unidad=self.unidad,
+            cantidad=2, 
+            precio_unitario=140.5,
+            creador=self.user01,
+            observacion="1er movimiento please"
+        )
+        time.sleep(1.0)
+        MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.conteo,            
+            destino=self.bodega01,            
+            producto=self.filtro,
+            unidad=self.unidad,
+            cantidad=3, 
+            precio_unitario=160.5,
+            creador=self.user01,
+            observacion="1er movimiento please"
+        )
+        time.sleep(1.0)
+        self.vale02 = ValeAlmacenGeneral.objects.create(
+                no_folio="0002",
+                observaciones_grales="nada",
+                tipo_movimiento=self.tm_entrada,
+                fecha_vale=self.fourfeb,
+                persona_asociada=self.user02, # quien entrega
+                creador_vale=self.user01,
+            )
+
+        MovimientoGeneral.objects.create(
+            vale=self.vale02,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.conteo,            
+            destino=self.bodega01,            
+            producto=self.filtro,
+            unidad=self.unidad,
+            cantidad=5, 
+            precio_unitario=170,
+            creador=self.user01,
+            observacion="2do movimiento please"
+        )
+        self.assertEqual(self.filtro.last_purchase_price(), 170) 
+
+    def test_get_last_not_zero_price_value(self):
+
+        MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.conteo,            
+            destino=self.bodega01,            
+            producto=self.filtro,
+            unidad=self.unidad,
+            cantidad=5, 
+            precio_unitario=110,
+            creador=self.user01,
+            observacion="1er movimiento please"
+        )
+        time.sleep(1.0)
+        MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.conteo,            
+            destino=self.bodega01,            
+            producto=self.filtro,
+            unidad=self.unidad,
+            cantidad=2, 
+            precio_unitario=0,
+            creador=self.user01,
+            observacion="1er movimiento please"
+        )
+        time.sleep(1.0)
+        MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.conteo,            
+            destino=self.bodega01,            
+            producto=self.filtro,
+            unidad=self.unidad,
+            cantidad=3, 
+            precio_unitario=123,
+            creador=self.user01,
+            observacion="1er movimiento please"
+        )
+        time.sleep(1.0)
+        self.vale02 = ValeAlmacenGeneral.objects.create(
+                no_folio="0002",
+                observaciones_grales="nada",
+                tipo_movimiento=self.tm_entrada,
+                fecha_vale=self.fourfeb,
+                persona_asociada=self.user02, # quien entrega
+                creador_vale=self.user01,
+            )
+
+        MovimientoGeneral.objects.create(
+            vale=self.vale02,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.conteo,            
+            destino=self.bodega01,            
+            producto=self.filtro,
+            unidad=self.unidad,
+            cantidad=5, 
+            precio_unitario=0,
+            creador=self.user01,
+            observacion="2do movimiento please"
+        )
+        self.assertEqual(self.filtro.last_not_zero_purchase_price(), 123) 
+
+
+
+    def test_get_avg_price_value(self):
+
+        MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.conteo,            
+            destino=self.bodega01,            
+            producto=self.filtro,
+            unidad=self.unidad,
+            cantidad=5, 
+            precio_unitario=120.5,
+            creador=self.user01,
+            observacion="1er movimiento please"
+        )
+        time.sleep(1.0)
+        MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.conteo,            
+            destino=self.bodega01,            
+            producto=self.filtro,
+            unidad=self.unidad,
+            cantidad=2, 
+            precio_unitario=140.5,
+            creador=self.user01,
+            observacion="1er movimiento please"
+        )
+        time.sleep(1.0)
+        MovimientoGeneral.objects.create(
+            vale=self.vale01,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.conteo,            
+            destino=self.bodega01,            
+            producto=self.filtro,
+            unidad=self.unidad,
+            cantidad=3, 
+            precio_unitario=160.5,
+            creador=self.user01,
+            observacion="1er movimiento please"
+        )
+        time.sleep(1.0)
+        self.vale02 = ValeAlmacenGeneral.objects.create(
+                no_folio="0002",
+                observaciones_grales="nada",
+                tipo_movimiento=self.tm_entrada,
+                fecha_vale=self.fourfeb,
+                persona_asociada=self.user02, # quien entrega
+                creador_vale=self.user01,
+            )
+
+        MovimientoGeneral.objects.create(
+            vale=self.vale02,
+            tipo_movimiento=self.tm_entrada,
+            fecha_movimiento=self.fourfeb,            
+            origen=self.conteo,            
+            destino=self.bodega01,            
+            producto=self.filtro,
+            unidad=self.unidad,
+            cantidad=5, 
+            precio_unitario=170,
+            creador=self.user01,
+            observacion="2do movimiento please"
+        )
+        self.assertEqual(self.filtro.avg_purchase_price(), 147.875) 
+
+
+
 
 
 class ProductosMovimientoTestCase(TestCase):
