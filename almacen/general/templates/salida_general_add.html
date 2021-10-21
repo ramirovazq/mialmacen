@@ -36,6 +36,7 @@
                   <th> Producto </th>
                   <th> Unidad </th>
                   <th> Cantidad </th>
+                  <th> Precio unitario </th>
                   <th> Creador </th>
                   <th> Origen </th>
                   <th> Origen Specifico</th>
@@ -52,6 +53,7 @@
                   <td>{{movimiento.producto.nombre}}</td>
                   <td>{{movimiento.unidad.simbolo}} </td>
                   <td>{{movimiento.cantidad}} </td>
+                  <td>{{movimiento.precio_unitario}} </td>
                   <td>{{movimiento.creador}} </td>
                   <td>{{movimiento.origen}} </td>
                   <td>{% for x in movimiento.list_exact_positions %}{{x}}{% endfor %}</td>

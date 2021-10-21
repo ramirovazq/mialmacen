@@ -141,6 +141,7 @@ class ValeAlmacenGeneral(Vale): # catálogo de tipos de movimiento, ENTRADA, SAL
             else:
                 u = p.devuelve_unidad_referencia()
 
+            last_product_price = p.last_not_zero_purchase_price()
             m = MovimientoGeneral.objects.create(
                 vale = self,
                 tipo_movimiento = self.tipo_movimiento,
@@ -150,9 +151,9 @@ class ValeAlmacenGeneral(Vale): # catálogo de tipos de movimiento, ENTRADA, SAL
                 producto=p,
                 unidad=u,
                 cantidad=quantity_producto,
-                #precio_unitario=,
+                precio_unitario=last_product_price,
                 creador=self.creador_vale,
-                observacion="movimiento desde lector",
+                observacion="movimiento desde lector o app",
             )
             
             ProductoExactProfilePosition.objects.create(
@@ -178,6 +179,48 @@ class Producto(models.Model):
     class Meta:
         unique_together = (('nombre',
         ))
+
+    def last_purchase_price(self):
+        tm_entrada, _ = TipoMovimiento.objects.get_or_create(nombre="ENTRADA")
+        movimientos = MovimientoGeneral.objects.filter(
+            tipo_movimiento=tm_entrada,
+            producto=self,
+        ).order_by('-date_created')
+        if len(movimientos) == 0:
+            return 0
+        last_movimiento = movimientos[0]
+        return last_movimiento.precio_unitario
+
+    def last_not_zero_purchase_price(self):
+        tm_entrada, _ = TipoMovimiento.objects.get_or_create(nombre="ENTRADA")
+        movimientos = MovimientoGeneral.objects.filter(
+            tipo_movimiento=tm_entrada,
+            producto=self,
+        ).order_by('-date_created')
+
+        if len(movimientos) == 0:
+            return 0
+
+        last_price = 0
+        for movimiento in movimientos:
+            if movimiento.precio_unitario > 0:
+                return movimiento.precio_unitario
+        return last_price
+
+
+    def avg_purchase_price(self):
+        tm_entrada, _ = TipoMovimiento.objects.get_or_create(nombre="ENTRADA")
+        movimientos = MovimientoGeneral.objects.filter(
+            tipo_movimiento=tm_entrada,
+            producto=self,
+        ).order_by('-date_created')
+        number_movimientos = len(movimientos)
+        if number_movimientos == 0:
+            return 0
+        sum_prices = sum([movimiento.precio_unitario for movimiento in movimientos])
+        return sum_prices / number_movimientos
+
+
 
     def alarm_maximum_and_minimum(self):
         actual_quantity = self.inventory()[0]
@@ -241,10 +284,10 @@ class Producto(models.Model):
         return movimientos
 
     def movimientos_entrada(self):
-        return self.movimientos("ENTRADA")
+        return self.movimientos("ENTRADA").order_by('-date_created')
 
     def movimientos_salida(self):
-        return self.movimientos("SALIDA")
+        return self.movimientos("SALIDA").order_by('-date_created')
 
 
     def inventory(self, lugar=None):

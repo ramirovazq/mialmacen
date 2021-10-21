@@ -110,7 +110,7 @@ class ProfileBodegaViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication, SessionAuthentication)
     #permission_classes = (IsAuthenticated,)
 
-    tipo_bodega = Tipo.objects.get(nombre="BODEGA")
+    tipo_bodega, _ = Tipo.objects.get_or_create(nombre="BODEGA")
     queryset = Profile.objects.filter(tipo=tipo_bodega).order_by('user__username')
     serializer_class = ProfileSerializer
 
@@ -122,6 +122,6 @@ class ProfileEconomicoViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication, SessionAuthentication)
     #permission_classes = (IsAuthenticated,)
 
-    tipo_economico = Tipo.objects.get(nombre="ECONOMICO")
+    tipo_economico, _ = Tipo.objects.get_or_create(nombre="ECONOMICO")
     queryset = Profile.objects.filter(tipo=tipo_economico).order_by('user__username')
     serializer_class = ProfileSerializer
