@@ -17,7 +17,7 @@ class Command(BaseCommand):
         BA1N1	BODEGA_GENERAL>>ANAQUEL 1>>NIVEL DE ANAQUEL 1
         '''
 
-        with open(settings.BASE_DIR + '/load_init/ubicaciones10junio2021.csv') as csvfile_in:
+        with open(settings.BASE_DIR + '/load_init/ubicaciones01octubre2021_dos.csv') as csvfile_in:
             readCSV = csv.reader(csvfile_in, delimiter=';')
             profile_no_existente = 0
             profile_existente = 0

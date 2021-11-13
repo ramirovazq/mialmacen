@@ -50,12 +50,10 @@
               <thead>
                 <tr>
                   <th> id </th>
-                  <th> Fecha </th>
                   <th> Producto </th>
                   <th> Unidad </th>
                   <th> Cantidad </th>
-                  <th> Precio Unitario </th>                  
-
+                  <th> Precio unitario </th>
                   {% if vale.con_iva %}
                   <th> Total con IVA </th>
                   {% else %}
@@ -67,6 +65,7 @@
                   <th> Almacenado en</th>
                   <th> Almacen </th>
                   <th> Observaciones </th>
+                  <th> Fecha captura mov</th>
                   <th>  </th>
                 </tr>
               </thead>
@@ -74,31 +73,28 @@
                 {% for movimiento in vale.movimientos %}
                 <tr>
                   <td>{{movimiento.id}} </td>
-                  <td>{{movimiento.fecha_movimiento}}</td>
-                  <td>{{movimiento.producto.nombre}} (#{{movimiento.producto.id}})</td>
+                  <td>{{movimiento.producto.nombre}}</td>
                   <td>{{movimiento.unidad.simbolo}} </td>
                   <td>{{movimiento.cantidad}} </td>
                   <td>${{movimiento.precio_unitario|floatformat:2|intcomma}} </td>
-
                   <td>${{movimiento.precio_total|floatformat:2|intcomma}} </td>                  
 
                   <td>{{movimiento.creador}} </td>
-                  <td>{{movimiento.origen}} </td>
+                  <td>{{movimiento.origen}} </td> <!--  bien -->
                   <td>
                     {% if movimiento.list_exact_positions %}
-                    {% for x in movimiento.list_exact_positions %}{{x}}{% endfor %}
+                      {% for x in movimiento.list_exact_positions %}{{x}}{% endfor %}
                     {% else %}
-                      <form action="{% url 'entrada_general_add_movimiento_position' vale.id %}" method="post" id="entrada_add_movimiento_form" class="form-inline">
-                        {{form_position.as_p}}
-                        <input type="hidden" value="{{movimiento.id}}" name="id_movimiento" id="id_movimiento">
-                        <input type="submit" value="Agregar" class="btn btn-primary mb-2">
-                      </form>
+                      <a class="badge badge-primary" href="{% url 'movimiento_add_exact_position_historic' movimiento.id %}">Usa posiciones históricas</a>
+                      <a class="badge badge-info" href="{% url 'movimiento_add_exact_position' movimiento.id %}">Usar cualquier posición</a>
                     {% endif %}
                   </td>
-                  <td>{{movimiento.destino}} </td>
+                  <td>{{movimiento.destino}}</td> <!-- error -->
                   <td>{{movimiento.observacion}} </td>
-                  <td><a class="page-link" href="{% url 'entrada_general_erase_movimiento' vale.id  movimiento.id %}">borrar</a></td>
-                  
+                  <td>{{movimiento.date_created|date:"d/m/y H:i"}}</td>
+                  <td>
+                    <a class="page-link" href="{% url 'entrada_general_erase_movimiento' vale.id  movimiento.id %}">borrar</a>
+                  </td>
                 </tr>
                 {% endfor %}
               </tbody>

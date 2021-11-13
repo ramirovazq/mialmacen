@@ -1,0 +1,153 @@
+{% extends "base_bootstrap_general.html" %}
+{% load humanize %}
+
+{% block title_section %}
+<h1 class="h2">Factura de entrada Almacen General, Folio: #{{vale.no_folio}}</h1>
+<h2 class="h3">Selecciona posición exacta</h2>
+{% endblock %}
+
+{% block extra_title_section %}
+{% endblock %}
+
+
+{% block buttons_section %}
+
+
+<div class="row">
+    <div class="col">No. folio: {{vale.no_folio}}</div>
+    <div class="col">Tipo movimiento: {{vale.tipo_movimiento.nombre}}</div>
+    <div class="col"></div>
+  </div>
+
+  <div class="row">
+    <div class="col">Fecha vale: {{vale.fecha_vale|date:"D d/M/Y"}}</div>
+    <div class="col">Fecha captura: {{vale.fecha_created|date:"D d/M/y H:i"}}</div>
+    <div class="col">Proveedor: {{vale.persona_asociada}}</div>
+  </div>
+  
+  <br/><br/>
+
+ <div class="row">
+    <div class="col">Crea: {{vale.creador_vale.user.username}}</div>
+    <div class="col">{% if vale.con_iva %}Con IVA{% else %}Sin IVA{% endif %} ${{vale.total|floatformat:2|intcomma}}</div>
+  </div>
+
+{% if vale.observaciones_grales %}
+ <div class="row">
+    <div class="col">Observaciones: {{vale.observaciones_grales}}</div>
+  </div>
+{% endif %}
+
+  <br/><br/>
+
+
+  <div class="table-responsive">
+    <table class="table table-striped table-sm">
+      <thead>
+        <tr>
+          <th> id </th>
+          <th> Fecha </th>
+          <th> Producto </th>
+          <th> Unidad </th>
+          <th> Cantidad </th>
+          <th> Precio Unitario </th>                  
+
+          {% if vale.con_iva %}
+          <th> Total con IVA </th>
+          {% else %}
+          <th> Total sin IVA </th>
+          {% endif %}                  
+
+          <th> Creador </th>
+          <th> Origen </th>
+          <th> Almacenado en</th>
+          <th> Almacen </th>
+          <th> Observaciones </th>
+          <th>  </th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>{{movimiento.id}} </td>
+          <td>{{movimiento.fecha_movimiento}}</td>
+          <td>{{movimiento.producto.nombre}} (#{{movimiento.producto.id}})</td>
+          <td>{{movimiento.unidad.simbolo}} </td>
+          <td>{{movimiento.cantidad}} </td>
+          <td>${{movimiento.precio_unitario|floatformat:2|intcomma}} </td>
+
+          <td>${{movimiento.precio_total|floatformat:2|intcomma}} </td>                  
+
+          <td>{{movimiento.creador}} </td>
+          <td>{{movimiento.origen}} </td>
+          <td>
+            {% if movimiento.list_exact_positions %}
+                {% for x in movimiento.list_exact_positions %}{{x}}{% endfor %}
+            {% else %}
+
+            <form 
+                action="{% url 'movimiento_add_exact_position' movimiento.id %}" 
+                method="post" 
+                id="entrada_add_movimiento_form" 
+                class="form-inline">
+            {{form_position.as_p}}
+            <input type="submit" value="Agregar" class="btn btn-primary mb-2"></br>
+            <a class="page-link" href="{% url 'entrada_general_add' vale.id  %}">Cancelar</a
+            </form>
+            
+            {% endif %}
+          </td>
+          <td>{{movimiento.destino}}</td>
+          <td>{{movimiento.observacion}} </td>
+          <td></td>
+          
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+
+
+
+{% endblock %}
+
+
+{% block section %}
+<div class="row">
+            <div class="table-responsive">
+            <table class="table table-striped table-sm">
+              <thead>
+                <tr>
+                  <th> id </th>
+                  <th> Fecha creación</th>
+                  <th> Archivo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for archivos in adjuntosarchivos %}
+                <tr>
+                  <td>{{archivos.id}} </td>
+                  <td>{{archivos.fecha_created}}</td>
+                  <td>{{archivos.upload}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          </div>
+
+{% endblock %}
+
+{% block javascript_bottom %}
+          <script>
+          $( function() {
+
+            $( "#boton_limpiar" ).click(function(){
+                $('#adjuntar_form').trigger("reset");
+                window.location = "{% url 'entrada_adjuntar' vale.id %}";
+
+            });
+          });
+          </script>
+{% endblock %}

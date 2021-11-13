@@ -266,9 +266,58 @@ def entrada_general_add(request, vale_id):
     else:
         form = MovimientoEntradaGeneralForm()
 
-    context['form_position'] = PositionForm()
+
     context["form"] = form
     return render(request, 'entrada_general_add.html', context)
+
+@login_required
+def movimiento_add_exact_position(request, movimiento_id):
+    context = {}
+    obj = get_object_or_404(MovimientoGeneral, pk=movimiento_id)
+    context["vale"] = obj.vale
+    context["movimiento"] = obj
+
+    if request.method == 'POST':
+        position_instance = ProductoExactProfilePosition(
+            movimiento=obj
+        )
+        form = PositionForm(request.POST, instance=position_instance) # MovimientoGeneral
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.SUCCESS, 'Se asocia una posicion para el producto de forma exitosa')
+            return HttpResponseRedirect(reverse('entrada_general_add', kwargs={"vale_id": obj.vale.id}))
+        else:
+            messages.add_message(request, messages.ERROR, 'No se pudo asociar un producto a una posicion')
+
+    context['form_position'] = PositionForm()
+    return render(request, 'movimiento_add_position.html', context)
+
+@login_required
+def movimiento_add_exact_position_historic(request, movimiento_id):
+    context = {}
+
+    movimiento = get_object_or_404(MovimientoGeneral, pk=movimiento_id)
+    context["vale"] = movimiento.vale
+    context["movimiento"] = movimiento
+
+    if request.method == 'POST':
+        if 'position' in request.POST.keys():
+            selected = request.POST['position']
+            print(f"position: {selected}")
+            profileposition = get_object_or_404(ProfilePosition, pk=selected)
+            ProductoExactProfilePosition.objects.create(
+                movimiento=movimiento,
+                exactposition=profileposition
+            )
+            messages.add_message(request, messages.SUCCESS, 'Se asocia una posicion para el producto de forma exitosa')
+            print(f"SUCESS")
+            return HttpResponseRedirect(reverse('entrada_general_add', kwargs={"vale_id": movimiento.vale.id}))
+        else:
+            messages.add_message(request, messages.ERROR, 'No se pudo asociar un producto a una posicion')
+
+    return render(request, 'movimiento_add_position_historic.html', context)
+
+
 
 @login_required
 def entrada_general_add_movimiento_position(request, vale_id):
