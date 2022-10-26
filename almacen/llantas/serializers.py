@@ -71,3 +71,30 @@ class MovimientoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movimiento
         fields = '__all__'
+
+class MarcaSpecificSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Marca
+        fields = ['nombre']
+
+class LlantaSpecificSerializer(serializers.ModelSerializer):
+    marca    = MarcaSpecificSerializer(read_only=True)
+    medida   = MedidaSerializer(read_only=True)
+    posicion = PosicionSerializer(read_only=True)
+    status   = StatusSerializer(read_only=True)
+    cantidad = serializers.SerializerMethodField()
+    detalle = serializers.SerializerMethodField()
+
+    def get_cantidad(self, obj):
+        return obj.cantidad_actual_total()
+
+    def get_detalle(self, obj):
+        return obj.total_ubicaciones_detail_endpoint()
+
+#    def create(self, validated_data):
+ #       return Llanta.objects.create(**validated_data)
+
+    class Meta:
+        model = Llanta
+        fields = '__all__'
+        depth = 1

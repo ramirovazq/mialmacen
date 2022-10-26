@@ -6,3 +6,5 @@
 db.sqlite3
 obsolete
 media
+production.py
+almacen/settings/production.py
