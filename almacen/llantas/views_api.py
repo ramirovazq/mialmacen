@@ -9,7 +9,9 @@ from rest_framework import status
 from .models import *
 from persona.models import Profile, Tipo
 
-from .serializers import ValeSerializer, LlantaSerializer, ProfileSerializer, MovimientoSerializer
+from .serializers import ValeSerializer, LlantaSerializer, ProfileSerializer
+from .serializers import MovimientoSerializer, MarcaLlantaSerializer
+from .serializers import LlantaSpecificSerializer
 
 ## curl -X GET http://127.0.0.1:8000/api/v0/vale/ -H 'Authorization: Token ABCDEF343434342234234KMLMKMLKM'
 class MovimientoViewSet(viewsets.ModelViewSet):
@@ -49,7 +51,7 @@ class LlantaViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
     queryset = Llanta.objects.all()
-    serializer_class = LlantaSerializer
+    serializer_class = LlantaSpecificSerializer
 
 
 class EconomicoViewSet(viewsets.ModelViewSet):

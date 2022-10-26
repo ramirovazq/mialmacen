@@ -224,6 +224,71 @@ def render_to_xls_productos(queryset, filename, rows_with_products=True):
     return response
 
 
+def generate_to_xls_productos(queryset, filename, rows_with_products=True):
+    
+    ezxf = xlwt.easyxf
+    book = xlwt.Workbook(encoding="utf-8")
+    sheet = book.add_sheet("productos", cell_overwrite_ok=True)
+
+    font_style = xlwt.XFStyle()
+    font_style.font.bold = True
+    columns = [
+            'Id artículo'
+            'Artículo',
+            'Cantidad',
+            'Unidad',
+            'Lugar',
+            'Mínimo',
+            'Máximo',
+            "Alarma de mínimo",
+            "Alarma de máximo"
+    ]
+    # columns
+    for col_num in range(len(columns)):
+        sheet.write(0, col_num, columns[col_num], font_style)
+
+    i = 0
+    for index, product in enumerate(queryset):        
+        i = i+1
+        row = sheet.row(i)
+        actual_quantity, uni = product.inventory()
+        str_alarm_minimum = "Apagado"
+        str_alarm_maximum = "Apagado"
+        if product.alarm_minimum():
+            str_alarm_minimum = "Encendido"
+        if product.alarm_maximum():
+            str_alarm_maximum = "Encendido"
+        row_values = [product.id, product.nombre, actual_quantity, str(uni), str(product.positions_inventory()), product.minimum, product.maximum, str_alarm_minimum, str_alarm_maximum]
+        for index, value in enumerate(row_values):
+            row.write(index, value)
+
+
+    #response = HttpResponse(content_type='application/vnd.ms-excel')
+    #response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    book.save(filename)
+
+
+    '''
+    from datetime import datetime
+
+    style0 = xlwt.easyxf('font: name Times New Roman, color-index red, bold on',
+        num_format_str='#,##0.00')
+    style1 = xlwt.easyxf(num_format_str='D-MMM-YY')
+
+    wb = xlwt.Workbook()
+    ws = wb.add_sheet('A Test Sheet')
+
+    ws.write(0, 0, 1234.56, style0)
+    ws.write(1, 0, datetime.now(), style1)
+    ws.write(2, 0, 1)
+    ws.write(2, 1, 1)
+    ws.write(2, 2, xlwt.Formula("A3+B3"))
+
+    wb.save(filename)
+    '''
+
+    return True
+
 def render_to_xls_movimientos(queryset, filename):
 
     ezxf = xlwt.easyxf
