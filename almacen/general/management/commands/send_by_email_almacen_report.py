@@ -31,6 +31,5 @@ class Command(BaseCommand):
 
         options_emails = options['emails']
         options_emails = options_emails[1:]
-        for email in options_emails:
-            send_mail(SUBJECT, MESSAGE + url_file, EMAIL_SENDER, [email], fail_silently=False)
-            self.stdout.write(self.style.SUCCESS('Successfully send email to "%s"' % email))
+        send_mail(SUBJECT, MESSAGE + url_file, EMAIL_SENDER, options_emails, fail_silently=False)
+        self.stdout.write(self.style.SUCCESS('Successfully send email to "%s"' % options_emails))
